@@ -1,4 +1,4 @@
-[![pipeline status][gitlab-ci-badge]][gitlab-repo-master]
+[![pipeline status][gitlab-ci-badge]][gitlab-repo-master] [![crates.io][crates-io-badge]][crates-io-page]
 
 # Discord RPC Client
 
@@ -21,3 +21,5 @@ Examples can be found in the examples directory in this repo.
 
 [gitlab-ci-badge]: https://gitlab.com/valeth/discord-rpc-client.rs/badges/master/pipeline.svg
 [gitlab-repo-master]: https://gitlab.com/valeth/discord-rpc-client.rs/commits/master
+[crates-io-badge]: https://img.shields.io/crates/v/discord-rpc-client.svg
+[crates-io-page]: https://crates.io/crates/discord-rpc-client
