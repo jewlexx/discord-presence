@@ -1,4 +1,4 @@
-[![pipeline status][gitlab-ci-badge]][gitlab-repo-master] [![crates.io][crates-io-badge]][crates-io-page]
+[![Build Status][travis-ci-badge]][travis-ci-page] [![crates.io][crates-io-badge]][crates-io-page]
 
 # Discord RPC Client
 
@@ -23,3 +23,5 @@ Examples can be found in the examples directory in this repo.
 [gitlab-repo-master]: https://gitlab.com/valeth/discord-rpc-client.rs/commits/master
 [crates-io-badge]: https://img.shields.io/crates/v/discord-rpc-client.svg
 [crates-io-page]: https://crates.io/crates/discord-rpc-client
+[travis-ci-badge]: https://travis-ci.org/valeth/discord-rpc-client.rs.svg?branch=master
+[travis-ci-page]: https://travis-ci.org/valeth/discord-rpc-client.rs
