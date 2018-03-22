@@ -12,8 +12,12 @@ extern crate uuid;
 #[macro_use]
 mod macros;
 
+mod connection;
 mod models;
 pub mod client;
 
-pub use models::prelude;
 pub use client::Client;
+pub use models::prelude;
+
+#[cfg(unix)]
+pub use connection::UnixConnection;
