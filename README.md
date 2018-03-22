@@ -2,6 +2,8 @@
 
 Discord RPC client for Rust
 
+> *Note*: Only works on **Unix** systems right now.
+
 ## Installation
 
 Add this to your `Cargo.toml`:
