@@ -13,6 +13,7 @@ serde        = "^1.0"
 serde_derive = "^1.0"
 serde_json   = "^1.0"
 byte         = "0.2"
+log          = "~0.4"
 
 [dependencies.uuid]
 version  = "^0.6.2"
@@ -21,3 +22,6 @@ features = ["v4"]
 [features]
 default = ["rich_presence"]
 rich_presence = []
+
+[workspace]
+members = ["examples/discord_presence"]

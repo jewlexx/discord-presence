@@ -54,12 +54,12 @@ impl Client {
     fn send<T>(&mut self, opcode: u32, payload: T) -> Result<()>
         where T: Payload + Debug
     {
-        println!("payload: {:#?}", payload);
+        debug!("payload: {:#?}", payload);
         match Message::new(opcode, payload).encode() {
-            Err(why) => println!("{:?}", why),
+            Err(why) => error!("{:?}", why),
             Ok(bytes) => {
                 self.socket.write_all(bytes.as_ref())?;
-                println!("sent opcode: {}", opcode);
+                debug!("sent opcode: {}", opcode);
                 self.receive()?;
             }
         };
@@ -70,7 +70,7 @@ impl Client {
     fn receive(&mut self) -> Result<()> {
         let mut buf: Vec<u8> = Vec::with_capacity(1024);
         self.socket.read(buf.as_mut_slice())?;
-        println!("{:?}", buf);
+        debug!("{:?}", buf);
         Ok(())
     }
 }
