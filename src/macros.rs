@@ -1,12 +1,16 @@
 macro_rules! message_func {
     [ $name:ident, $type:tt func ] => {
-        pub fn $name<F: FnOnce($type) -> $type>(mut self, func: F) -> Self {
+        pub fn $name<F>(mut self, func: F) -> Self
+            where F: FnOnce($type) -> $type
+        {
             self.$name = Some(func($type::default())); self
         }
     };
 
     [ $name:ident, String ] => {
-        pub fn $name<S: Into<String>>(mut self, value: S) -> Self {
+        pub fn $name<S>(mut self, value: S) -> Self
+            where S: Into<String>
+        {
             self.$name = Some(value.into()); self
         }
     };
@@ -37,7 +41,7 @@ macro_rules! message_format {
         message_format![ @st
             ( $name $($rest)* ) -> (
                 #[serde(skip_serializing_if = "Option::is_none")]
-                pub $field: Option<$type>,
+                $field: Option<$type>,
                 $($out)*
             )
         ];

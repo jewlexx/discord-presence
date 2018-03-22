@@ -3,9 +3,9 @@ use super::Payload;
 
 #[derive(Debug, Default, Serialize)]
 pub struct Handshake {
-    pub nonce: String,
-    pub v: u32,
-    pub client_id: String,
+    nonce: String,
+    v: u32,
+    client_id: String,
 }
 
 impl Handshake {

@@ -14,9 +14,11 @@ pub use self::set_activity::*;
 pub trait Payload: Serialize {}
 
 pub mod prelude {
-    pub use super::message::Message;
-    pub use super::command::Command;
-    pub use super::handshake::Handshake;
-    #[cfg(feature = "rich_presence")]
-    pub use super::set_activity::SetActivity;
+    pub use super::set_activity::{
+        SetActivity,
+        SetActivityAssets,
+        SetActivityParty,
+        SetActivitySecrets,
+        SetActivityTimestamps
+    };
 }

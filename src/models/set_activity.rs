@@ -1,10 +1,10 @@
 use std::process::id as pid;
-use models::prelude::Command;
+use models::Command;
 
 #[derive(Debug, Default, Serialize)]
 pub struct SetActivityArgs {
-    pub pid: u32,
-    pub activity: SetActivity,
+    pid: u32,
+    activity: SetActivity,
 }
 
 impl SetActivityArgs {

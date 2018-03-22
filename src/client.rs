@@ -9,8 +9,8 @@ use models::{SetActivityArgs, SetActivity};
 
 #[derive(Debug)]
 pub struct Client {
-    pub client_id: u64,
-    pub version: u32,
+    client_id: u64,
+    version: u32,
     socket: UnixStream,
 }
 
