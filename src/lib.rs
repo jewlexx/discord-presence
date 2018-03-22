@@ -7,7 +7,10 @@ extern crate serde_json;
 extern crate byte;
 extern crate uuid;
 
-mod models;
-mod client;
+#[macro_use]
+mod macros;
+
+pub mod models;
+pub mod client;
 
 pub use client::Client;
