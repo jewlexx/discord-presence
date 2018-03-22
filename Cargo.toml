@@ -1,0 +1,23 @@
+[package]
+authors     = ["Patrick Auernig <dev.patrick.auernig@gmail.com>"]
+name        = "discord-rpc-client"
+description = "A Rust client for Discord RPC."
+keywords    = ["discord", "rpc", "ipc"]
+license     = "MIT"
+readme      = "README.md"
+repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
+version     = "0.1.0"
+
+[dependencies]
+serde        = "^1.0"
+serde_derive = "^1.0"
+serde_json   = "^1.0"
+byte         = "0.2"
+
+[dependencies.uuid]
+version  = "^0.6.2"
+features = ["v4"]
+
+[features]
+default = ["rich_presence"]
+rich_presence = []

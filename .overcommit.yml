@@ -1,0 +1,13 @@
+PreCommit:
+  TrailingWhitespace:
+   enabled: true
+   exclude:
+     - 'target/**/*'
+
+PrePush:
+  CargoTest:
+    enabled: true
+    description: 'Run Cargo tests'
+    required_executable: 'cargo'
+    flags: ['test', '--all']
+    include: "**/*.rs"
