@@ -1,0 +1,20 @@
+variables:
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo
+
+.cached: &cached
+  cache:
+    key: $CI_COMMIT_REF_NAME
+    untracked: true
+    paths:
+      - target/
+      - .cargo/
+
+.test_job: &test_job
+  <<: *cached
+  environment: test
+
+test:rust_1_23_0:
+  <<: *test_job
+  image: "rust:1.23.0"
+  script:
+    - cargo test --all
