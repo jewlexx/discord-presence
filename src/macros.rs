@@ -21,8 +21,9 @@ macro_rules! message_func {
 macro_rules! message_format {
     [ @st ( $name:ident $field:tt: $type:tt alias = $alias:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
         message_format![ @st
-            ( $name $field: $type, $($rest)* ) -> (
-                #[serde(rename = $alias)]
+            ( $name $($rest)* ) -> (
+                #[serde(skip_serializing_if = "Option::is_none", rename = $alias)]
+                pub $field: Option<$type>,
                 $($out)*
             )
         ];
