@@ -19,6 +19,10 @@ discord-rpc-client = "^0.1"
 
 Examples can be found in the examples directory in this repo.
 
+## Contributions
+
+See [CONTRIBUTING.md](CONTRIBUTING.md)
+
 [gitlab-ci-badge]: https://gitlab.com/valeth/discord-rpc-client.rs/badges/master/pipeline.svg
 [gitlab-repo-master]: https://gitlab.com/valeth/discord-rpc-client.rs/commits/master
 [crates-io-badge]: https://img.shields.io/crates/v/discord-rpc-client.svg
