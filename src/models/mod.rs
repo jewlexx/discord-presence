@@ -5,7 +5,7 @@ mod handshake;
 mod set_activity;
 
 use serde::Serialize;
-pub use self::message::Message;
+pub use self::message::{Message, OpCode};
 pub use self::command::Command;
 pub use self::handshake::Handshake;
 #[cfg(feature = "rich_presence")]

@@ -1,6 +1,6 @@
 use std::io::Result;
 use connection::Connection;
-use models::Handshake;
+use models::{Handshake, OpCode};
 #[cfg(feature = "rich_presence")]
 use models::{SetActivityArgs, SetActivity};
 
@@ -31,7 +31,7 @@ impl<T> Client<T>
         where F: FnOnce(SetActivity) -> SetActivity
     {
         let args = SetActivityArgs::command(f(SetActivity::new()));
-        self.socket.send(1, args)?;
+        self.socket.send(OpCode::Frame, args)?;
         Ok(())
     }
 
@@ -40,7 +40,7 @@ impl<T> Client<T>
     fn handshake(&mut self) -> Result<()> {
         let client_id = self.client_id;
         let version = self.version;
-        self.socket.send(0, Handshake::new(client_id, version))?;
+        self.socket.send(OpCode::Handshake, Handshake::new(client_id, version))?;
         Ok(())
     }
 }

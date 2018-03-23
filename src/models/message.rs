@@ -3,6 +3,12 @@ use byte::ctx::{Endian, LE, Str};
 use serde_json;
 use serde::Serialize;
 
+#[derive(Debug, Copy, Clone)]
+pub enum OpCode {
+    Handshake,
+    Frame,
+}
+
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 #[repr(C)]
 pub struct Message {
@@ -31,11 +37,11 @@ impl TryWrite<Endian> for Message {
 }
 
 impl Message {
-    pub fn new<T>(opcode: u32, message: T) -> Self
+    pub fn new<T>(opcode: OpCode, message: T) -> Self
         where T: Serialize
     {
         Message {
-            opcode,
+            opcode: opcode as u32,
             message: serde_json::to_string(&message).unwrap()
         }
     }
@@ -65,7 +71,7 @@ mod tests {
 
     #[test]
     fn test_encoder() {
-        let msg = Message::new(1, Something { empty: true });
+        let msg = Message::new(OpCode::Frame, Something { empty: true });
         let encoded = msg.encode().unwrap();
         let decoded = Message::decode(encoded.as_ref()).unwrap();
         assert_eq!(msg, decoded);

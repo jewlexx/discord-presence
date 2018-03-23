@@ -6,7 +6,7 @@ use std::env;
 use std::fmt::Debug;
 use models::Payload;
 
-use models::Message;
+use models::{Message, OpCode};
 use super::base::Connection;
 
 pub struct UnixConnection {
@@ -41,7 +41,7 @@ impl Connection for UnixConnection {
         Ok(Self { socket })
     }
 
-    fn send<T>(&mut self, opcode: u32, payload: T) -> Result<()>
+    fn send<T>(&mut self, opcode: OpCode, payload: T) -> Result<()>
         where T: Payload + Debug
     {
         debug!("payload: {:#?}", payload);
@@ -49,7 +49,7 @@ impl Connection for UnixConnection {
             Err(why) => error!("{:?}", why),
             Ok(bytes) => {
                 self.socket.write_all(bytes.as_ref())?;
-                debug!("sent opcode: {}", opcode);
+                debug!("sent opcode: {:?}", opcode);
                 self.recv()?;
             }
         };
