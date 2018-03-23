@@ -1,4 +1,4 @@
-use std::process::id as pid;
+use libc::getpid;
 use models::Command;
 
 #[derive(Debug, Default, Serialize)]
@@ -10,7 +10,7 @@ pub struct SetActivityArgs {
 impl SetActivityArgs {
     pub fn command(args: SetActivity) -> Command<Self> {
         Command::new("SET_ACTIVITY", Self {
-            pid: pid(),
+            pid: unsafe { getpid() as u32 },
             activity: args
         })
     }

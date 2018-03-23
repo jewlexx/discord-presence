@@ -1,5 +1,3 @@
-#![feature(getpid)]
-
 #[macro_use]
 extern crate log;
 #[macro_use]
@@ -8,6 +6,7 @@ extern crate serde;
 extern crate serde_json;
 extern crate byte;
 extern crate uuid;
+extern crate libc;
 
 #[macro_use]
 mod macros;
