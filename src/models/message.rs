@@ -49,7 +49,6 @@ impl Message {
     pub fn encode(&self) -> Result<Vec<u8>> {
         let mut bytes: Vec<u8> = vec![0; 2*4+self.message.len()];
         bytes.write_with(&mut 0, self.clone(), LE)?;
-        bytes.shrink_to_fit();
         Ok(bytes)
     }
 
