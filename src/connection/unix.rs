@@ -57,9 +57,10 @@ impl Connection for UnixConnection {
     }
 
     fn recv(&mut self) -> Result<Vec<u8>> {
-        let mut buf: Vec<u8> = Vec::with_capacity(1024);
-        self.socket.read(buf.as_mut_slice())?;
-        debug!("{:?}", buf);
+        let mut buf: Vec<u8> = vec![0; 1024];
+        let n = self.socket.read(buf.as_mut_slice())?;
+        buf.resize(n, 0);
+        debug!("{:?}", Message::decode(buf.as_ref()));
         Ok(buf)
     }
 }
