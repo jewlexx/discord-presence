@@ -1,17 +1,29 @@
 use std::io::{self, Write, Read, Result};
+use std::convert::From;
 use byteorder::{WriteBytesExt, ReadBytesExt, LittleEndian};
 use serde_json;
 use serde::Serialize;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum OpCode {
     Handshake,
     Frame,
+    Invalid,
 }
 
-#[derive(Debug, Default, Clone, PartialEq)]
+impl From<u32> for OpCode {
+    fn from(int: u32) -> Self {
+        match int {
+            0 => OpCode::Handshake,
+            1 => OpCode::Frame,
+            _ => OpCode::Invalid,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct Message {
-    opcode:  u32,
+    opcode:  OpCode,
     message: String,
 }
 
@@ -20,14 +32,14 @@ impl Message {
         where T: Serialize
     {
         Message {
-            opcode: opcode as u32,
+            opcode: opcode,
             message: serde_json::to_string(&message).unwrap()
         }
     }
 
     pub fn encode(&self) -> Result<Vec<u8>> {
         let mut bytes: Vec<u8> = vec![];
-        bytes.write_u32::<LittleEndian>(self.opcode)?;
+        bytes.write_u32::<LittleEndian>(self.opcode as u32)?;
         bytes.write_u32::<LittleEndian>(self.message.len() as u32)?;
         write!(bytes, "{}", self.message)?;
         Ok(bytes)
@@ -36,7 +48,7 @@ impl Message {
     pub fn decode(bytes: &[u8]) -> Result<Self> {
         let mut reader = io::Cursor::new(bytes);
         let mut message = String::new();
-        let opcode = reader.read_u32::<LittleEndian>()?;
+        let opcode = OpCode::from(reader.read_u32::<LittleEndian>()?);
         reader.read_u32::<LittleEndian>()?;
         reader.read_to_string(&mut message)?;
         Ok(Message { opcode, message })
