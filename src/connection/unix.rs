@@ -60,7 +60,7 @@ impl Connection for UnixConnection {
         let mut buf: Vec<u8> = vec![0; 1024];
         let n = self.socket.read(buf.as_mut_slice())?;
         buf.resize(n, 0);
-        debug!("{:?}", Message::decode(buf.as_ref()));
+        debug!("{:?}", Message::decode(&buf));
         Ok(buf)
     }
 }

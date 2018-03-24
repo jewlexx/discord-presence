@@ -1,5 +1,5 @@
-use byte::{TryRead, TryWrite, BytesExt, Result};
-use byte::ctx::{Endian, LE, Str};
+use std::io::{self, Write, Read, Result};
+use byteorder::{WriteBytesExt, ReadBytesExt, LittleEndian};
 use serde_json;
 use serde::Serialize;
 
@@ -9,31 +9,10 @@ pub enum OpCode {
     Frame,
 }
 
-#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
-#[repr(C)]
+#[derive(Debug, Default, Clone, PartialEq)]
 pub struct Message {
     opcode:  u32,
     message: String,
-}
-
-impl<'a> TryRead<'a, Endian> for Message {
-    fn try_read(bytes: &'a [u8], endian: Endian) -> Result<(Self, usize)> {
-        let offset = &mut 0;
-        let opcode: u32 = bytes.read_with(offset, endian)?;
-        let message_length = bytes.read_with::<u32>(offset, endian)? as usize;
-        let message = bytes.read_with::<&str>(offset, Str::Len(message_length))?.to_string();
-        Ok((Message { opcode, message }, *offset))
-    }
-}
-
-impl TryWrite<Endian> for Message {
-    fn try_write(self, bytes: &mut [u8], endian: Endian) -> Result<usize> {
-        let offset = &mut 0;
-        bytes.write_with::<u32>(offset, self.opcode, endian)?;
-        bytes.write_with::<u32>(offset, self.message.len() as u32, endian)?;
-        bytes.write_with::<&str>(offset, self.message.as_ref(), ())?;
-        Ok(*offset)
-    }
 }
 
 impl Message {
@@ -47,15 +26,20 @@ impl Message {
     }
 
     pub fn encode(&self) -> Result<Vec<u8>> {
-        let mut bytes: Vec<u8> = vec![0; 2*4+self.message.len()];
-        bytes.write_with(&mut 0, self.clone(), LE)?;
+        let mut bytes: Vec<u8> = vec![];
+        bytes.write_u32::<LittleEndian>(self.opcode)?;
+        bytes.write_u32::<LittleEndian>(self.message.len() as u32)?;
+        write!(bytes, "{}", self.message)?;
         Ok(bytes)
     }
 
-    #[allow(dead_code)]
-    pub fn decode<'a>(bytes: &'a [u8]) -> Result<Self> {
-        let message: Message = bytes.read_with(&mut 0, LE)?;
-        Ok(message)
+    pub fn decode(bytes: &[u8]) -> Result<Self> {
+        let mut reader = io::Cursor::new(bytes);
+        let mut message = String::new();
+        let opcode = reader.read_u32::<LittleEndian>()?;
+        reader.read_u32::<LittleEndian>()?;
+        reader.read_to_string(&mut message)?;
+        Ok(Message { opcode, message })
     }
 }
 
@@ -72,7 +56,7 @@ mod tests {
     fn test_encoder() {
         let msg = Message::new(OpCode::Frame, Something { empty: true });
         let encoded = msg.encode().unwrap();
-        let decoded = Message::decode(encoded.as_ref()).unwrap();
+        let decoded = Message::decode(&encoded).unwrap();
         assert_eq!(msg, decoded);
     }
 }
