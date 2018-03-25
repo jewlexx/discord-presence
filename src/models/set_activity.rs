@@ -1,16 +1,16 @@
-use libc::getpid;
 use models::Command;
+use utils::pid;
 
 #[derive(Debug, Default, Serialize)]
 pub struct SetActivityArgs {
-    pid: u32,
+    pid: i32,
     activity: SetActivity,
 }
 
 impl SetActivityArgs {
     pub fn command(args: SetActivity) -> Command<Self> {
         Command::new("SET_ACTIVITY", Self {
-            pid: unsafe { getpid() as u32 },
+            pid: pid(),
             activity: args
         })
     }
