@@ -9,7 +9,7 @@ repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
 version     = "0.1.4"
 
 [badges]
-gitlab      = { repository = "valeth/discord-rpc-client.rs" }
+# gitlab      = { repository = "valeth/discord-rpc-client.rs" }
 travis-ci   = { repository = "valeth/discord-rpc-client.rs" }
 maintenance = { status = "experimental" }
 
@@ -29,5 +29,5 @@ features = ["v4"]
 default = ["rich_presence"]
 rich_presence = []
 
-[workspace]
-members = ["examples/discord_presence"]
+# [workspace]
+# members = ["examples/discord_presence"]
