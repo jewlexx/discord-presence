@@ -2,7 +2,7 @@ use std::io::Result;
 use connection::Connection;
 use models::{Handshake, OpCode};
 #[cfg(feature = "rich_presence")]
-use models::{SetActivityArgs, SetActivity};
+use rich_presence::{SetActivityArgs, SetActivity};
 
 #[derive(Debug)]
 pub struct Client<T>

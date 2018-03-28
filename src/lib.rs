@@ -14,10 +14,14 @@ mod macros;
 mod utils;
 mod connection;
 mod models;
+mod rich_presence;
+
 pub mod client;
 
 pub use client::Client;
-pub use models::prelude;
+
+#[cfg(feature = "rich_presence")]
+pub use rich_presence::*;
 
 #[cfg(unix)]
 pub use connection::UnixConnection;
