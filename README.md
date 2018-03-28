@@ -23,9 +23,18 @@ Examples can be found in the examples directory in this repo.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
 
+## Support
+
+[![Discord Banner][discord-banner]][discord-invite]
+
+
+<!-- links -->
+
 [gitlab-ci-badge]: https://gitlab.com/valeth/discord-rpc-client.rs/badges/master/pipeline.svg
 [gitlab-repo-master]: https://gitlab.com/valeth/discord-rpc-client.rs/commits/master
 [crates-io-badge]: https://img.shields.io/crates/v/discord-rpc-client.svg
 [crates-io-page]: https://crates.io/crates/discord-rpc-client
 [travis-ci-badge]: https://travis-ci.org/valeth/discord-rpc-client.rs.svg?branch=master
 [travis-ci-page]: https://travis-ci.org/valeth/discord-rpc-client.rs
+[discord-invite]: https://discordapp.com/invite/zfavwrA
+[discord-banner]: https://discordapp.com/api/guilds/200751504175398912/widget.png?style=banner2
