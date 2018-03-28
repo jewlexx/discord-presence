@@ -1,5 +1,5 @@
-use uuid::Uuid;
 use super::Payload;
+use utils::nonce;
 
 #[derive(Debug, Default, Serialize)]
 pub struct Handshake {
@@ -11,7 +11,7 @@ pub struct Handshake {
 impl Handshake {
     pub fn new(client_id: u64, version: u32) -> Self {
         Self {
-            nonce: Uuid::new_v4().to_string(),
+            nonce: nonce(),
             v: version,
             client_id: client_id.to_string()
         }

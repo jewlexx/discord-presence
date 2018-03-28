@@ -1,6 +1,6 @@
 use serde::Serialize;
-use uuid::Uuid;
 use super::Payload;
+use utils::nonce;
 
 #[derive(Debug, Default, Serialize)]
 pub struct Command<T>
@@ -19,7 +19,7 @@ impl<T> Command<T>
     {
         Command {
             cmd: cmd.into(),
-            nonce: Uuid::new_v4().to_string(),
+            nonce: nonce(),
             args: args
         }
     }
