@@ -54,49 +54,66 @@ mod tests {
     use super::*;
     use serde_json;
 
+    const FULL_JSON: &'static str =
+r###"{
+  "state": "rusting",
+  "details": "detailed",
+  "instance": true,
+  "timestamps": {
+    "start": 1000,
+    "end": 2000
+  },
+  "assets": {
+    "large_image": "ferris",
+    "large_text": "Ferris",
+    "small_image": "rusting",
+    "small_text": "Rusting..."
+  },
+  "party": {
+    "id": 1,
+    "size": [
+      3,
+      6
+    ]
+  },
+  "secrets": {
+    "join": "025ed05c71f639de8bfaa0d679d7c94b2fdce12f",
+    "spectate": "e7eb30d2ee025ed05c71ea495f770b76454ee4e0",
+    "match": "4b2fdce12f639de8bfa7e3591b71a0d679d7c93f"
+  }
+}"###;
+
     #[test]
-    fn test_set_activity_serialize() {
+    fn test_serialize_full_activity() {
         let activity = SetActivity::new()
             .state("rusting")
-            .instance(true);
+            .details("detailed")
+            .instance(true)
+            .timestamps(|t| t
+                .start(1000)
+                .end(2000))
+            .assets(|a| a
+                .large_image("ferris")
+                .large_text("Ferris")
+                .small_image("rusting")
+                .small_text("Rusting..."))
+            .party(|p| p
+                .id(1)
+                .size((3, 6)))
+            .secrets(|s| s
+                .join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
+                .spectate("e7eb30d2ee025ed05c71ea495f770b76454ee4e0")
+                .game("4b2fdce12f639de8bfa7e3591b71a0d679d7c93f"));
+
+        let json = serde_json::to_string_pretty(&activity).unwrap();
+
+        assert_eq![json, FULL_JSON];
+    }
+
+    #[test]
+    fn test_serialize_empty_activity() {
+        let activity = SetActivity::new();
         let json = serde_json::to_string(&activity).unwrap();
-        assert_eq![json, r#"{"instance":true,"state":"rusting"}"#];
-    }
-
-    #[test]
-    fn test_set_activity_timestamps_serialize() {
-        let timestamps = SetActivityTimestamps::new()
-            .start(1000)
-            .end(2000);
-        let json = serde_json::to_string(&timestamps).unwrap();
-        assert_eq![json, r#"{"end":2000,"start":1000}"#];
-    }
-
-    #[test]
-    fn test_set_activity_assets_serialize() {
-        let assets = SetActivityAssets::new()
-            .large_image("ferris")
-            .small_image("rusting");
-        let json = serde_json::to_string(&assets).unwrap();
-        assert_eq![json, r#"{"small_image":"rusting","large_image":"ferris"}"#];
-    }
-
-    #[test]
-    fn test_set_activity_party_serialize() {
-        let party = SetActivityParty::new()
-            .id(1)
-            .size((1, 10));
-        let json = serde_json::to_string(&party).unwrap();
-        assert_eq![json, r#"{"size":[1,10],"id":1}"#];
-    }
-
-    #[test]
-    fn test_set_activity_secrets_serialize() {
-        let secrets = SetActivitySecrets::new()
-            .join("j1")
-            .spectate("s1")
-            .game("g1");
-        let json = serde_json::to_string(&secrets).unwrap();
-        assert_eq![json, r#"{"match":"g1","spectate":"s1","join":"j1"}"#.to_string()];
+        assert_eq![json, "{}"];
     }
 }

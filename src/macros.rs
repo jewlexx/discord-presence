@@ -26,9 +26,9 @@ macro_rules! message_format {
     [ @st ( $name:ident $field:tt: $type:tt alias = $alias:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
         message_format![ @st
             ( $name $($rest)* ) -> (
+                $($out)*
                 #[serde(skip_serializing_if = "Option::is_none", rename = $alias)]
                 pub $field: Option<$type>,
-                $($out)*
             )
         ];
     };
@@ -40,9 +40,9 @@ macro_rules! message_format {
     [ @st ( $name:ident $field:ident: $type:ty, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
         message_format![ @st
             ( $name $($rest)* ) -> (
+                $($out)*
                 #[serde(skip_serializing_if = "Option::is_none")]
                 $field: Option<$type>,
-                $($out)*
             )
         ];
     };
