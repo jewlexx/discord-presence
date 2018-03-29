@@ -10,7 +10,6 @@ extern crate libc;
 
 #[macro_use]
 mod macros;
-
 mod error;
 mod utils;
 mod connection;
@@ -20,9 +19,7 @@ mod rich_presence;
 pub mod client;
 
 pub use client::Client;
-
 #[cfg(feature = "rich_presence")]
 pub use rich_presence::*;
-
 #[cfg(unix)]
 pub use connection::UnixConnection;

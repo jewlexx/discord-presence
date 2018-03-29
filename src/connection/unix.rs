@@ -1,13 +1,16 @@
-use std::os::unix::net::UnixStream;
-use std::io::{Write, Read, Result};
-use std::time;
-use std::path::PathBuf;
-use std::env;
-use std::fmt::Debug;
-use models::Payload;
+use std::{
+    os::unix::net::UnixStream,
+    io::{Write, Read},
+    time,
+    path::PathBuf,
+    env,
+    fmt::Debug
+};
 
-use models::{Message, OpCode};
 use super::base::Connection;
+use models::{Payload, Message, OpCode};
+use error::Result;
+
 
 pub struct UnixConnection {
     socket: UnixStream,

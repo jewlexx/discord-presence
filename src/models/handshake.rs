@@ -1,6 +1,7 @@
 use super::Payload;
 use utils::nonce;
 
+
 #[derive(Debug, Default, Serialize)]
 pub struct Handshake {
     nonce: String,

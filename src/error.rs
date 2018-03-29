@@ -1,7 +1,14 @@
-use std::error::Error as StdError;
-use std::result::Result as StdResult;
-use std::io::Error as IoError;
-use std::fmt;
+use std::{
+    error::Error as StdError,
+    io::Error as IoError,
+    result::Result as StdResult,
+    fmt::{
+        self,
+        Display,
+        Formatter
+    }
+};
+
 
 #[derive(Debug)]
 pub enum Error {
@@ -9,8 +16,8 @@ pub enum Error {
     Conversion,
 }
 
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+impl Display for Error {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.write_str(self.description())
     }
 }

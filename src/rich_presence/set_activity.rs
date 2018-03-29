@@ -1,6 +1,7 @@
 use models::Command;
 use utils::pid;
 
+
 #[derive(Debug, Default, Serialize)]
 pub struct SetActivityArgs {
     pid: i32,

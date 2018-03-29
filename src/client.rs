@@ -1,8 +1,9 @@
-use std::io::Result;
 use connection::Connection;
 use models::{Handshake, OpCode};
 #[cfg(feature = "rich_presence")]
 use rich_presence::{SetActivityArgs, SetActivity};
+use error::Result;
+
 
 #[derive(Debug)]
 pub struct Client<T>

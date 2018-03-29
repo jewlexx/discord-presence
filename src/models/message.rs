@@ -1,8 +1,11 @@
 use std::io::{self, Write, Read};
+
 use byteorder::{WriteBytesExt, ReadBytesExt, LittleEndian};
 use serde_json;
 use serde::Serialize;
+
 use error::{Result, Error};
+
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum OpCode {

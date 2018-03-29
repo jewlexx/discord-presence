@@ -1,7 +1,11 @@
-use std::io::Result;
-use std::marker::Sized;
-use std::fmt::Debug;
+use std::{
+    marker::Sized,
+    fmt::Debug
+};
+
 use models::{Payload, OpCode};
+use error::Result;
+
 
 pub trait Connection
     where Self: Sized
