@@ -1,22 +1,28 @@
-use std::io::{self, Write, Read, Result};
-use std::convert::From;
+use std::io::{self, Write, Read};
 use byteorder::{WriteBytesExt, ReadBytesExt, LittleEndian};
 use serde_json;
 use serde::Serialize;
+use error::{Result, Error};
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum OpCode {
     Handshake,
     Frame,
-    Invalid,
+    Close,
+    Ping,
+    Pong,
 }
 
-impl From<u32> for OpCode {
-    fn from(int: u32) -> Self {
+// FIXME: Use TryFrom trait when stable
+impl OpCode {
+    fn try_from(int: u32) -> Result<Self> {
         match int {
-            0 => OpCode::Handshake,
-            1 => OpCode::Frame,
-            _ => OpCode::Invalid,
+            0 => Ok(OpCode::Handshake),
+            1 => Ok(OpCode::Frame),
+            2 => Ok(OpCode::Close),
+            3 => Ok(OpCode::Ping),
+            4 => Ok(OpCode::Pong),
+            _ => Err(Error::Conversion)
         }
     }
 }
@@ -48,7 +54,7 @@ impl Message {
     pub fn decode(bytes: &[u8]) -> Result<Self> {
         let mut reader = io::Cursor::new(bytes);
         let mut message = String::new();
-        let opcode = OpCode::from(reader.read_u32::<LittleEndian>()?);
+        let opcode = OpCode::try_from(reader.read_u32::<LittleEndian>()?)?;
         reader.read_u32::<LittleEndian>()?;
         reader.read_to_string(&mut message)?;
         Ok(Message { opcode, message })
