@@ -11,6 +11,7 @@ extern crate libc;
 #[macro_use]
 mod macros;
 
+mod error;
 mod utils;
 mod connection;
 mod models;
