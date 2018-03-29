@@ -77,4 +77,11 @@ mod tests {
         let decoded = Message::decode(&encoded).unwrap();
         assert_eq!(msg, decoded);
     }
+
+    #[test]
+    fn test_opcode() {
+        assert_eq!(OpCode::try_from(0).ok(), Some(OpCode::Handshake));
+        assert_eq!(OpCode::try_from(4).ok(), Some(OpCode::Pong));
+        assert_eq!(OpCode::try_from(5).ok(), None);
+    }
 }
