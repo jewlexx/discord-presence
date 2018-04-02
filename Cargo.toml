@@ -21,6 +21,9 @@ byteorder    = "^1.0"
 log          = "~0.4"
 libc         = "0.2.39" # until std::process::id is stable
 
+[target.'cfg(windows)'.dependencies]
+named_pipe   = "0.3.0"
+
 [dependencies.uuid]
 version  = "^0.6.2"
 features = ["v4"]

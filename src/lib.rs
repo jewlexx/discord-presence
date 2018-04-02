@@ -23,3 +23,5 @@ pub use client::Client;
 pub use rich_presence::*;
 #[cfg(unix)]
 pub use connection::UnixConnection;
+#[cfg(windows)]
+pub use connection::WindowsConnection;

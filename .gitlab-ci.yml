@@ -13,8 +13,8 @@ variables:
   <<: *cached
   environment: test
 
-test:rust_1_23_0:
+test:rust_1_25_0:
   <<: *test_job
-  image: "rust:1.23.0"
+  image: "rust:1.25.0"
   script:
     - cargo test --all
