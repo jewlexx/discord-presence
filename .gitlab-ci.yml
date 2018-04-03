@@ -1,3 +1,9 @@
+image: "rust:latest"
+
+stages:
+  - test
+  - deploy
+
 variables:
   CARGO_HOME: $CI_PROJECT_DIR/.cargo
 
@@ -12,9 +18,21 @@ variables:
 .test_job: &test_job
   <<: *cached
   environment: test
+  stage: test
 
-test:rust_1_25_0:
+.deploy_job: &deploy_job
+  <<: *cached
+  environment: deploy
+  stage: deploy
+
+test:rust-stable:
   <<: *test_job
-  image: "rust:1.25.0"
   script:
     - cargo test --all
+
+deploy:crates-io:
+  <<: *deploy_job
+  script:
+    - cargo publish --token $CRATES_IO_API_TOKEN
+  only:
+    - tags@valeth/discord-rpc-client.rs
