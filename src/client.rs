@@ -1,11 +1,10 @@
-use connection::Connection;
+use connection::{Connection, SocketConnection};
 use models::{Handshake, OpCode};
 #[cfg(feature = "rich_presence")]
 use rich_presence::{SetActivityArgs, SetActivity};
 use error::Result;
 
 
-#[derive(Debug)]
 pub struct Client<T>
     where T: Connection
 {
@@ -17,9 +16,8 @@ pub struct Client<T>
 impl<T> Client<T>
     where T: Connection
 {
-    pub fn new(client_id: u64) -> Result<Self> {
-        let socket = T::connect()?;
-        Ok(Self { version: 1, client_id, socket})
+    pub fn with_connection(client_id: u64, socket: T) -> Result<Self> {
+        Ok(Self { version: 1, client_id, socket })
     }
 
     pub fn start(mut self) -> Result<Self> {
@@ -43,5 +41,12 @@ impl<T> Client<T>
         let version = self.version;
         self.socket.send(OpCode::Handshake, Handshake::new(client_id, version))?;
         Ok(())
+    }
+}
+
+impl Client<SocketConnection> {
+    pub fn new(client_id: u64) -> Result<Self> {
+        let socket = Connection::connect()?;
+        Self::with_connection(client_id, socket)
     }
 }

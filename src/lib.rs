@@ -23,7 +23,4 @@ pub mod client;
 pub use client::Client;
 #[cfg(feature = "rich_presence")]
 pub use rich_presence::*;
-#[cfg(unix)]
-pub use connection::UnixConnection;
-#[cfg(windows)]
-pub use connection::WindowsConnection;
+pub use connection::{Connection, SocketConnection};

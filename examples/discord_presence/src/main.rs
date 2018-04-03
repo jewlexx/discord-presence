@@ -4,16 +4,12 @@ extern crate discord_rpc_client;
 use simplelog::*;
 use std::{thread, time};
 use discord_rpc_client::Client as DiscordRPC;
-#[cfg(unix)]
-use discord_rpc_client::UnixConnection as Connection;
-#[cfg(windows)]
-use discord_rpc_client::WindowsConnection as Connection;
 
 fn main() {
     TermLogger::init(LevelFilter::Debug, Config::default()).unwrap();
 
     let mut drpc =
-        DiscordRPC::<Connection>::new(425407036495495169)
+        DiscordRPC::new(425407036495495169)
             .and_then(|rpc| rpc.start())
             .expect("Failed to start client");
 
