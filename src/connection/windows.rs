@@ -4,10 +4,9 @@ use std::{
 };
 
 use super::base::Connection;
-use models::{Payload, Message, OpCode};
 use error::Result;
 
-use self::named_pipe::PipeClient;
+use named_pipe::PipeClient;
 
 pub struct WindowsConnection {
     socket: PipeClient,
