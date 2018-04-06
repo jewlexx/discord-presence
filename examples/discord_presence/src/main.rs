@@ -36,5 +36,8 @@ fn main() {
     drpc.subscribe(Event::ActivityJoinRequest, |s| s)
         .expect("Failed to subscribe to event");
 
+    drpc.unsubscribe(Event::ActivityJoinRequest, |j| j)
+        .expect("Failed to unsubscribe from event");
+
     loop { thread::sleep(time::Duration::from_secs(10)) };
 }

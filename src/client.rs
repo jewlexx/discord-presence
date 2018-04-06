@@ -64,6 +64,12 @@ impl<T> Client<T>
         self.execute(Command::Subscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
+    pub fn unsubscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
+        where F: FnOnce(SubscriptionArgs) -> SubscriptionArgs
+    {
+        self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
+    }
+
 // private
 
     fn handshake(&mut self) -> Result<()> {
