@@ -3,6 +3,7 @@ use serde::{Serialize, de::DeserializeOwned};
 use connection::{
     Connection,
     SocketConnection,
+    Manager as ConnectionManager,
 };
 use models::{
     OpCode,
@@ -15,35 +16,34 @@ use models::{
 #[cfg(feature = "rich_presence")]
 use models::rich_presence::{SetActivityArgs, Activity};
 use error::{Result, Error};
-use utils;
 
 
 pub struct Client<T>
-    where T: Connection
+    where T: Connection + Send + Sync + 'static
 {
-    client_id: u64,
-    version: u32,
-    connection: T,
+    connection: ConnectionManager<T>,
 }
 
 impl<T> Client<T>
-    where T: Connection
+    where T: Connection + Send + Sync + 'static
 {
     pub fn with_connection(client_id: u64, connection: T) -> Result<Self> {
-        Ok(Self { version: 1, client_id, connection })
+        Ok(Self {
+            connection: ConnectionManager::with_connection(client_id, connection)?
+        })
     }
 
     pub fn start(mut self) -> Result<Self> {
-        self.handshake()?;
+        self.connection.handshake()?;
         Ok(self)
     }
 
     pub fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
-        where A: Serialize,
-              E: Serialize + DeserializeOwned
+        where A: Serialize + Send + Sync,
+              E: Serialize + DeserializeOwned + Send + Sync
     {
         self.connection.send(OpCode::Frame, Payload::with_nonce(cmd, Some(args), None, evt))?;
-        let response: Payload<E> = self.connection.recv()?.into();
+        let response: Payload<E> = self.connection.recv()?;
 
         match response.evt {
             Some(Event::Error) => Err(Error::SubscriptionFailed),
@@ -68,21 +68,6 @@ impl<T> Client<T>
         where F: FnOnce(SubscriptionArgs) -> SubscriptionArgs
     {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
-    }
-
-// private
-
-    fn handshake(&mut self) -> Result<()> {
-        let client_id = self.client_id;
-        let version = self.version;
-        let hs = json![{
-            "client_id": client_id.to_string(),
-            "v": version,
-            "nonce": utils::nonce()
-        }];
-        self.connection.send(OpCode::Handshake, hs)?;
-        self.connection.recv()?;
-        Ok(())
     }
 }
 

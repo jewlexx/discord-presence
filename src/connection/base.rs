@@ -4,15 +4,11 @@ use std::{
     path::PathBuf,
 };
 
-use serde::Serialize;
-
-use models::message::{Message, OpCode};
+use models::message::Message;
 use error::Result;
 
 
-pub trait Connection
-    where Self: Sized
-{
+pub trait Connection: Sized {
     type Socket: Write + Read;
 
 
@@ -26,10 +22,7 @@ pub trait Connection
         Self::ipc_path().join(format!("discord-ipc-{}", n))
     }
 
-    fn send<T>(&mut self, opcode: OpCode, payload: T) -> Result<()>
-        where T: Serialize
-    {
-        let message = Message::new(opcode, payload);
+    fn send(&mut self, message: Message) -> Result<()> {
         debug!("{:?}", message);
         match message.encode() {
             Err(why) => error!("{:?}", why),
