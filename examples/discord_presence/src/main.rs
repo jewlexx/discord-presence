@@ -3,7 +3,10 @@ extern crate discord_rpc_client;
 
 use simplelog::*;
 use std::{thread, time};
-use discord_rpc_client::Client as DiscordRPC;
+use discord_rpc_client::{
+    Client as DiscordRPC,
+    models::Event,
+};
 
 fn main() {
     TermLogger::init(LevelFilter::Debug, Config::default()).unwrap();
@@ -21,6 +24,17 @@ fn main() {
             .small_image("rusting")
             .small_text("rusting...")))
         .expect("Failed to set presence");
+
+    drpc.subscribe(Event::ActivityJoin, |j| j
+        .secret("123456"))
+        .expect("Failed to subscribe to event");
+
+    drpc.subscribe(Event::ActivitySpectate, |s| s
+        .secret("123456"))
+        .expect("Failed to subscribe to event");
+
+    drpc.subscribe(Event::ActivityJoinRequest, |s| s)
+        .expect("Failed to subscribe to event");
 
     loop { thread::sleep(time::Duration::from_secs(10)) };
 }
