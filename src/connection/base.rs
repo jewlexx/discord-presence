@@ -1,11 +1,12 @@
 use std::{
     io::{Write, Read},
     marker::Sized,
-    fmt::Debug,
     path::PathBuf,
 };
 
-use models::{Payload, Message, OpCode};
+use serde::Serialize;
+
+use models::message::{Message, OpCode};
 use error::Result;
 
 
@@ -26,25 +27,25 @@ pub trait Connection
     }
 
     fn send<T>(&mut self, opcode: OpCode, payload: T) -> Result<()>
-        where T: Payload + Debug
+        where T: Serialize
     {
-        debug!("payload: {:#?}", payload);
-        match Message::new(opcode, payload).encode() {
+        let message = Message::new(opcode, payload);
+        debug!("{:?}", message);
+        match message.encode() {
             Err(why) => error!("{:?}", why),
             Ok(bytes) => {
                 self.socket().write_all(bytes.as_ref())?;
-                debug!("sent opcode: {:?}", opcode);
-                self.recv()?;
             }
         };
         Ok(())
     }
 
-    fn recv(&mut self) -> Result<Vec<u8>> {
+    fn recv(&mut self) -> Result<Message> {
         let mut buf: Vec<u8> = vec![0; 1024];
         let n = self.socket().read(buf.as_mut_slice())?;
         buf.resize(n, 0);
-        debug!("{:?}", Message::decode(&buf));
-        Ok(buf)
+        let message = Message::decode(&buf)?;
+        debug!("{:?}", message);
+        Ok(message)
     }
 }

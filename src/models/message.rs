@@ -30,39 +30,41 @@ impl OpCode {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Message {
-    opcode:  OpCode,
-    message: String,
+    pub opcode: OpCode,
+    pub payload: String,
 }
 
 impl Message {
-    pub fn new<T>(opcode: OpCode, message: T) -> Self
+    pub fn new<T>(opcode: OpCode, payload: T) -> Self
         where T: Serialize
     {
-        Message {
-            opcode: opcode,
-            message: serde_json::to_string(&message).unwrap()
-        }
+        Self { opcode, payload: serde_json::to_string(&payload).unwrap() }
     }
 
     pub fn encode(&self) -> Result<Vec<u8>> {
         let mut bytes: Vec<u8> = vec![];
+
         bytes.write_u32::<LittleEndian>(self.opcode as u32)?;
-        bytes.write_u32::<LittleEndian>(self.message.len() as u32)?;
-        write!(bytes, "{}", self.message)?;
+        bytes.write_u32::<LittleEndian>(self.payload.len() as u32)?;
+        write!(bytes, "{}", self.payload)?;
+
         Ok(bytes)
     }
 
     pub fn decode(bytes: &[u8]) -> Result<Self> {
         let mut reader = io::Cursor::new(bytes);
-        let mut message = String::new();
+        let mut payload = String::new();
+
         let opcode = OpCode::try_from(reader.read_u32::<LittleEndian>()?)?;
         reader.read_u32::<LittleEndian>()?;
-        reader.read_to_string(&mut message)?;
-        Ok(Message { opcode, message })
+        reader.read_to_string(&mut payload)?;
+
+        Ok(Self { opcode, payload })
     }
 }
+
 
 #[cfg(test)]
 mod tests {

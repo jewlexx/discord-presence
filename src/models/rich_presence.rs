@@ -1,54 +1,69 @@
-use models::Command;
-use utils::pid;
+#![cfg(feature = "rich_presence")]
+
+use super::shared::PartialUser;
+use utils;
 
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
     pid: i32,
-    activity: SetActivity,
+    activity: Activity,
 }
 
 impl SetActivityArgs {
-    pub fn command(args: SetActivity) -> Command<Self> {
-        Command::new("SET_ACTIVITY", Self {
-            pid: pid(),
-            activity: args
-        })
+    pub fn new<F>(f: F) -> Self
+        where F: FnOnce(Activity) -> Activity
+    {
+        Self { pid: utils::pid(), activity: f(Activity::new()) }
     }
 }
 
-message_format![SetActivity
-    state:      String,
-    details:    String,
-    instance:   bool,
-    timestamps: SetActivityTimestamps func,
-    assets:     SetActivityAssets func,
-    party:      SetActivityParty func,
-    secrets:    SetActivitySecrets func,
-];
+builder!{ActivityJoinEvent
+    secret: String,
+}
 
-message_format![SetActivityTimestamps
+builder!{ActivitySpectateEvent
+    secret: String,
+}
+
+builder!{ActivityJoinRequestEvent
+    user: PartialUser,
+}
+
+
+builder!{Activity
+    state: String,
+    details: String,
+    instance: bool,
+    timestamps: ActivityTimestamps func,
+    assets: ActivityAssets func,
+    party: ActivityParty func,
+    secrets: ActivitySecrets func,
+}
+
+builder!{ActivityTimestamps
     start: u32,
     end: u32,
-];
+}
 
-message_format![SetActivityAssets
+builder!{ActivityAssets
     large_image: String,
     large_text: String,
     small_image: String,
     small_text: String,
-];
+}
 
-message_format![SetActivityParty
+builder!{ActivityParty
     id: u32,
     size: (u32, u32),
-];
+}
 
-message_format![SetActivitySecrets
+builder!{ActivitySecrets
     join: String,
     spectate: String,
     game: String alias = "match",
-];
+}
+
 
 #[cfg(test)]
 mod tests {
@@ -86,7 +101,7 @@ r###"{
 
     #[test]
     fn test_serialize_full_activity() {
-        let activity = SetActivity::new()
+        let activity = Activity::new()
             .state("rusting")
             .details("detailed")
             .instance(true)
@@ -113,7 +128,7 @@ r###"{
 
     #[test]
     fn test_serialize_empty_activity() {
-        let activity = SetActivity::new();
+        let activity = Activity::new();
         let json = serde_json::to_string(&activity).unwrap();
         assert_eq![json, "{}"];
     }

@@ -14,6 +14,7 @@ use std::{
 pub enum Error {
     Io(IoError),
     Conversion,
+    SubscriptionFailed,
 }
 
 impl Display for Error {
@@ -26,6 +27,7 @@ impl StdError for Error {
     fn description(&self) -> &str {
         match *self {
             Error::Conversion => "Failed to convert values",
+            Error::SubscriptionFailed => "Failed to subscribe to event",
             Error::Io(ref err) => err.description()
         }
     }

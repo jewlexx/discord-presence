@@ -1,4 +1,4 @@
-macro_rules! message_func {
+macro_rules! builder_func {
     [ $name:ident, $type:tt func ] => {
         pub fn $name<F>(mut self, func: F) -> Self
             where F: FnOnce($type) -> $type
@@ -22,9 +22,9 @@ macro_rules! message_func {
     };
 }
 
-macro_rules! message_format {
+macro_rules! builder {
     [ @st ( $name:ident $field:tt: $type:tt alias = $alias:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
-        message_format![ @st
+        builder![ @st
             ( $name $($rest)* ) -> (
                 $($out)*
                 #[serde(skip_serializing_if = "Option::is_none", rename = $alias)]
@@ -34,11 +34,11 @@ macro_rules! message_format {
     };
 
     [ @st ( $name:ident $field:tt: $type:tt func, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
-        message_format![ @st ( $name $field: $type, $($rest)* ) -> ( $($out)* ) ];
+        builder![ @st ( $name $field: $type, $($rest)* ) -> ( $($out)* ) ];
     };
 
     [ @st ( $name:ident $field:ident: $type:ty, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
-        message_format![ @st
+        builder![ @st
             ( $name $($rest)* ) -> (
                 $($out)*
                 #[serde(skip_serializing_if = "Option::is_none")]
@@ -48,20 +48,20 @@ macro_rules! message_format {
     };
 
     [ @st ( $name:ident ) -> ( $($out:tt)* ) ] => {
-        #[derive(Debug, Default, Serialize)]
+        #[derive(Debug, Default, PartialEq, Deserialize, Serialize)]
         pub struct $name { $($out)* }
     };
 
     [ @im ( $name:ident $field:ident: $type:tt func, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
-        message_format![ @im ( $name $($rest)* ) -> ( message_func![$field, $type func]; $($out)* ) ];
+        builder![ @im ( $name $($rest)* ) -> ( builder_func![$field, $type func]; $($out)* ) ];
     };
 
     [ @im ( $name:ident $field:ident: $type:tt alias = $modifier:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
-        message_format![ @im ( $name $field: $type, $($rest)* ) -> ( $($out)* ) ];
+        builder![ @im ( $name $field: $type, $($rest)* ) -> ( $($out)* ) ];
     };
 
     [ @im ( $name:ident $field:ident: $type:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
-        message_format![ @im ( $name $($rest)* ) -> ( message_func![$field, $type]; $($out)* ) ];
+        builder![ @im ( $name $($rest)* ) -> ( builder_func![$field, $type]; $($out)* ) ];
     };
 
     [ @im ( $name:ident ) -> ( $($out:tt)* ) ] => {
@@ -75,7 +75,7 @@ macro_rules! message_format {
     };
 
     [ $name:ident $($body:tt)* ] => {
-        message_format![@st ( $name $($body)* ) -> () ];
-        message_format![@im ( $name $($body)* ) -> () ];
+        builder![@st ( $name $($body)* ) -> () ];
+        builder![@im ( $name $($body)* ) -> () ];
     }
 }

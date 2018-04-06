@@ -1,8 +1,21 @@
-use connection::{Connection, SocketConnection};
-use models::{Handshake, OpCode};
+use serde::{Serialize, de::DeserializeOwned};
+
+use connection::{
+    Connection,
+    SocketConnection,
+};
+use models::{
+    OpCode,
+    Command,
+    Event,
+    payload::Payload,
+    commands::{SubscriptionArgs, Subscription},
+};
+
 #[cfg(feature = "rich_presence")]
-use rich_presence::{SetActivityArgs, SetActivity};
-use error::Result;
+use models::rich_presence::{SetActivityArgs, Activity};
+use error::{Result, Error};
+use utils;
 
 
 pub struct Client<T>
@@ -10,14 +23,14 @@ pub struct Client<T>
 {
     client_id: u64,
     version: u32,
-    socket: T,
+    connection: T,
 }
 
 impl<T> Client<T>
     where T: Connection
 {
-    pub fn with_connection(client_id: u64, socket: T) -> Result<Self> {
-        Ok(Self { version: 1, client_id, socket })
+    pub fn with_connection(client_id: u64, connection: T) -> Result<Self> {
+        Ok(Self { version: 1, client_id, connection })
     }
 
     pub fn start(mut self) -> Result<Self> {
@@ -25,13 +38,30 @@ impl<T> Client<T>
         Ok(self)
     }
 
-    #[cfg(feature = "rich_presence")]
-    pub fn set_activity<F>(&mut self, f: F) -> Result<()>
-        where F: FnOnce(SetActivity) -> SetActivity
+    pub fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
+        where A: Serialize,
+              E: Serialize + DeserializeOwned
     {
-        let args = SetActivityArgs::command(f(SetActivity::new()));
-        self.socket.send(OpCode::Frame, args)?;
-        Ok(())
+        self.connection.send(OpCode::Frame, Payload::with_nonce(cmd, Some(args), None, evt))?;
+        let response: Payload<E> = self.connection.recv()?.into();
+
+        match response.evt {
+            Some(Event::Error) => Err(Error::SubscriptionFailed),
+            _ => Ok(response)
+        }
+    }
+
+    #[cfg(feature = "rich_presence")]
+    pub fn set_activity<F>(&mut self, f: F) -> Result<Payload<Activity>>
+        where F: FnOnce(Activity) -> Activity
+    {
+        self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
+    }
+
+    pub fn subscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
+        where F: FnOnce(SubscriptionArgs) -> SubscriptionArgs
+    {
+        self.execute(Command::Subscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
 // private
@@ -39,7 +69,13 @@ impl<T> Client<T>
     fn handshake(&mut self) -> Result<()> {
         let client_id = self.client_id;
         let version = self.version;
-        self.socket.send(OpCode::Handshake, Handshake::new(client_id, version))?;
+        let hs = json![{
+            "client_id": client_id.to_string(),
+            "v": version,
+            "nonce": utils::nonce()
+        }];
+        self.connection.send(OpCode::Handshake, hs)?;
+        self.connection.recv()?;
         Ok(())
     }
 }
