@@ -1,5 +1,3 @@
-use std::time;
-
 use serde::{Serialize, de::DeserializeOwned};
 
 use connection::Manager as ConnectionManager;

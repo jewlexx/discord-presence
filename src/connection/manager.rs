@@ -177,9 +177,9 @@ impl Manager {
                 if STARTED.load(Ordering::SeqCst) && CONNECTED.load(Ordering::SeqCst) && HANDSHAKED.load(Ordering::SeqCst) {
                     match Self::send_and_receive(&connection, &queue) {
                         Err(Error::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
-                        Err(Error::IoError(err)) => {
+                        Err(Error::IoError(_err)) => {
                             Self::disconnect(connection.clone());
-                            // error!("Disconnected: {}", err);
+                            // error!("Disconnected: {}", _err);
                         },
                         Err(why) => error!("{}", why),
                         Ok(_) => ()
