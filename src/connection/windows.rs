@@ -23,7 +23,7 @@ impl Connection for WindowsConnection {
         Ok(Self { socket })
     }
 
-    fn disconnect() -> Result<()> {
+    fn disconnect(&self) -> Result<()> {
         Ok(())
     }
 
