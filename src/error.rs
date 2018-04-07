@@ -2,17 +2,21 @@ use std::{
     error::Error as StdError,
     io::Error as IoError,
     result::Result as StdResult,
+    sync::mpsc::RecvTimeoutError as ChannelTimeout,
     fmt::{
         self,
         Display,
         Formatter
-    }
+    },
 };
+use serde_json::Error as JsonError;
 
 
 #[derive(Debug)]
 pub enum Error {
-    Io(IoError),
+    IoError(IoError),
+    JsonError(JsonError),
+    Timeout(ChannelTimeout),
     Conversion,
     SubscriptionFailed,
 }
@@ -28,14 +32,28 @@ impl StdError for Error {
         match *self {
             Error::Conversion => "Failed to convert values",
             Error::SubscriptionFailed => "Failed to subscribe to event",
-            Error::Io(ref err) => err.description()
+            Error::IoError(ref err) => err.description(),
+            Error::JsonError(ref err) => err.description(),
+            Error::Timeout(ref err) => err.description(),
         }
     }
 }
 
 impl From<IoError> for Error {
     fn from(err: IoError) -> Self {
-        Error::Io(err)
+        Error::IoError(err)
+    }
+}
+
+impl From<JsonError> for Error {
+    fn from(err: JsonError) -> Self {
+        Error::JsonError(err)
+    }
+}
+
+impl From<ChannelTimeout> for Error {
+    fn from(err: ChannelTimeout) -> Self {
+        Error::Timeout(err)
     }
 }
 

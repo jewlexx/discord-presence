@@ -18,18 +18,20 @@ pub trait Connection: Sized {
 
     fn connect() -> Result<Self>;
 
+    fn disconnect(&self) -> Result<()>;
+
     fn socket_path(n: u8) -> PathBuf {
         Self::ipc_path().join(format!("discord-ipc-{}", n))
     }
 
     fn send(&mut self, message: Message) -> Result<()> {
-        debug!("{:?}", message);
         match message.encode() {
             Err(why) => error!("{:?}", why),
             Ok(bytes) => {
                 self.socket().write_all(bytes.as_ref())?;
             }
         };
+        debug!("-> {:?}", message);
         Ok(())
     }
 
@@ -38,7 +40,7 @@ pub trait Connection: Sized {
         let n = self.socket().read(buf.as_mut_slice())?;
         buf.resize(n, 0);
         let message = Message::decode(&buf)?;
-        debug!("{:?}", message);
+        debug!("<- {:?}", message);
         Ok(message)
     }
 }
