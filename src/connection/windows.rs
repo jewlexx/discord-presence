@@ -23,6 +23,10 @@ impl Connection for WindowsConnection {
         Ok(Self { socket })
     }
 
+    fn disconnect() -> Result<()> {
+        Ok(())
+    }
+
     fn ipc_path() -> PathBuf {
         PathBuf::from(r"\\.\pipe\")
     }
