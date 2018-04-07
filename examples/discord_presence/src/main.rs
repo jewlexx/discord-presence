@@ -1,8 +1,8 @@
 extern crate simplelog;
 extern crate discord_rpc_client;
 
+use std::io;
 use simplelog::*;
-use std::{thread, time};
 use discord_rpc_client::{
     Client as DiscordRPC,
     models::Event,
@@ -11,19 +11,10 @@ use discord_rpc_client::{
 fn main() {
     TermLogger::init(LevelFilter::Debug, Config::default()).unwrap();
 
-    let mut drpc =
-        DiscordRPC::new(425407036495495169)
-            .and_then(|rpc| rpc.start())
-            .expect("Failed to start client");
+    let mut drpc = DiscordRPC::new(425407036495495169)
+        .expect("Failed to create client");
 
-    drpc.set_activity(|a| a
-        .state("Rusting")
-        .assets(|ass| ass
-            .large_image("ferris_wat")
-            .large_text("wat.")
-            .small_image("rusting")
-            .small_text("rusting...")))
-        .expect("Failed to set presence");
+    drpc.start();
 
     drpc.subscribe(Event::ActivityJoin, |j| j
         .secret("123456"))
@@ -39,5 +30,21 @@ fn main() {
     drpc.unsubscribe(Event::ActivityJoinRequest, |j| j)
         .expect("Failed to unsubscribe from event");
 
-    loop { thread::sleep(time::Duration::from_secs(10)) };
+    loop {
+        let mut buf = String::new();
+
+        io::stdin().read_line(&mut buf).unwrap();
+
+
+        if let Err(why) = drpc.set_activity(|a| a
+            .state(buf)
+            .assets(|ass| ass
+                .large_image("ferris_wat")
+                .large_text("wat.")
+                .small_image("rusting")
+                .small_text("rusting...")))
+        {
+            println!("Failed to set presence: {}", why);
+        }
+    };
 }
