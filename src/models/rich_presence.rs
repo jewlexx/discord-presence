@@ -42,8 +42,8 @@ builder!{Activity
 }
 
 builder!{ActivityTimestamps
-    start: u32,
-    end: u32,
+    start: u64,
+    end: u64,
 }
 
 builder!{ActivityAssets
