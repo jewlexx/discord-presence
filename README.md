@@ -1,4 +1,4 @@
-[![Build Status][travis-ci-badge]][travis-ci-page] [![Build status][appveyor-ci-badge]][appveyor-ci-page] [![crates.io][crates-io-badge]][crates-io-page]
+[![Build Status][travis-ci-badge]][travis-ci-page] [![Build status][appveyor-ci-badge]][appveyor-ci-page] [![crates.io][crates-io-badge]][crates-io-page] [![Discord][discord-badge]][discord-invite]
 
 # Discord RPC Client
 
@@ -21,10 +21,6 @@ Examples can be found in the examples directory in this repo.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md)
 
-## Support
-
-[![Discord Banner][discord-banner]][discord-invite]
-
 
 <!-- links -->
 
@@ -37,4 +33,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md)
 [appveyor-ci-badge]: https://ci.appveyor.com/api/projects/status/3fba86eipx0sgsjp?svg=true
 [appveyor-ci-page]: https://ci.appveyor.com/project/valeth/discord-rpc-client-rs
 [discord-invite]: https://discordapp.com/invite/zfavwrA
-[discord-banner]: https://discordapp.com/api/guilds/200751504175398912/widget.png?style=banner2
+[discord-badge]: https://discordapp.com/api/guilds/200751504175398912/widget.png
