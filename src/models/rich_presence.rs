@@ -1,5 +1,7 @@
 #![cfg(feature = "rich_presence")]
 
+use std::default::Default;
+
 use super::shared::PartialUser;
 use utils;
 
@@ -7,14 +9,22 @@ use utils;
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
     pid: i32,
-    activity: Activity,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    activity: Option<Activity>,
 }
 
 impl SetActivityArgs {
     pub fn new<F>(f: F) -> Self
         where F: FnOnce(Activity) -> Activity
     {
-        Self { pid: utils::pid(), activity: f(Activity::new()) }
+        Self { pid: utils::pid(), activity: Some(f(Activity::new())) }
+    }
+}
+
+impl Default for SetActivityArgs {
+    fn default() -> Self {
+        Self { pid: utils::pid(), activity: None }
     }
 }
 

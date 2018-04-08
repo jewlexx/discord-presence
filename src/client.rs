@@ -48,6 +48,11 @@ impl Client {
         self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
     }
 
+    #[cfg(feature = "rich_presence")]
+    pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
+        self.execute(Command::SetActivity, SetActivityArgs::default(), None)
+    }
+
     pub fn subscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
         where F: FnOnce(SubscriptionArgs) -> SubscriptionArgs
     {
