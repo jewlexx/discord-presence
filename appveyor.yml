@@ -13,6 +13,8 @@ install:
 
 clone_depth: 1
 
+skip_tags: true
+
 build: false
 
 test_script:
