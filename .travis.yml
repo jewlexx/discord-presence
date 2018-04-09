@@ -11,3 +11,4 @@ matrix:
 
 script:
   - cargo test --all
+  - cargo test --examples

@@ -18,4 +18,5 @@ skip_tags: true
 build: false
 
 test_script:
-  - cargo test
+  - cargo test --all
+  - cargo test --examples
