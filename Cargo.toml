@@ -29,6 +29,9 @@ named_pipe   = "0.3.0"
 version  = "^0.6.2"
 features = ["v4"]
 
+[dev-dependencies]
+simplelog = "~0.5"
+
 [features]
 default = ["rich_presence"]
 rich_presence = []
