@@ -1,6 +1,6 @@
 # Contributing Guidelines
 
-Contributions to this project are welcome, just follow there steps.
+Contributions to this project are welcome, just follow these steps.
 
 1. Fork this repository and create a feature branch named after the feature you want to implement
 2. Make your changes on your branch
