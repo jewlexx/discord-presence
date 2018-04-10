@@ -28,6 +28,19 @@ impl Default for SetActivityArgs {
     }
 }
 
+#[derive(Debug, PartialEq, Deserialize, Serialize)]
+pub struct SendActivityJoinInviteArgs {
+    pub user_id: String,
+}
+
+pub type CloseActivityRequestArgs = SendActivityJoinInviteArgs;
+
+impl SendActivityJoinInviteArgs {
+    pub fn new(user_id: u64) -> Self {
+        Self { user_id: user_id.to_string() }
+    }
+}
+
 builder!{ActivityJoinEvent
     secret: String,
 }

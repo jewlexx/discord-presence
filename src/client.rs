@@ -1,4 +1,5 @@
 use serde::{Serialize, de::DeserializeOwned};
+use serde_json::Value;
 
 use connection::Manager as ConnectionManager;
 use models::{
@@ -9,7 +10,12 @@ use models::{
     commands::{SubscriptionArgs, Subscription},
 };
 #[cfg(feature = "rich_presence")]
-use models::rich_presence::{SetActivityArgs, Activity};
+use models::rich_presence::{
+    SetActivityArgs,
+    Activity,
+    SendActivityJoinInviteArgs,
+    CloseActivityRequestArgs,
+};
 use error::{Result, Error};
 
 
@@ -51,6 +57,19 @@ impl Client {
     #[cfg(feature = "rich_presence")]
     pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
         self.execute(Command::SetActivity, SetActivityArgs::default(), None)
+    }
+
+    // NOTE: Not sure what the actual response values of
+    //       SEND_ACTIVITY_JOIN_INVITE and CLOSE_ACTIVITY_REQUEST are,
+    //       they are not documented.
+    #[cfg(feature = "rich_presence")]
+    pub fn send_activity_join_invite(&mut self, user_id: u64) -> Result<Payload<Value>> {
+        self.execute(Command::SendActivityJoinInvite, SendActivityJoinInviteArgs::new(user_id), None)
+    }
+
+    #[cfg(feature = "rich_presence")]
+    pub fn close_activity_request(&mut self, user_id: u64) -> Result<Payload<Value>> {
+        self.execute(Command::CloseActivityRequest, CloseActivityRequestArgs::new(user_id), None)
     }
 
     pub fn subscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>

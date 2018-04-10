@@ -15,6 +15,10 @@ pub enum Command {
     Unsubscribe,
     #[cfg(feature = "rich_presence")]
     SetActivity,
+    #[cfg(feature = "rich_presence")]
+    SendActivityJoinInvite,
+    #[cfg(feature = "rich_presence")]
+    CloseActivityRequest,
 }
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
@@ -43,6 +47,8 @@ pub mod prelude {
     #[cfg(feature = "rich_presence")]
     pub use super::rich_presence::{
         SetActivityArgs,
+        SendActivityJoinInviteArgs,
+        CloseActivityRequestArgs,
         ActivityJoinEvent,
         ActivitySpectateEvent,
         ActivityJoinRequestEvent
