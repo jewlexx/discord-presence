@@ -3,10 +3,7 @@ extern crate discord_rpc_client;
 
 use std::io;
 use simplelog::*;
-use discord_rpc_client::{
-    Client as DiscordRPC,
-    models::Event,
-};
+use discord_rpc_client::Client as DiscordRPC;
 
 fn main() {
     TermLogger::init(LevelFilter::Debug, Config::default()).unwrap();
@@ -15,20 +12,6 @@ fn main() {
         .expect("Failed to create client");
 
     drpc.start();
-
-    drpc.subscribe(Event::ActivityJoin, |j| j
-        .secret("123456"))
-        .expect("Failed to subscribe to event");
-
-    drpc.subscribe(Event::ActivitySpectate, |s| s
-        .secret("123456"))
-        .expect("Failed to subscribe to event");
-
-    drpc.subscribe(Event::ActivityJoinRequest, |s| s)
-        .expect("Failed to subscribe to event");
-
-    drpc.unsubscribe(Event::ActivityJoinRequest, |j| j)
-        .expect("Failed to unsubscribe from event");
 
     loop {
         let mut buf = String::new();
