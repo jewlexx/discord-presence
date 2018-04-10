@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [0.2.3] - 2018-04-08
-Thanks to the following contributors:
-- [@Bond-009]
-
 ### Added
 - Connection manager with reconnection
 - Method to clear the current Rich Presence state
@@ -33,12 +30,9 @@ Thanks to the following contributors:
 
 
 ## [0.2.0] - 2018-04-02
-Thanks to the following contributors:
-- [@Tenrys]
-
 ### Added
-- Add error type
-- Add Windows support ([@Tenrys]) [620e9a6][c:620e9a6]
+- Error type
+- Windows support ([@Tenrys]) [620e9a6][c:620e9a6]
 
 ### Changed
 - Convert OpCode with `try_from` instead of `try`
