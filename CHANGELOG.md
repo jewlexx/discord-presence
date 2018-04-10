@@ -19,7 +19,7 @@ Thanks to the following contributors:
 ### Changed
 - Move rich presence code back into *models*
 - Remove command payload and add generic one
-- Timestamps are now 64 bit unsigned integers instead of 32 bit ([@Bond-009]) [c:6bbc9f8]
+- Timestamps are now 64 bit unsigned integers instead of 32 bit ([@Bond-009]) [6bbc9f8][c:6bbc9f8]
 
 
 ## [0.2.2] - 2018-04-03
@@ -38,7 +38,7 @@ Thanks to the following contributors:
 
 ### Added
 - Add error type
-- Add Windows support ([@Tenrys]) [c:620e9a6]
+- Add Windows support ([@Tenrys]) [620e9a6][c:620e9a6]
 
 ### Changed
 - Convert OpCode with `try_from` instead of `try`
@@ -81,3 +81,12 @@ Thanks to the following contributors:
 ### Added
 - Setting Rich Presence status
 - Unix socket connection support
+
+
+<!-- commits -->
+[c:620e9a6]: https://github.com/valeth/discord-rpc-client.rs/commit/620e9a6b26650d825392cf0fbfd097a7ed1662aa
+[c:6bbc9f8]: https://github.com/valeth/discord-rpc-client.rs/commit/6bbc9f85d77bc6792c36d9317e804fcf5a306fb2
+
+<!-- profiles -->
+[@Tenrys]: https://github.com/Tenrys
+[@Bond-009]: https://github.com/Bond-009
