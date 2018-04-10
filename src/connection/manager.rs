@@ -27,7 +27,6 @@ type Connection = Arc<Mutex<Option<SocketConnection>>>;
 static CONNECTED: AtomicBool = ATOMIC_BOOL_INIT;
 static STARTED: AtomicBool = ATOMIC_BOOL_INIT;
 static HANDSHAKED: AtomicBool = ATOMIC_BOOL_INIT;
-static HANDSHAKING: AtomicBool = ATOMIC_BOOL_INIT;
 
 pub struct Manager {
     send_channel: SyncSender<Message>,
@@ -112,7 +111,7 @@ impl Manager {
     }
 
     fn handshake(connection: Connection, client_id: u64) -> Result<()> {
-        if CONNECTED.load(Ordering::SeqCst) && !HANDSHAKED.load(Ordering::SeqCst) && !HANDSHAKING.load(Ordering::SeqCst) {
+        if CONNECTED.load(Ordering::SeqCst) && !HANDSHAKED.load(Ordering::SeqCst) {
             let hs = json![{
                 "client_id": client_id.to_string(),
                 "v": 1,
