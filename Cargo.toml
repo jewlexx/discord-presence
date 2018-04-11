@@ -9,7 +9,6 @@ repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
 version     = "0.2.3"
 
 [badges]
-# gitlab      = { repository = "valeth/discord-rpc-client.rs" }
 travis-ci   = { repository = "valeth/discord-rpc-client.rs" }
 appveyor    = { repository = "valeth/discord-rpc-client.rs", service = "gitlab" }
 maintenance = { status = "experimental" }
@@ -35,6 +34,3 @@ simplelog = "~0.5"
 [features]
 default = ["rich_presence"]
 rich_presence = []
-
-# [workspace]
-# members = ["examples/discord_presence"]
