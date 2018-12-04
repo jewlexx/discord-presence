@@ -6,7 +6,7 @@ keywords    = ["discord", "rpc", "ipc"]
 license     = "MIT"
 readme      = "README.md"
 repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
-version     = "0.2.3"
+version     = "0.2.4"
 
 [badges]
 travis-ci   = { repository = "valeth/discord-rpc-client.rs" }
