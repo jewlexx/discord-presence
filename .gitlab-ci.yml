@@ -1,37 +1,98 @@
-image: "rust:latest"
+image: "debian:stretch-slim"
 
 stages:
-  - test
-  - deploy
+  - prepare
+  - build
+  - publish
 
 variables:
-  CARGO_HOME: $CI_PROJECT_DIR/.cargo
+  RUSTUP_HOME: "$CI_PROJECT_DIR/.rustup"
+  CARGO_HOME: "$CI_PROJECT_DIR/.cargo"
 
-.cached: &cached
+.write_cache:
   cache:
-    key: $CI_COMMIT_REF_NAME
-    untracked: true
+    key: "$CI_COMMIT_REF_SLUG-rustup"
     paths:
-      - target/
-      - .cargo/
+      - .rustup
+      - .cargo
 
-.test_job: &test_job
-  <<: *cached
-  environment: test
-  stage: test
+.read_cache:
+  cache:
+    key: "$CI_COMMIT_REF_SLUG-rustup"
+    paths:
+      - .rustup
+      - .cargo
+    policy: pull
 
-.deploy_job: &deploy_job
-  <<: *cached
-  environment: deploy
-  stage: deploy
+.toolchain-stable:
+  extends: .read_cache
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends ca-certificates libssl-dev libc6-dev pkg-config gcc
+    - export PATH="$CARGO_HOME/bin:$PATH"
+    - rustup default stable
 
-test:rust-stable:
-  <<: *test_job
+.toolchain-nightly:
+  extends: .read_cache
+  allow_failure: true
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends ca-certificates libssl-dev libc6-dev pkg-config gcc
+    - export PATH="$CARGO_HOME/bin:$PATH"
+    - rustup default nightly
+
+.build-only-when-changes: &build-only-when-changes
+  only:
+    changes:
+      - Cargo.toml
+      - Cargo.lock
+      - src/**/*.rs
+
+####### Jobs #######
+
+install-rust:
+  extends: .write_cache
+  stage: prepare
   script:
-    - cargo test --all
+    - apt-get update
+    - apt-get install -y --no-install-recommends ca-certificates curl
+    - curl https://sh.rustup.rs > rustup.sh
+    - sh rustup.sh -y --default-host x86_64-unknown-linux-gnu
+    - export PATH="$CARGO_HOME/bin:$PATH"
+    - rustup install stable
+    - rustup install nightly
+  <<: *build-only-when-changes
 
-deploy:crates-io:
-  <<: *deploy_job
+build-stable-no-default-features:
+  extends: .toolchain-stable
+  stage: build
+  script:
+    - cargo test --tests --no-default-features
+  <<: *build-only-when-changes
+
+build-stable-features-rich_presence:
+  extends: .toolchain-stable
+  stage: build
+  script:
+    - cargo test --tests --no-default-features
+      --features "rich_presence"
+    - cargo test --no-default-features
+      --features "rich_presence"
+      --example "discord_presence"
+      --example "discord_presence_subscribe"
+  <<: *build-only-when-changes
+
+build-nightly:
+  extends: .toolchain-nightly
+  stage: build
+  script:
+    - cargo test --tests
+    - cargo test --examples
+  <<: *build-only-when-changes
+
+deploy-crates-io:
+  extends: .toolchain-stable
+  stage: publish
   script:
     - cargo publish --token $CRATES_IO_API_TOKEN
   only:
