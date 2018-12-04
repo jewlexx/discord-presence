@@ -1,9 +1,9 @@
-use libc::getpid;
 use uuid::Uuid;
 
 
-pub fn pid() -> i32 {
-    unsafe { getpid() as i32 }
+#[allow(unused)]
+pub fn pid() -> u32 {
+    std::process::id()
 }
 
 pub fn nonce() -> String {

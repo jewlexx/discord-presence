@@ -1,4 +1,5 @@
 use serde::{Serialize, de::DeserializeOwned};
+#[allow(unused)]
 use serde_json::Value;
 
 use connection::Manager as ConnectionManager;

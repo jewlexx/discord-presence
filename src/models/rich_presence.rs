@@ -8,7 +8,7 @@ use utils;
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
-    pid: i32,
+    pid: u32,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     activity: Option<Activity>,
