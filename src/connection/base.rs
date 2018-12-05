@@ -38,8 +38,6 @@ pub trait Connection: Sized {
 
     fn connect() -> Result<Self>;
 
-    fn disconnect(&self) -> Result<()>;
-
     fn socket_path(n: u8) -> PathBuf {
         Self::ipc_path().join(format!("discord-ipc-{}", n))
     }

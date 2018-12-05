@@ -20,15 +20,10 @@ impl Connection for UnixConnection {
     fn connect() -> Result<Self> {
         let connection_name = Self::socket_path(0);
         let socket = UnixStream::connect(connection_name)?;
-        // socket.set_nonblocking(true)?;
+        socket.set_nonblocking(true)?;
         socket.set_write_timeout(Some(time::Duration::from_secs(30)))?;
         socket.set_read_timeout(Some(time::Duration::from_secs(30)))?;
         Ok(Self { socket })
-    }
-
-    fn disconnect(&self) -> Result<()> {
-        self.socket.shutdown(Shutdown::Both)?;
-        Ok(())
     }
 
     fn ipc_path() -> PathBuf {
@@ -46,5 +41,12 @@ impl Connection for UnixConnection {
 
     fn socket(&mut self) -> &mut Self::Socket {
         &mut self.socket
+    }
+}
+
+impl Drop for UnixConnection {
+    fn drop(&mut self) {
+        self.socket.shutdown(Shutdown::Both)
+            .expect("Failed to properly shut down socket");
     }
 }
