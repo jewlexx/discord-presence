@@ -7,6 +7,7 @@ extern crate serde;
 extern crate serde_json;
 extern crate byteorder;
 extern crate uuid;
+extern crate bytes;
 #[cfg(windows)]
 extern crate named_pipe;
 

@@ -19,6 +19,7 @@ pub enum Error {
     Timeout(ChannelTimeout),
     Conversion,
     SubscriptionFailed,
+    ConnectionClosed,
 }
 
 impl Display for Error {
@@ -32,6 +33,7 @@ impl StdError for Error {
         match *self {
             Error::Conversion => "Failed to convert values",
             Error::SubscriptionFailed => "Failed to subscribe to event",
+            Error::ConnectionClosed => "Connection closed",
             Error::IoError(ref err) => err.description(),
             Error::JsonError(ref err) => err.description(),
             Error::Timeout(ref err) => err.description(),
