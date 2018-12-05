@@ -8,8 +8,7 @@ use discord_rpc_client::Client as DiscordRPC;
 fn main() {
     TermLogger::init(LevelFilter::Debug, Config::default()).unwrap();
 
-    let mut drpc = DiscordRPC::new(425407036495495169)
-        .expect("Failed to create client");
+    let mut drpc = DiscordRPC::new(425407036495495169);
 
     drpc.start();
 

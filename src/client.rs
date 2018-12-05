@@ -8,6 +8,7 @@ use models::{
     Command,
     Event,
     payload::Payload,
+    message::Message,
     commands::{SubscriptionArgs, Subscription},
 };
 #[cfg(feature = "rich_presence")]
@@ -21,26 +22,27 @@ use error::{Result, Error};
 
 
 pub struct Client {
-    connection: ConnectionManager,
+    connection_manager: ConnectionManager,
 }
 
 impl Client {
-    pub fn new(client_id: u64) -> Result<Self> {
-        Ok(Self {
-            connection: ConnectionManager::new(client_id)?
-        })
+    pub fn new(client_id: u64) -> Self {
+        let connection_manager = ConnectionManager::new(client_id);
+        Self { connection_manager }
     }
 
     pub fn start(&mut self) {
-        self.connection.start();
+        self.connection_manager.start();
     }
 
-    pub fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
+    fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
         where A: Serialize + Send + Sync,
               E: Serialize + DeserializeOwned + Send + Sync
     {
-        self.connection.send(OpCode::Frame, Payload::with_nonce(cmd, Some(args), None, evt))?;
-        let (_, response): (OpCode, Payload<E>) = self.connection.recv()?;
+        let message = Message::new(OpCode::Frame, Payload::with_nonce(cmd, Some(args), None, evt));
+        self.connection_manager.send(message)?;
+        let Message { payload, .. } = self.connection_manager.recv()?;
+        let response: Payload<E> = serde_json::from_str(&payload)?;
 
         match response.evt {
             Some(Event::Error) => Err(Error::SubscriptionFailed),

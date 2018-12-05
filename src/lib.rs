@@ -8,6 +8,8 @@ extern crate serde_json;
 extern crate byteorder;
 extern crate uuid;
 extern crate bytes;
+extern crate parking_lot;
+extern crate crossbeam_channel;
 #[cfg(windows)]
 extern crate named_pipe;
 
