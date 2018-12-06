@@ -15,11 +15,11 @@ extern crate named_pipe;
 
 #[macro_use]
 mod macros;
-mod error;
 mod utils;
 mod connection;
+pub mod error;
 pub mod models;
 pub mod client;
 
 pub use client::Client;
-pub use connection::{Connection, SocketConnection};
+pub use error::Error;
