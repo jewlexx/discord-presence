@@ -12,7 +12,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-discord-rpc-client = "^0.2"
+discord-rpc-client = "^0.3"
 ```
 
 

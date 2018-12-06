@@ -32,6 +32,7 @@ features = ["v4"]
 
 [dev-dependencies]
 simplelog = "~0.5"
+version-sync = "^0.6"
 
 [features]
 default = ["rich_presence"]
