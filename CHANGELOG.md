@@ -6,13 +6,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 
 ## [Unreleased]
+
+
+## [0.3.0] - 2018-12-06
 ### Changed
-- Connection manager completely rewritten.
+- Connection manager completely rewritten
+- Allow cloning of clients
 
 
 ## [0.2.4] - 2018-12-04
 ### Changed
-- No longer depends on `libc` for process id lookup.
+- No longer depends on `libc` for process id lookup
 
 
 ## [0.2.3] - 2018-04-08
