@@ -42,7 +42,7 @@ macro_rules! builder {
             ( $name $($rest)* ) -> (
                 $($out)*
                 #[serde(skip_serializing_if = "Option::is_none")]
-                $field: Option<$type>,
+                pub $field: Option<$type>,
             )
         ];
     };
