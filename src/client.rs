@@ -21,6 +21,7 @@ use models::rich_presence::{
 use error::{Result, Error};
 
 
+#[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
 }
