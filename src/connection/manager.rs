@@ -107,16 +107,22 @@ fn send_and_receive_loop(mut manager: Manager) {
                     Err(why) => error!("error: {}", why),
                     _ => (),
                 }
+
+                thread::sleep(time::Duration::from_millis(500));
             },
             None => {
                 match manager.connect() {
-                    Err(why) => error!("Failed to connect: {:?}", why),
+                    Err(err) => {
+                        match err {
+                            Error::IoError(ref err) if err.kind() == ErrorKind::ConnectionRefused => (),
+                            why => error!("Failed to connect: {:?}", why),
+                        }
+                        thread::sleep(time::Duration::from_secs(10));
+                    },
                     _ => manager.handshake_completed = true,
                 }
             }
         }
-
-        thread::sleep(time::Duration::from_millis(500));
     }
 }
 
