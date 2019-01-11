@@ -93,37 +93,10 @@ mod tests {
     use super::*;
     use serde_json;
 
-    const FULL_JSON: &'static str =
-r###"{
-  "state": "rusting",
-  "details": "detailed",
-  "instance": true,
-  "timestamps": {
-    "start": 1000,
-    "end": 2000
-  },
-  "assets": {
-    "large_image": "ferris",
-    "large_text": "Ferris",
-    "small_image": "rusting",
-    "small_text": "Rusting..."
-  },
-  "party": {
-    "id": 1,
-    "size": [
-      3,
-      6
-    ]
-  },
-  "secrets": {
-    "join": "025ed05c71f639de8bfaa0d679d7c94b2fdce12f",
-    "spectate": "e7eb30d2ee025ed05c71ea495f770b76454ee4e0",
-    "match": "4b2fdce12f639de8bfa7e3591b71a0d679d7c93f"
-  }
-}"###;
-
     #[test]
-    fn test_serialize_full_activity() {
+    fn can_serialize_full_activity() {
+        let expected = include_str!("../../tests/fixtures/activity_full.json");
+
         let activity = Activity::new()
             .state("rusting")
             .details("detailed")
@@ -146,11 +119,11 @@ r###"{
 
         let json = serde_json::to_string_pretty(&activity).unwrap();
 
-        assert_eq![json, FULL_JSON];
+        assert_eq!(expected, json);
     }
 
     #[test]
-    fn test_serialize_empty_activity() {
+    fn can_serialize_empty_activity() {
         let activity = Activity::new();
         let json = serde_json::to_string(&activity).unwrap();
         assert_eq![json, "{}"];
