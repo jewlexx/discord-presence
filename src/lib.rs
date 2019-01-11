@@ -1,17 +1,6 @@
-#[macro_use]
-extern crate log;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-#[macro_use]
-extern crate serde_json;
-extern crate byteorder;
-extern crate uuid;
-extern crate bytes;
-extern crate parking_lot;
-extern crate crossbeam_channel;
-#[cfg(windows)]
-extern crate named_pipe;
+// Cannot remove this *macro_use*, would break derive inside of macros
+#[macro_use] extern crate serde_derive;
+
 
 #[macro_use]
 mod macros;
@@ -21,5 +10,5 @@ pub mod error;
 pub mod models;
 pub mod client;
 
-pub use client::Client;
-pub use error::Error;
+pub use self::client::Client;
+pub use self::error::{Error, Result};

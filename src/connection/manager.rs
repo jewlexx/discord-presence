@@ -1,20 +1,20 @@
 use std::{
     thread,
-    sync::{
-        Arc,
-    },
+    sync::Arc,
     time,
     io::ErrorKind
 };
+use log::{debug, error};
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
-
 use super::{
     Connection,
     SocketConnection,
 };
-use models::Message;
-use error::{Result, Error};
+use crate::{
+    models::Message,
+    error::{Error, Result},
+};
 
 
 type Tx = Sender<Message>;

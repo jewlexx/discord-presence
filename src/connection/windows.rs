@@ -2,11 +2,10 @@ use std::{
     time,
     path::PathBuf,
 };
-
-use super::base::Connection;
-use error::Result;
-
 use named_pipe::PipeClient;
+use super::base::Connection;
+use crate::Result;
+
 
 pub struct WindowsConnection {
     socket: PipeClient,

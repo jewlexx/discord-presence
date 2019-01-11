@@ -5,9 +5,8 @@ use std::{
     os::unix::net::UnixStream,
     net::Shutdown,
 };
-
 use super::base::Connection;
-use error::Result;
+use crate::Result;
 
 
 pub struct UnixConnection {

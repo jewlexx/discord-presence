@@ -1,24 +1,25 @@
 use serde::{Serialize, de::DeserializeOwned};
-#[allow(unused)]
 use serde_json::Value;
-
-use connection::Manager as ConnectionManager;
-use models::{
-    OpCode,
-    Command,
-    Event,
-    payload::Payload,
-    message::Message,
-    commands::{SubscriptionArgs, Subscription},
+use crate::{
+    connection::Manager as ConnectionManager,
+    models::{
+        OpCode,
+        Command,
+        Event,
+        payload::Payload,
+        message::Message,
+        commands::{SubscriptionArgs, Subscription},
+    },
+    Error,
+    Result,
 };
 #[cfg(feature = "rich_presence")]
-use models::rich_presence::{
+use crate::models::rich_presence::{
     SetActivityArgs,
     Activity,
     SendActivityJoinInviteArgs,
     CloseActivityRequestArgs,
 };
-use error::{Result, Error};
 
 
 #[derive(Clone)]

@@ -5,12 +5,14 @@ use std::{
     thread,
     time,
 };
-
+use serde_json::json;
+use log::{debug, error};
 use bytes::BytesMut;
-
-use utils;
-use models::message::{Message, OpCode};
-use error::{Error, Result};
+use crate::{
+    utils,
+    models::message::{Message, OpCode},
+    error::{Error, Result},
+};
 
 
 /// Wait for a non-blocking connection until it's complete.

@@ -1,9 +1,8 @@
 #![cfg(feature = "rich_presence")]
 
 use std::default::Default;
-
 use super::shared::PartialUser;
-use utils;
+use crate::utils;
 
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]

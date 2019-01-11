@@ -1,12 +1,6 @@
-use std::{
-    convert::From,
-};
-
 use serde::{Serialize, de::DeserializeOwned};
-use serde_json;
-
 use super::{Command, Event, Message};
-use utils;
+use crate::utils;
 
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
