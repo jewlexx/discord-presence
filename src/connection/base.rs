@@ -50,7 +50,7 @@ pub trait Connection: Sized {
 
     /// Perform a handshake on this socket connection.
     /// Will block until complete.
-    fn handshake(&mut self, client_id: u64) -> Result<()> {
+    fn handshake(&mut self, client_id: u64) -> Result<Message> {
         let hs = json![{
             "client_id": client_id.to_string(),
             "v": 1,
@@ -58,9 +58,9 @@ pub trait Connection: Sized {
         }];
 
         try_until_done!(self.send(Message::new(OpCode::Handshake, hs.clone())));
-        try_until_done!(self.recv());
+        let msg = try_until_done!(self.recv());
 
-        Ok(())
+        Ok(msg)
     }
 
     /// Ping the server and get a pong response.

@@ -26,6 +26,17 @@ use crate::models::rich_presence::{
 };
 
 
+macro_rules! event_handler_function {
+    [ $name:ident, $event:expr ] => {
+        pub fn $name<F>(&mut self, handler: F)
+            where F: Fn(EventContext) + 'static + Send + Sync
+        {
+            self.on_event($event, handler);
+        }
+    }
+}
+
+
 #[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
@@ -95,9 +106,22 @@ impl Client {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
-    pub fn on_ready<F>(&mut self, handler: F)
+    pub fn on_event<F>(&mut self, event: Event, handler: F)
         where F: Fn(EventContext) + 'static + Send + Sync
     {
-        self.event_handler_registry.register(Event::Ready, handler);
+        self.event_handler_registry.register(event, handler);
     }
+
+    event_handler_function!(on_ready, Event::Ready);
+
+    event_handler_function!(on_error, Event::Error);
+
+    #[cfg(feature = "rich_presence")]
+    event_handler_function!(on_activity_join, Event::ActivityJoin);
+
+    #[cfg(feature = "rich_presence")]
+    event_handler_function!(on_activity_join_request, Event::ActivityJoinRequest);
+
+    #[cfg(feature = "rich_presence")]
+    event_handler_function!(on_activity_spectate, Event::ActivitySpectate);
 }

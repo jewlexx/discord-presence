@@ -13,6 +13,18 @@ fn main() {
 
     let mut drpc = DiscordRPC::new(425407036495495169);
 
+    drpc.on_activity_join_request(|ctx| {
+        println!("Join request: {:?}", ctx.event);
+    });
+
+    drpc.on_activity_join(|ctx| {
+        println!("Joined: {:?}", ctx.event);
+    });
+
+    drpc.on_activity_spectate(|ctx| {
+        println!("Spectate: {:?}", ctx.event);
+    });
+
     drpc.start();
 
     drpc.subscribe(Event::ActivityJoin, |j| j

@@ -13,3 +13,4 @@ pub mod client;
 
 pub use self::client::Client;
 pub use self::error::{Error, Result};
+pub use self::models::Event;

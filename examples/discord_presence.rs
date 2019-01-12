@@ -10,6 +10,14 @@ fn main() {
 
     let mut drpc = DiscordRPC::new(425407036495495169);
 
+    drpc.on_ready(|_ctx| {
+        println!("READY!");
+    });
+
+    drpc.on_error(|_ctx| {
+        eprintln!("An error occured");
+    });
+
     drpc.start();
 
     loop {

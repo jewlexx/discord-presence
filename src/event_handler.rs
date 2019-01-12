@@ -42,8 +42,9 @@ impl<'a> HandlerRegistry<'a> {
     pub fn register<F>(&mut self, event: Event, handler: F)
         where F: Fn(Context) + 'a + Send + Sync
     {
-        let mut handlers = self.handlers.write();
-        handlers.get_mut(&event).map(|inner| inner.push(Box::new(handler)));
+        let mut event_handlers = self.handlers.write();
+        let event_handler = event_handlers.entry(event).or_default();
+        event_handler.push(Box::new(handler));
     }
 
     pub fn unregister(&mut self, event: Event, id: usize) {
