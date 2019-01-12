@@ -14,12 +14,14 @@ use super::{
 use crate::{
     models::Message,
     error::{Error, Result},
+    event_handler::HandlerRegistry,
 };
 
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
 
+// TODO: Refactor connection manager
 #[derive(Clone)]
 pub struct Manager {
     connection: Arc<Option<Mutex<SocketConnection>>>,
@@ -27,10 +29,11 @@ pub struct Manager {
     outbound: (Rx, Tx),
     inbound: (Rx, Tx),
     handshake_completed: bool,
+    event_handler_registry: HandlerRegistry<'static>,
 }
 
 impl Manager {
-    pub fn new(client_id: u64) -> Self {
+    pub fn new(client_id: u64, event_handler_registry: HandlerRegistry<'static>) -> Self {
         let connection = Arc::new(None);
         let (sender_o, receiver_o) = unbounded();
         let (sender_i, receiver_i) = unbounded();
@@ -41,6 +44,7 @@ impl Manager {
             handshake_completed: false,
             inbound: (receiver_i, sender_i),
             outbound: (receiver_o, sender_o),
+            event_handler_registry,
         }
     }
 

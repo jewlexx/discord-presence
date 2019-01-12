@@ -6,6 +6,7 @@
 mod macros;
 mod utils;
 mod connection;
+mod event_handler;
 pub mod error;
 pub mod models;
 pub mod client;

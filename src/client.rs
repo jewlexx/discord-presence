@@ -12,6 +12,10 @@ use crate::{
     },
     Error,
     Result,
+    event_handler::{
+        HandlerRegistry,
+        Context as EventContext,
+    },
 };
 #[cfg(feature = "rich_presence")]
 use crate::models::rich_presence::{
@@ -25,12 +29,14 @@ use crate::models::rich_presence::{
 #[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
+    event_handler_registry: HandlerRegistry<'static>,
 }
 
 impl Client {
     pub fn new(client_id: u64) -> Self {
-        let connection_manager = ConnectionManager::new(client_id);
-        Self { connection_manager }
+        let event_handler_registry = HandlerRegistry::new();
+        let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
+        Self { connection_manager, event_handler_registry }
     }
 
     pub fn start(&mut self) {
@@ -87,5 +93,11 @@ impl Client {
         where F: FnOnce(SubscriptionArgs) -> SubscriptionArgs
     {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
+    }
+
+    pub fn on_ready<F>(&mut self, handler: F)
+        where F: Fn(EventContext) + 'static + Send + Sync
+    {
+        self.event_handler_registry.register(Event::Ready, handler);
     }
 }
