@@ -38,18 +38,12 @@ impl<'a> HandlerRegistry<'a> {
         Self { handlers: Arc::new(RwLock::new(HashMap::new())) }
     }
 
-    // TODO: return event index?
     pub fn register<F>(&mut self, event: Event, handler: F)
         where F: Fn(Context) + 'a + Send + Sync
     {
         let mut event_handlers = self.handlers.write();
         let event_handler = event_handlers.entry(event).or_default();
         event_handler.push(Box::new(handler));
-    }
-
-    pub fn unregister(&mut self, event: Event, id: usize) {
-        let mut handlers = self.handlers.write();
-        handlers.get_mut(&event).map(|inner| inner.remove(id));
     }
 
     pub fn handle(&mut self, event: Event, data: JsonValue) -> Result<()> {
@@ -63,5 +57,24 @@ impl<'a> HandlerRegistry<'a> {
         }
 
         Ok(())
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn can_register_event_handlers() {
+        let mut registry = HandlerRegistry::new();
+        registry.register(Event::Ready, |_| unimplemented!());
+        registry.register(Event::Ready, |_| unimplemented!());
+        registry.register(Event::Error, |_| unimplemented!());
+
+        let handlers = registry.handlers.read();
+        assert_eq!(handlers.len(), 2);
+        assert_eq!(handlers[&Event::Ready].len(), 2);
+        assert_eq!(handlers[&Event::Error].len(), 1);
     }
 }
