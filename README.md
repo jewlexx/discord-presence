@@ -19,10 +19,8 @@ discord-rpc-client = "^0.3"
 ## Example
 
 ```rust
-extern crate discord_rpc_client;
-
 use std::{env, thread, time};
-use discord_rpc_client::Client;
+use discord_rpc_client::{Client, Event};
 
 fn main() {
     // Get our main status message
@@ -30,6 +28,17 @@ fn main() {
 
     // Create the client
     let mut drpc = Client::new(425407036495495169);
+
+    // Register event handlers with the corresponding methods
+    drpc.on_ready(|_ctx| {
+        println!("ready?");
+    });
+
+    // or
+
+    drpc.on_event(Event::Ready, |ctx| {
+        println!("READY!");
+    });
 
     // Start up the client connection, so that we can actually send and receive stuff
     drpc.start();
