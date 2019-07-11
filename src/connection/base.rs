@@ -52,12 +52,13 @@ pub trait Connection: Sized {
     /// Will block until complete.
     fn handshake(&mut self, client_id: u64) -> Result<Message> {
         let hs = json![{
-            "client_id": client_id.to_string(),
+            "client_id": client_id.to_owned(),
             "v": 1,
             "nonce": utils::nonce()
         }];
 
-        try_until_done!(self.send(Message::new(OpCode::Handshake, hs.clone())));
+        let msg = Message::new(OpCode::Handshake, hs);
+        try_until_done!(self.send(&msg));
         let msg = try_until_done!(self.recv());
 
         Ok(msg)
@@ -67,17 +68,17 @@ pub trait Connection: Sized {
     /// Will block until complete.
     fn ping(&mut self) -> Result<OpCode> {
         let message = Message::new(OpCode::Ping, json![{}]);
-        try_until_done!(self.send(message.clone()));
+        try_until_done!(self.send(&message));
         let response = try_until_done!(self.recv());
         Ok(response.opcode)
     }
 
     /// Send a message to the server.
-    fn send(&mut self, message: Message) -> Result<()> {
+    fn send(&mut self, message: &Message) -> Result<()> {
         match message.encode() {
             Err(why) => error!("{:?}", why),
             Ok(bytes) => {
-                self.socket().write_all(bytes.as_ref())?;
+                self.socket().write_all(&bytes)?;
             }
         };
         debug!("-> {:?}", message);
@@ -86,8 +87,7 @@ pub trait Connection: Sized {
 
     /// Receive a message from the server.
     fn recv(&mut self) -> Result<Message> {
-        let mut buf = BytesMut::new();
-        buf.resize(1024, 0);
+        let mut buf = BytesMut::with_capacity(1024);
         let n = self.socket().read(&mut buf)?;
         debug!("Received {} bytes", n);
 
@@ -95,8 +95,7 @@ pub trait Connection: Sized {
             return Err(Error::ConnectionClosed);
         }
 
-        buf = buf.split_to(n);
-        let message = Message::decode(&buf)?;
+        let message = Message::decode(&buf[..n])?;
         debug!("<- {:?}", message);
 
         Ok(message)

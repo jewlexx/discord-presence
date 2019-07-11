@@ -31,10 +31,10 @@ impl Connection for UnixConnection {
             .or_else(|_| {
                 match env::temp_dir().to_str() {
                     None => Err("Failed to convert temp_dir"),
-                    Some(tmp) => Ok(tmp.to_string())
+                    Some(tmp) => Ok(tmp.to_owned())
                 }
             })
-            .unwrap_or("/tmp".to_string());
+            .unwrap_or_else(|_| "/tmp".to_owned());
         PathBuf::from(tmp)
     }
 

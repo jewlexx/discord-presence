@@ -1,30 +1,18 @@
 use std::io::{self, Write, Read};
 use byteorder::{WriteBytesExt, ReadBytesExt, LittleEndian};
+use num_derive::FromPrimitive;
+use num_traits::FromPrimitive;
 use serde::Serialize;
 use crate::{Error, Result};
 
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive)]
 pub enum OpCode {
     Handshake,
     Frame,
     Close,
     Ping,
     Pong,
-}
-
-// FIXME: Use TryFrom trait when stable
-impl OpCode {
-    fn try_from(int: u32) -> Result<Self> {
-        match int {
-            0 => Ok(OpCode::Handshake),
-            1 => Ok(OpCode::Frame),
-            2 => Ok(OpCode::Close),
-            3 => Ok(OpCode::Ping),
-            4 => Ok(OpCode::Pong),
-            _ => Err(Error::Conversion)
-        }
-    }
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -45,7 +33,7 @@ impl Message {
 
         bytes.write_u32::<LittleEndian>(self.opcode as u32)?;
         bytes.write_u32::<LittleEndian>(self.payload.len() as u32)?;
-        write!(bytes, "{}", self.payload)?;
+        bytes.write_all(self.payload.as_bytes())?;
 
         Ok(bytes)
     }
@@ -54,7 +42,7 @@ impl Message {
         let mut reader = io::Cursor::new(bytes);
         let mut payload = String::new();
 
-        let opcode = OpCode::try_from(reader.read_u32::<LittleEndian>()?)?;
+        let opcode = OpCode::from_u32(reader.read_u32::<LittleEndian>()?).ok_or(Error::Conversion)?;
         reader.read_u32::<LittleEndian>()?;
         reader.read_to_string(&mut payload)?;
 
@@ -82,8 +70,8 @@ mod tests {
 
     #[test]
     fn test_opcode() {
-        assert_eq!(OpCode::try_from(0).ok(), Some(OpCode::Handshake));
-        assert_eq!(OpCode::try_from(4).ok(), Some(OpCode::Pong));
-        assert_eq!(OpCode::try_from(5).ok(), None);
+        assert_eq!(OpCode::from_u32(0), Some(OpCode::Handshake));
+        assert_eq!(OpCode::from_u32(4), Some(OpCode::Pong));
+        assert_eq!(OpCode::from_u32(5), None);
     }
 }

@@ -135,7 +135,7 @@ fn send_and_receive_loop(mut manager: Manager) {
 
 fn send_and_receive(connection: &mut SocketConnection, event_handler_registry: &mut HandlerRegistry, inbound: &mut Tx, outbound: &Rx) -> Result<()> {
     while let Ok(msg) = outbound.try_recv() {
-        connection.send(msg).expect("Failed to send outgoing data");
+        connection.send(&msg).expect("Failed to send outgoing data");
     }
 
     let msg = connection.recv()?;
