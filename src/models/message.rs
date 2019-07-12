@@ -1,11 +1,11 @@
-use std::io::{self, Write, Read};
+use std::io::{Write, Read};
 use byteorder::{WriteBytesExt, ReadBytesExt, LittleEndian};
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
 use serde::Serialize;
 use crate::{Error, Result};
 
-
+#[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive)]
 pub enum OpCode {
     Handshake,
@@ -38,18 +38,15 @@ impl Message {
         Ok(bytes)
     }
 
-    pub fn decode(bytes: &[u8]) -> Result<Self> {
-        let mut reader = io::Cursor::new(bytes);
-        let mut payload = String::new();
-
-        let opcode = OpCode::from_u32(reader.read_u32::<LittleEndian>()?).ok_or(Error::Conversion)?;
-        reader.read_u32::<LittleEndian>()?;
-        reader.read_to_string(&mut payload)?;
+    pub fn decode(mut bytes: &[u8]) -> Result<Self> {
+        let opcode = OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(Error::Conversion)?;
+        let len = bytes.read_u32::<LittleEndian>()? as usize;
+        let mut payload = String::with_capacity(len);
+        bytes.read_to_string(&mut payload)?;
 
         Ok(Self { opcode, payload })
     }
 }
-
 
 #[cfg(test)]
 mod tests {

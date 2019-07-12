@@ -3,11 +3,11 @@ use std::{
     marker::Sized,
     path::PathBuf,
     thread,
-    time,
+    time
 };
+use bytes::BytesMut;
 use serde_json::json;
 use log::{debug, error};
-use bytes::BytesMut;
 use crate::{
     utils,
     models::message::{Message, OpCode},
@@ -52,7 +52,7 @@ pub trait Connection: Sized {
     /// Will block until complete.
     fn handshake(&mut self, client_id: u64) -> Result<Message> {
         let hs = json![{
-            "client_id": client_id.to_owned(),
+            "client_id": client_id.to_string(),
             "v": 1,
             "nonce": utils::nonce()
         }];
@@ -87,7 +87,8 @@ pub trait Connection: Sized {
 
     /// Receive a message from the server.
     fn recv(&mut self) -> Result<Message> {
-        let mut buf = BytesMut::with_capacity(1024);
+        let mut buf = BytesMut::new();
+        buf.resize(1024, 0);
         let n = self.socket().read(&mut buf)?;
         debug!("Received {} bytes", n);
 
