@@ -1,19 +1,11 @@
-use std::{
-    collections::HashMap,
-    sync::Arc,
-};
+use crate::{models::Event, Result};
 use parking_lot::RwLock;
 use serde_json::Value as JsonValue;
-use crate::{
-    models::Event,
-    Result,
-};
+use std::{collections::HashMap, sync::Arc};
 
-
-type Handler<'a> = Box<Fn(Context) + 'a + Send + Sync>;
+type Handler<'a> = Box<dyn Fn(Context) + 'a + Send + Sync>;
 
 type HandlerList<'a> = Vec<Handler<'a>>;
-
 
 #[derive(Debug, Clone)]
 pub struct Context {
@@ -27,7 +19,6 @@ impl Context {
     }
 }
 
-
 #[derive(Clone)]
 pub struct HandlerRegistry<'a> {
     handlers: Arc<RwLock<HashMap<Event, HandlerList<'a>>>>,
@@ -35,11 +26,14 @@ pub struct HandlerRegistry<'a> {
 
 impl<'a> HandlerRegistry<'a> {
     pub fn new() -> Self {
-        Self { handlers: Arc::new(RwLock::new(HashMap::new())) }
+        Self {
+            handlers: Arc::new(RwLock::new(HashMap::new())),
+        }
     }
 
     pub fn register<F>(&mut self, event: Event, handler: F)
-        where F: Fn(Context) + 'a + Send + Sync
+    where
+        F: Fn(Context) + 'a + Send + Sync,
     {
         let mut event_handlers = self.handlers.write();
         let event_handler = event_handlers.entry(event).or_default();
@@ -59,7 +53,6 @@ impl<'a> HandlerRegistry<'a> {
         Ok(())
     }
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -7,7 +7,7 @@ license     = "MIT"
 readme      = "README.md"
 repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
 version     = "0.3.0"
-edition     = "2018"
+edition     = "2021"
 
 [badges]
 travis-ci   = { repository = "valeth/discord-rpc-client.rs" }
