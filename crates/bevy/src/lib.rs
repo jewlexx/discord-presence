@@ -41,31 +41,26 @@ pub struct RPCResource {
 
 impl FromWorld for RPCResource {
     fn from_world(world: &mut World) -> Self {
-        let config = world.get_resource::<RPCConfig>();
-        match config {
-            Some(config) => RPCResource {
-                client: Arc::new(Mutex::new(Client::new(config.client_id))),
-            },
-            None => RPCResource {
-                client: Arc::new(Mutex::new(Client::new(425407036495495169))),
-            },
+        let config = world.get_resource::<RPCConfig>().unwrap();
+        Self {
+            client: Arc::new(Mutex::new(Client::new(config.client_id))),
         }
     }
 }
 
 impl Plugin for RPCPlugin {
     fn build(&self, app: &mut App) {
-        println!("RPCPlugin::build");
         let client_config = self.0.clone();
-        println!("\n{:?}", &client_config);
 
         app.add_startup_system(startup_client);
         app.add_system(check_activity_changed);
         debug!("Added systems");
 
         app.insert_resource::<RPCConfig>(client_config);
+
         app.init_resource::<ActivityState>();
         app.init_resource::<RPCResource>();
+
         debug!("Initialized resources");
     }
 }
@@ -77,16 +72,19 @@ fn startup_client(client: ResMut<RPCResource>) {
     let error = Arc::new(Mutex::<Option<Value>>::new(None));
 
     client.on_ready(move |_| {
+        debug!("Client is ready");
         let is_ready = Arc::clone(&is_ready);
         *is_ready.lock().unwrap() = true;
     });
 
     client.on_error(move |e| {
+        debug!("Client error: {:?}", e);
         let error = Arc::clone(&error);
         *error.lock().unwrap() = Some(e.event);
     });
 
     client.start();
+    debug!("Client has started");
 }
 
 fn check_activity_changed(activity: Res<ActivityState>, client: ResMut<RPCResource>) {
