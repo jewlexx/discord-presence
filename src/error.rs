@@ -1,16 +1,10 @@
+use serde_json::Error as JsonError;
 use std::{
-    error::Error as StdError,
+    fmt::{self, Display, Formatter},
     io::Error as IoError,
     result::Result as StdResult,
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
-    fmt::{
-        self,
-        Display,
-        Formatter
-    },
 };
-use serde_json::Error as JsonError;
-
 
 #[derive(Debug)]
 pub enum Error {
@@ -24,19 +18,19 @@ pub enum Error {
 
 impl Display for Error {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_str(self.description())
+        f.write_str(self.description().as_str())
     }
 }
 
-impl StdError for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Conversion => "Failed to convert values",
-            Error::SubscriptionFailed => "Failed to subscribe to event",
-            Error::ConnectionClosed => "Connection closed",
-            Error::IoError(ref err) => err.description(),
-            Error::JsonError(ref err) => err.description(),
-            Error::Timeout(ref err) => err.description(),
+impl Error {
+    fn description(&self) -> String {
+        match self {
+            Error::Conversion => "Failed to convert values".into(),
+            Error::SubscriptionFailed => "Failed to subscribe to event".into(),
+            Error::ConnectionClosed => "Connection closed".into(),
+            Error::IoError(ref err) => err.to_string(),
+            Error::JsonError(ref err) => err.to_string(),
+            Error::Timeout(ref err) => err.to_string(),
         }
     }
 }
