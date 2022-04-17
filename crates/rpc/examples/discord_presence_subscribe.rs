@@ -1,4 +1,4 @@
-use discord_rpc::{models::Event, Client as DiscordRPC};
+use discord_presence::{models::Event, Client as DiscordRPC};
 use simplelog::*;
 use std::{thread, time};
 
