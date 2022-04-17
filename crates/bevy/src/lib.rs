@@ -55,7 +55,9 @@ impl FromWorld for RPCResource {
 
 impl Plugin for RPCPlugin {
     fn build(&self, app: &mut App) {
+        println!("RPCPlugin::build");
         let client_config = self.0.clone();
+        println!("\n{:?}", &client_config);
 
         app.add_startup_system(startup_client);
         app.add_system(check_activity_changed);
@@ -83,15 +85,6 @@ fn startup_client(client: ResMut<RPCResource>) {
         let error = Arc::clone(&error);
         *error.lock().unwrap() = Some(e.event);
     });
-
-    let res = client.set_activity(|e| e.state("poggies"));
-
-    match res {
-        Ok(_) => {}
-        Err(why) => {
-            error!("Failed to set presence: {}", why);
-        }
-    }
 
     client.start();
 }
