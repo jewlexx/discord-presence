@@ -7,7 +7,7 @@ fn main() {
     let mut app = App::new();
     app.add_plugins(DefaultPlugins);
     app.add_plugin(RPCPlugin(RPCConfig {
-        app_id: 965125975941709834,
+        app_id: 425407036495495169,
         show_time: true,
     }));
 

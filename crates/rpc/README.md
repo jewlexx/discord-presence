@@ -22,8 +22,6 @@ $ cargo add discord-presence
 
 if you have `cargo-edit` installed
 
-
-
 ## Example
 
 ```rust
@@ -61,6 +59,10 @@ fn main() {
 ```
 
 > More examples can be found in the examples directory.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributions
 
