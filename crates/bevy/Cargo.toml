@@ -4,4 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bevy = { version = "0.7.0", default-features = false }
 discord-presence = "0.4.0"
+serde_json = "1.0.79"
