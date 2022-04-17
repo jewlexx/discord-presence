@@ -1,11 +1,7 @@
-use std::{
-    time,
-    path::PathBuf,
-};
-use named_pipe::PipeClient;
 use super::base::Connection;
 use crate::Result;
-
+use named_pipe::PipeClient;
+use std::{path::PathBuf, time};
 
 pub struct WindowsConnection {
     socket: PipeClient,

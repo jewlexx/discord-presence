@@ -1,10 +1,9 @@
-mod shared;
-pub mod message;
-pub mod payload;
 pub mod commands;
 pub mod events;
+pub mod message;
+pub mod payload;
 pub mod rich_presence;
-
+mod shared;
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -34,30 +33,21 @@ pub enum Event {
     ActivityJoinRequest,
 }
 
-pub use self::message::{Message, OpCode};
 pub use self::commands::*;
 pub use self::events::*;
+pub use self::message::{Message, OpCode};
 
 #[cfg(feature = "rich_presence")]
 pub use self::rich_presence::*;
 
 pub mod prelude {
-    pub use super::Command;
-    pub use super::Event;
+    pub use super::commands::{Subscription, SubscriptionArgs};
+    pub use super::events::{ErrorEvent, ReadyEvent};
     #[cfg(feature = "rich_presence")]
     pub use super::rich_presence::{
-        SetActivityArgs,
-        SendActivityJoinInviteArgs,
-        CloseActivityRequestArgs,
-        ActivityJoinEvent,
-        ActivitySpectateEvent,
-        ActivityJoinRequestEvent
+        ActivityJoinEvent, ActivityJoinRequestEvent, ActivitySpectateEvent,
+        CloseActivityRequestArgs, SendActivityJoinInviteArgs, SetActivityArgs,
     };
-    pub use super::commands::{
-        SubscriptionArgs, Subscription
-    };
-    pub use super::events::{
-        ReadyEvent,
-        ErrorEvent,
-    };
+    pub use super::Command;
+    pub use super::Event;
 }

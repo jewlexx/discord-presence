@@ -1,19 +1,17 @@
-use std::{
-    io::{Write, Read, ErrorKind},
-    marker::Sized,
-    path::PathBuf,
-    thread,
-    time
+use crate::{
+    error::{Error, Result},
+    models::message::{Message, OpCode},
+    utils,
 };
 use bytes::BytesMut;
-use serde_json::json;
 use log::{debug, error};
-use crate::{
-    utils,
-    models::message::{Message, OpCode},
-    error::{Error, Result},
+use serde_json::json;
+use std::{
+    io::{ErrorKind, Read, Write},
+    marker::Sized,
+    path::PathBuf,
+    thread, time,
 };
-
 
 /// Wait for a non-blocking connection until it's complete.
 macro_rules! try_until_done {
@@ -29,7 +27,6 @@ macro_rules! try_until_done {
         }
     }
 }
-
 
 pub trait Connection: Sized {
     type Socket: Write + Read;

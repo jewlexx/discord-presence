@@ -1,23 +1,14 @@
-use std::{
-    thread,
-    sync::Arc,
-    time,
-    io::ErrorKind
-};
-use log::{debug, error};
-use crossbeam_channel::{unbounded, Receiver, Sender};
-use parking_lot::Mutex;
-use serde_json::Value as JsonValue;
-use super::{
-    Connection,
-    SocketConnection,
-};
+use super::{Connection, SocketConnection};
 use crate::{
-    models::{Event, Message, payload::Payload},
     error::{Error, Result},
     event_handler::HandlerRegistry,
+    models::{payload::Payload, Event, Message},
 };
-
+use crossbeam_channel::{unbounded, Receiver, Sender};
+use log::{debug, error};
+use parking_lot::Mutex;
+use serde_json::Value as JsonValue;
+use std::{io::ErrorKind, sync::Arc, thread, time};
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
@@ -78,7 +69,8 @@ impl Manager {
         debug!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
-        self.event_handler_registry.handle(Event::Ready, payload.data.unwrap())?;
+        self.event_handler_registry
+            .handle(Event::Ready, payload.data.unwrap())?;
         debug!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));
@@ -92,9 +84,7 @@ impl Manager {
         self.handshake_completed = false;
         self.connection = Arc::new(None);
     }
-
 }
-
 
 fn send_and_receive_loop(mut manager: Manager) {
     debug!("Starting sender loop");
@@ -108,7 +98,12 @@ fn send_and_receive_loop(mut manager: Manager) {
         match *connection {
             Some(ref conn) => {
                 let mut connection = conn.lock();
-                match send_and_receive(&mut *connection, &mut manager.event_handler_registry, &mut inbound, &outbound) {
+                match send_and_receive(
+                    &mut *connection,
+                    &mut manager.event_handler_registry,
+                    &mut inbound,
+                    &outbound,
+                ) {
                     Err(Error::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
                     Err(Error::IoError(_)) | Err(Error::ConnectionClosed) => manager.disconnect(),
                     Err(why) => error!("error: {}", why),
@@ -116,24 +111,27 @@ fn send_and_receive_loop(mut manager: Manager) {
                 }
 
                 thread::sleep(time::Duration::from_millis(500));
-            },
-            None => {
-                match manager.connect() {
-                    Err(err) => {
-                        match err {
-                            Error::IoError(ref err) if err.kind() == ErrorKind::ConnectionRefused => (),
-                            why => error!("Failed to connect: {:?}", why),
-                        }
-                        thread::sleep(time::Duration::from_secs(10));
-                    },
-                    _ => manager.handshake_completed = true,
-                }
             }
+            None => match manager.connect() {
+                Err(err) => {
+                    match err {
+                        Error::IoError(ref err) if err.kind() == ErrorKind::ConnectionRefused => (),
+                        why => error!("Failed to connect: {:?}", why),
+                    }
+                    thread::sleep(time::Duration::from_secs(10));
+                }
+                _ => manager.handshake_completed = true,
+            },
         }
     }
 }
 
-fn send_and_receive(connection: &mut SocketConnection, event_handler_registry: &mut HandlerRegistry, inbound: &mut Tx, outbound: &Rx) -> Result<()> {
+fn send_and_receive(
+    connection: &mut SocketConnection,
+    event_handler_registry: &mut HandlerRegistry,
+    inbound: &mut Tx,
+    outbound: &Rx,
+) -> Result<()> {
     while let Ok(msg) = outbound.try_recv() {
         connection.send(&msg).expect("Failed to send outgoing data");
     }
@@ -143,12 +141,14 @@ fn send_and_receive(connection: &mut SocketConnection, event_handler_registry: &
     let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
 
     match &payload {
-        Payload { evt: Some(event), .. } => {
+        Payload {
+            evt: Some(event), ..
+        } => {
             event_handler_registry.handle(event.clone(), payload.data.unwrap())?;
-        },
+        }
         _ => {
             inbound.send(msg).expect("Failed to send received data");
-        },
+        }
     }
 
     Ok(())

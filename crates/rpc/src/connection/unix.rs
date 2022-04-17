@@ -1,13 +1,6 @@
-use std::{
-    time,
-    path::PathBuf,
-    env,
-    os::unix::net::UnixStream,
-    net::Shutdown,
-};
 use super::base::Connection;
 use crate::Result;
-
+use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf, time};
 
 pub struct UnixConnection {
     socket: UnixStream,
@@ -28,11 +21,9 @@ impl Connection for UnixConnection {
     fn ipc_path() -> PathBuf {
         let tmp = env::var("XDG_RUNTIME_DIR")
             .or_else(|_| env::var("TMPDIR"))
-            .or_else(|_| {
-                match env::temp_dir().to_str() {
-                    None => Err("Failed to convert temp_dir"),
-                    Some(tmp) => Ok(tmp.to_owned())
-                }
+            .or_else(|_| match env::temp_dir().to_str() {
+                None => Err("Failed to convert temp_dir"),
+                Some(tmp) => Ok(tmp.to_owned()),
             })
             .unwrap_or_else(|_| "/tmp".to_owned());
         PathBuf::from(tmp)
@@ -45,7 +36,8 @@ impl Connection for UnixConnection {
 
 impl Drop for UnixConnection {
     fn drop(&mut self) {
-        self.socket.shutdown(Shutdown::Both)
+        self.socket
+            .shutdown(Shutdown::Both)
             .expect("Failed to properly shut down socket");
     }
 }

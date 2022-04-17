@@ -1,15 +1,15 @@
 // Cannot remove this *macro_use*, would break derive inside of macros
-#[macro_use] extern crate serde_derive;
-
+#[macro_use]
+extern crate serde_derive;
 
 #[macro_use]
 mod macros;
-mod utils;
-mod connection;
-mod event_handler;
-pub mod error;
-pub mod models;
 pub mod client;
+mod connection;
+pub mod error;
+mod event_handler;
+pub mod models;
+mod utils;
 
 pub use self::client::Client;
 pub use self::error::{Error, Result};

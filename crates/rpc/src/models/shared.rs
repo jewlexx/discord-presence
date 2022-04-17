@@ -1,4 +1,4 @@
-builder!{PartialUser
+builder! {PartialUser
     id:            String,
     username:      String,
     discriminator: String,
