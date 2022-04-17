@@ -1,9 +1,42 @@
 [package]
-name = "discord-rpc"
-version = "0.1.0"
-edition = "2021"
+authors     = ["Patrick Auernig <dev.patrick.auernig@gmail.com>"]
+name        = "discord-rpc-client"
+description = "A Rust client for Discord RPC."
+keywords    = ["discord", "rpc", "ipc"]
+license     = "MIT"
+readme      = "README.md"
+repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
+version     = "0.3.0"
+edition     = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[badges]
+travis-ci   = { repository = "valeth/discord-rpc-client.rs" }
+appveyor    = { repository = "valeth/discord-rpc-client.rs", service = "gitlab" }
+maintenance = { status = "experimental" }
 
 [dependencies]
-discord-rpc-client = "0.3.0"
+serde             = "1.0.136"
+serde_derive      = "1.0.136"
+serde_json        = "1.0.79"
+byteorder         = "1.4.3"
+log               = "0.4.16"
+bytes             = "1.1.0"
+parking_lot       = "0.12.0"
+crossbeam-channel = "0.5.4"
+num-derive        = "0.3.3"
+num-traits        = "0.2.14"
+
+[target.'cfg(windows)'.dependencies]
+named_pipe   = "0.4.1"
+
+[dependencies.uuid]
+version = "0.8.2"
+features = ["v4"]
+
+[dev-dependencies]
+simplelog = "0.11.2"
+version-sync = "0.9.4"
+
+[features]
+default = ["rich_presence"]
+rich_presence = []
