@@ -1,13 +1,22 @@
 use std::sync::{Arc, Mutex};
 
-use bevy::prelude::*;
+use bevy::{log::prelude::*, prelude::*};
 use discord_presence::*;
 use serde_json::Value;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct RPCConfig {
     pub client_id: u64,
     pub show_time: bool,
+}
+
+impl Default for RPCConfig {
+    fn default() -> Self {
+        Self {
+            client_id: 425407036495495169,
+            show_time: true,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
@@ -16,7 +25,7 @@ pub enum ActivityState {
     Blank,
 }
 
-pub struct RPCPlugin(RPCConfig);
+pub struct RPCPlugin(pub RPCConfig);
 
 pub struct RPCResource {
     pub client: Arc<Mutex<Client>>,
@@ -41,9 +50,11 @@ impl Plugin for RPCPlugin {
         let client_config = self.0.clone();
 
         app.add_startup_system(startup_client);
+        debug!("Added startup system");
 
         app.init_resource::<RPCResource>();
         app.insert_resource(client_config);
+        debug!("Initialized resources");
 
         app.add_state(ActivityState::Message("DiscordRPC".into()));
     }
@@ -70,7 +81,7 @@ fn startup_client(client: Res<RPCResource>) {
     match res {
         Ok(_) => {}
         Err(why) => {
-            println!("Failed to set presence: {}", why);
+            error!("Failed to set presence: {}", why);
         }
     }
 
