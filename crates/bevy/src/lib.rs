@@ -1,7 +1,10 @@
 use std::sync::{Arc, Mutex};
 
 use bevy::{log::prelude::*, prelude::*};
-use discord_presence::*;
+use discord_presence::{
+    models::{ActivityAssets, ActivityParty, ActivitySecrets, ActivityTimestamps},
+    *,
+};
 use serde_json::Value;
 
 #[derive(Debug, Clone)]
@@ -19,10 +22,15 @@ impl Default for RPCConfig {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub enum ActivityState {
-    Message(String),
-    Blank,
+#[derive(Default, Debug, Hash, Eq, PartialEq, Clone)]
+pub struct ActivityState {
+    pub state: Option<String>,
+    pub details: Option<String>,
+    pub instance: Option<bool>,
+    pub timestamps: Option<ActivityTimestamps>,
+    pub assets: Option<ActivityAssets>,
+    pub party: Option<ActivityParty>,
+    pub secrets: Option<ActivitySecrets>,
 }
 
 pub struct RPCPlugin(pub RPCConfig);
@@ -50,17 +58,18 @@ impl Plugin for RPCPlugin {
         let client_config = self.0.clone();
 
         app.add_startup_system(startup_client);
-        debug!("Added startup system");
+        app.add_system(update_presence);
+        debug!("Added systems");
 
+        app.insert_resource::<RPCConfig>(client_config);
         app.init_resource::<RPCResource>();
-        app.insert_resource(client_config);
         debug!("Initialized resources");
 
-        app.add_state(ActivityState::Message("DiscordRPC".into()));
+        app.add_state(ActivityState::default());
     }
 }
 
-fn startup_client(client: Res<RPCResource>) {
+fn startup_client(client: ResMut<RPCResource>) {
     let mut client = client.client.lock().unwrap();
 
     let is_ready = Arc::new(Mutex::new(false));
@@ -86,4 +95,8 @@ fn startup_client(client: Res<RPCResource>) {
     }
 
     client.start();
+}
+
+fn update_presence(client: ResMut<RPCResource>, client_config: Res<RPCConfig>) {
+    let mut client = client.client.lock().unwrap();
 }
