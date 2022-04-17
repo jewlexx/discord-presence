@@ -14,11 +14,21 @@ Add this to your `Cargo.toml`:
 discord-presence = "^0.4"
 ```
 
+or run:
+
+```shell
+$ cargo add discord-presence
+```
+
+if you have `cargo-edit` installed
+
+
+
 ## Example
 
 ```rust
 use std::{env, thread, time};
-use discord_rpc_client::{Client, Event};
+use discord_presence::{Client, Event};
 
 fn main() {
     // Get our main status message
@@ -54,4 +64,4 @@ fn main() {
 
 ## Contributions
 
-See [CONTRIBUTING.md](CONTRIBUTING.md)
+See [CONTRIBUTING.md](/CONTRIBUTING.md)
