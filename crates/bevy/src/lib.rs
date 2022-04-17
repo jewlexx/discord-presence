@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use bevy::{log::prelude::*, prelude::*};
 use discord_presence::{
     models::{ActivityAssets, ActivityParty, ActivitySecrets, ActivityTimestamps},
-    *,
+    Client,
 };
 use serde_json::Value;
 
@@ -58,14 +58,13 @@ impl Plugin for RPCPlugin {
         let client_config = self.0.clone();
 
         app.add_startup_system(startup_client);
-        app.add_system(update_presence);
+        app.add_system(check_activity_changed);
         debug!("Added systems");
 
         app.insert_resource::<RPCConfig>(client_config);
+        app.init_resource::<ActivityState>();
         app.init_resource::<RPCResource>();
         debug!("Initialized resources");
-
-        app.add_state(ActivityState::default());
     }
 }
 
@@ -97,6 +96,24 @@ fn startup_client(client: ResMut<RPCResource>) {
     client.start();
 }
 
-fn update_presence(client: ResMut<RPCResource>, client_config: Res<RPCConfig>) {
-    let mut client = client.client.lock().unwrap();
+fn check_activity_changed(activity: Res<ActivityState>, client: ResMut<RPCResource>) {
+    if activity.is_changed() {
+        let mut client = client.client.lock().unwrap();
+
+        let res = client.set_activity(|mut e| {
+            e.state = activity.state.clone();
+            e.assets = activity.assets.clone();
+            e.details = activity.details.clone();
+            e.party = activity.party.clone();
+            e.secrets = activity.secrets.clone();
+            e.timestamps = activity.timestamps.clone();
+            e.instance = activity.instance;
+
+            e
+        });
+
+        if let Err(why) = res {
+            error!("Failed to set presence: {}", why);
+        }
+    }
 }
