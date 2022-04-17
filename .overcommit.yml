@@ -1,6 +1,6 @@
 PreCommit:
   TrailingWhitespace:
-    enabled: true
+    enabled: false
     exclude:
       - "target/**/*"
 
