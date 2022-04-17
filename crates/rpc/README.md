@@ -11,7 +11,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-discord-rpc-client = "^0.4"
+discord-presence = "^0.4"
 ```
 
 ## Example
