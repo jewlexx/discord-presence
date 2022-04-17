@@ -66,6 +66,10 @@ impl Plugin for RPCPlugin {
 
         debug!("Initialized resources");
     }
+
+    fn name(&self) -> &str {
+        "RPCPlugin"
+    }
 }
 
 fn startup_client(
