@@ -1,11 +1,11 @@
 [package]
-authors     = ["Patrick Auernig <dev.patrick.auernig@gmail.com>"]
-name        = "discord-rpc-client"
+authors     = ["Juliette Cordor", "Patrick Auernig <dev.patrick.auernig@gmail.com>"]
+name        = "discord-rpc"
 description = "A Rust client for Discord RPC."
 keywords    = ["discord", "rpc", "ipc"]
 license     = "MIT"
 readme      = "README.md"
-repository  = "https://gitlab.com/valeth/discord-rpc-client.rs.git"
+repository  = "https://github.com/jewlexx/discord-rpc.git"
 version     = "0.3.0"
 edition     = "2021"
 
