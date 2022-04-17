@@ -1,9 +1,8 @@
 #![cfg(feature = "rich_presence")]
 
-use std::default::Default;
 use super::shared::PartialUser;
 use crate::utils;
-
+use std::default::Default;
 
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
@@ -15,15 +14,22 @@ pub struct SetActivityArgs {
 
 impl SetActivityArgs {
     pub fn new<F>(f: F) -> Self
-        where F: FnOnce(Activity) -> Activity
+    where
+        F: FnOnce(Activity) -> Activity,
     {
-        Self { pid: utils::pid(), activity: Some(f(Activity::new())) }
+        Self {
+            pid: utils::pid(),
+            activity: Some(f(Activity::new())),
+        }
     }
 }
 
 impl Default for SetActivityArgs {
     fn default() -> Self {
-        Self { pid: utils::pid(), activity: None }
+        Self {
+            pid: utils::pid(),
+            activity: None,
+        }
     }
 }
 
@@ -36,24 +42,25 @@ pub type CloseActivityRequestArgs = SendActivityJoinInviteArgs;
 
 impl SendActivityJoinInviteArgs {
     pub fn new(user_id: u64) -> Self {
-        Self { user_id: user_id.to_string() }
+        Self {
+            user_id: user_id.to_string(),
+        }
     }
 }
 
-builder!{ActivityJoinEvent
+builder! {ActivityJoinEvent
     secret: String,
 }
 
-builder!{ActivitySpectateEvent
+builder! {ActivitySpectateEvent
     secret: String,
 }
 
-builder!{ActivityJoinRequestEvent
+builder! {ActivityJoinRequestEvent
     user: PartialUser,
 }
 
-
-builder!{Activity
+builder! {Activity
     state: String,
     details: String,
     instance: bool,
@@ -63,29 +70,28 @@ builder!{Activity
     secrets: ActivitySecrets func,
 }
 
-builder!{ActivityTimestamps
+builder! {ActivityTimestamps
     start: u64,
     end: u64,
 }
 
-builder!{ActivityAssets
+builder! {ActivityAssets
     large_image: String,
     large_text: String,
     small_image: String,
     small_text: String,
 }
 
-builder!{ActivityParty
+builder! {ActivityParty
     id: u32,
     size: (u32, u32),
 }
 
-builder!{ActivitySecrets
+builder! {ActivitySecrets
     join: String,
     spectate: String,
     game: String alias = "match",
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -94,27 +100,25 @@ mod tests {
 
     #[test]
     fn can_serialize_full_activity() {
-        let expected = include_str!("../../tests/fixtures/activity_full.json");
+        let expected = include_str!("../../../../tests/fixtures/activity_full.json");
 
         let activity = Activity::new()
             .state("rusting")
             .details("detailed")
             .instance(true)
-            .timestamps(|t| t
-                .start(1000)
-                .end(2000))
-            .assets(|a| a
-                .large_image("ferris")
-                .large_text("Ferris")
-                .small_image("rusting")
-                .small_text("Rusting..."))
-            .party(|p| p
-                .id(1)
-                .size((3, 6)))
-            .secrets(|s| s
-                .join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
-                .spectate("e7eb30d2ee025ed05c71ea495f770b76454ee4e0")
-                .game("4b2fdce12f639de8bfa7e3591b71a0d679d7c93f"));
+            .timestamps(|t| t.start(1000).end(2000))
+            .assets(|a| {
+                a.large_image("ferris")
+                    .large_text("Ferris")
+                    .small_image("rusting")
+                    .small_text("Rusting...")
+            })
+            .party(|p| p.id(1).size((3, 6)))
+            .secrets(|s| {
+                s.join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
+                    .spectate("e7eb30d2ee025ed05c71ea495f770b76454ee4e0")
+                    .game("4b2fdce12f639de8bfa7e3591b71a0d679d7c93f")
+            });
 
         let json = serde_json::to_string_pretty(&activity).unwrap();
 

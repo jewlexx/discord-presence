@@ -1,4 +1,4 @@
-use discord_rpc_client::Client as DiscordRPC;
+use discord_rpc::Client as DiscordRPC;
 use simplelog::*;
 use std::io;
 
