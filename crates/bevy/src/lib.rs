@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use bevy::prelude::*;
-use discord_presence::{models::Activity, *};
+use discord_presence::*;
 use serde_json::Value;
 
 pub struct RPCConfig {
@@ -30,7 +30,7 @@ impl Plugin for RPCPlugin {
 
         app.add_state("DiscordRPC");
 
-        client.set_activity(|e| {
+        let res = client.set_activity(|e| {
             let updated_activity = e.clone();
 
             updated_activity
