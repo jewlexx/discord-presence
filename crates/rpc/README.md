@@ -1,4 +1,4 @@
-**Imported from [Discord RPC Client](https://github.com/jewlexx/discord-rpc.git)**
+**Forked from [Discord RPC Client](https://github.com/jewlexx/discord-rpc.git)**
 
 [![Build Status][travis-ci-badge]][travis-ci-page] [![Build status][appveyor-ci-badge]][appveyor-ci-page] [![crates.io][crates-io-badge-ver]][crates-io-page] [![crates.io][crates-io-badge-dl]][crates-io-page] [![Discord][discord-badge]][discord-invite]
 
