@@ -1,4 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    sync::{Arc, Mutex},
+    time::{SystemTime, UNIX_EPOCH},
+};
 
 use bevy::{log::prelude::*, prelude::*};
 use discord_presence::{
@@ -9,14 +12,14 @@ use serde_json::Value;
 
 #[derive(Debug, Clone)]
 pub struct RPCConfig {
-    pub client_id: u64,
+    pub app_id: u64,
     pub show_time: bool,
 }
 
 impl Default for RPCConfig {
     fn default() -> Self {
         Self {
-            client_id: 425407036495495169,
+            app_id: 425407036495495169,
             show_time: true,
         }
     }
@@ -43,7 +46,7 @@ impl FromWorld for RPCResource {
     fn from_world(world: &mut World) -> Self {
         let config = world.get_resource::<RPCConfig>().unwrap();
         Self {
-            client: Arc::new(Mutex::new(Client::new(config.client_id))),
+            client: Arc::new(Mutex::new(Client::new(config.app_id))),
         }
     }
 }
@@ -65,8 +68,24 @@ impl Plugin for RPCPlugin {
     }
 }
 
-fn startup_client(client: ResMut<RPCResource>) {
+fn startup_client(
+    mut activity: ResMut<ActivityState>,
+    client: ResMut<RPCResource>,
+    config: Res<RPCConfig>,
+) {
     let mut client = client.client.lock().unwrap();
+
+    if config.show_time {
+        activity.timestamps = Some(ActivityTimestamps {
+            start: Some(
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs(),
+            ),
+            end: None,
+        });
+    }
 
     let is_ready = Arc::new(Mutex::new(false));
     let error = Arc::new(Mutex::<Option<Value>>::new(None));
