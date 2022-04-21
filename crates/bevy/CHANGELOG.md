@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 I will add links where possible, including retroactively if possible.
 
-> [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
+## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
 ## 0.2.0 - 2022-04-21
 
