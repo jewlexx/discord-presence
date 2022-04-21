@@ -3,7 +3,31 @@
 //! A Bevy plugin that allows the developer to interact with the Discord Presence API with ease
 //!
 //! This plugin is a Bevy wrapper around the [Discord Presence](https://docs.rs/crate/discord-presence) crate which in turn is a wrapper around the [Discord Presence API](https://discordapp.com/developers/docs/game-sdk/discord-presence).
-
+//! # Examples
+//!
+//! ```rust
+//! use bevy::prelude::*;
+//!
+//! use bevy_discord_presence::{ActivityState, RPCConfig, RPCPlugin};
+//!
+//! fn main() {
+//!     println!("hello world!");
+//!     let mut app = App::new();
+//!     app.add_plugins(DefaultPlugins);
+//!     app.add_plugin(RPCPlugin(RPCConfig {
+//!         app_id: 425407036495495169,
+//!         show_time: true,
+//!     }));
+//!     app.add_system(update_presence);
+//!
+//!     app.run();
+//! }
+//!
+//! fn update_presence(mut state: ResMut<ActivityState>) {
+//!     state.details = Some("Hello World".to_string());
+//! }
+//!
+//! ```
 use std::{
     sync::{Arc, Mutex},
     time::{SystemTime, UNIX_EPOCH},
@@ -74,32 +98,6 @@ impl From<ActivityState> for Activity {
 /// # Arguments
 ///
 /// * `config` - The configuration for the plugin. Vital field is `app_id`, as the Discord interactions cannot work without it.
-///
-/// # Examples
-///
-/// ```rust
-/// use bevy::prelude::*;
-///
-/// use bevy_discord_presence::{ActivityState, RPCConfig, RPCPlugin};
-///
-/// fn main() {
-///     println!("hello world!");
-///     let mut app = App::new();
-///     app.add_plugins(DefaultPlugins);
-///     app.add_plugin(RPCPlugin(RPCConfig {
-///         app_id: 425407036495495169,
-///         show_time: true,
-///     }));
-///     app.add_system(update_presence);
-///
-///     app.run();
-/// }
-///
-/// fn update_presence(mut state: ResMut<ActivityState>) {
-///     state.details = Some("Hello World".to_string());
-/// }
-///
-/// ```
 pub struct RPCPlugin(pub RPCConfig);
 
 /// The resource that holds the Discord Client
