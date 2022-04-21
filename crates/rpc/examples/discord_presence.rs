@@ -1,16 +1,7 @@
 use discord_presence::Client as DiscordRPC;
-use simplelog::*;
 use std::io;
 
 fn main() {
-    TermLogger::init(
-        LevelFilter::Debug,
-        Config::default(),
-        TerminalMode::Mixed,
-        ColorChoice::Auto,
-    )
-    .unwrap();
-
     let mut drpc = DiscordRPC::new(425407036495495169);
 
     drpc.on_ready(|_ctx| {

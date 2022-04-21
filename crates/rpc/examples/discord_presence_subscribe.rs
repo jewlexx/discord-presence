@@ -1,16 +1,7 @@
 use discord_presence::{models::Event, Client as DiscordRPC};
-use simplelog::*;
 use std::{thread, time};
 
 fn main() {
-    TermLogger::init(
-        LevelFilter::Debug,
-        Config::default(),
-        TerminalMode::Mixed,
-        ColorChoice::Auto,
-    )
-    .unwrap();
-
     let mut drpc = DiscordRPC::new(425407036495495169);
 
     drpc.on_activity_join_request(|ctx| {

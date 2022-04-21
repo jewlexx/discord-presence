@@ -2,6 +2,7 @@
 
 [![crates.io](https://img.shields.io/crates/v/discord-presence.svg)](https://crates.io/crates/discord-presence)
 [![crates.io](https://img.shields.io/crates/d/discord-presence.svg)](https://crates.io/crates/discord-presence)
+[![docs.rs](https://docs.rs/discord-presence/badge.svg)](https://docs.rs/discord-presence)
 
 Discord RPC client for Rust forked from [Discord RPC Client](https://gitlab.com/valeth/discord-rpc-client.rs)
 

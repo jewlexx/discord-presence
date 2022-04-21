@@ -8,8 +8,6 @@ use discord_presence::{
     models::{ActivityAssets, ActivityParty, ActivitySecrets, ActivityTimestamps},
     Client,
 };
-use serde_json::Value;
-
 #[derive(Debug, Clone)]
 pub struct RPCConfig {
     pub app_id: u64,
@@ -91,19 +89,12 @@ fn startup_client(
         });
     }
 
-    let is_ready = Arc::new(Mutex::new(false));
-    let error = Arc::new(Mutex::<Option<Value>>::new(None));
-
     client.on_ready(move |_| {
         debug!("Client is ready");
-        let is_ready = Arc::clone(&is_ready);
-        *is_ready.lock().unwrap() = true;
     });
 
     client.on_error(move |e| {
         debug!("Client error: {:?}", e);
-        let error = Arc::clone(&error);
-        *error.lock().unwrap() = Some(e.event);
     });
 
     client.start();
