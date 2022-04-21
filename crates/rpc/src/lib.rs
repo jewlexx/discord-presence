@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
 extern crate serde_derive;
