@@ -11,13 +11,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-bevy-discord-presence = "^0.1"
+bevy-discord-presence = "0.2"
 ```
 
 or run:
 
 ```shell
-$ cargo add bevy-discord-presence
+cargo add bevy-discord-presence
 ```
 
 if you have `cargo-edit` installed
