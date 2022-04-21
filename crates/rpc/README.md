@@ -11,13 +11,13 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-discord-presence = "^0.4"
+discord-presence = "0.5"
 ```
 
 or run:
 
 ```shell
-$ cargo add discord-presence
+cargo add discord-presence
 ```
 
 if you have `cargo-edit` installed
