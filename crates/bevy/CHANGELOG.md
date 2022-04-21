@@ -13,14 +13,14 @@ I will add links where possible, including retroactively if possible.
 
 ### Changed
 
--   Updated base discord-rpc package
+- Updated base discord-rpc package
 
 ## 0.1.1 - 2022-04-12
 
 ### Changed
 
--   Minor bug fixes and improvements
--   Updates to metadata
+- Minor bug fixes and improvements
+- Updates to metadata
 
 ## 0.1.0 - 2022-04-12
 

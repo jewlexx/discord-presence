@@ -6,9 +6,9 @@ The root project for both [Bevy Discord Presence](https://crates.io/crates/bevy-
 
 Both projects have their respective changelogs that can be viewed as follows:
 
-* [Bevy Discord Presence](crates/bevy/CHANGELOG.md)
+- [Bevy Discord Presence](crates/bevy/CHANGELOG.md)
 
-* [Discord Presence](crates/rpc/CHANGELOG.md)
+- [Discord Presence](crates/rpc/CHANGELOG.md)
 
 ## Contributions
 
