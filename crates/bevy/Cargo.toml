@@ -10,7 +10,7 @@ edition = "2021"
 
 [dependencies]
 discord-presence = "0.5.0"
-bevy = { git = "https://github.com/bevyengine/bevy", rev="26c3b20f1ce1e04fcd37816d35fdff4d8433064f", default-features = true }
+bevy = { git = "https://github.com/bevyengine/bevy", rev="26c3b20f1ce1e04fcd37816d35fdff4d8433064f", default-features = false }
 
 [dev-dependencies]
 version-sync = "0.9.4"
