@@ -9,7 +9,7 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
-## 0.2.0 - 2022-04-21
+## [0.2.0](https://github.com/jewlexx/discord-presence/releases/tag/bevy-discord-rpc%400.2.0) - 2022-04-21
 
 ### Changed
 

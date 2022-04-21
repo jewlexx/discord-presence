@@ -9,7 +9,7 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
-## 0.5.0 - 2022-04-21
+## [0.5.0](https://github.com/jewlexx/discord-presence/releases/tag/discord-rpc%400.5.0) - 2022-04-21
 
 ### Changed
 
