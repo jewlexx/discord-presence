@@ -25,13 +25,9 @@ num-traits = "0.2.14"
 named_pipe = "0.4.1"
 
 [dependencies.uuid]
-version = "0.8.2"
+version = "1.0.0"
 features = ["v4"]
 
 [dev-dependencies]
-simplelog = "0.11.2"
+simplelog = "0.12.0"
 version-sync = "0.9.4"
-
-[features]
-default = ["rich_presence"]
-rich_presence = []

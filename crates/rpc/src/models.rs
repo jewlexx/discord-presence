@@ -12,11 +12,8 @@ pub enum Command {
     Authorize,
     Subscribe,
     Unsubscribe,
-    #[cfg(feature = "rich_presence")]
     SetActivity,
-    #[cfg(feature = "rich_presence")]
     SendActivityJoinInvite,
-    #[cfg(feature = "rich_presence")]
     CloseActivityRequest,
 }
 
@@ -25,11 +22,8 @@ pub enum Command {
 pub enum Event {
     Ready,
     Error,
-    #[cfg(feature = "rich_presence")]
     ActivityJoin,
-    #[cfg(feature = "rich_presence")]
     ActivitySpectate,
-    #[cfg(feature = "rich_presence")]
     ActivityJoinRequest,
 }
 
@@ -37,13 +31,11 @@ pub use self::commands::*;
 pub use self::events::*;
 pub use self::message::{Message, OpCode};
 
-#[cfg(feature = "rich_presence")]
 pub use self::rich_presence::*;
 
 pub mod prelude {
     pub use super::commands::{Subscription, SubscriptionArgs};
     pub use super::events::{ErrorEvent, ReadyEvent};
-    #[cfg(feature = "rich_presence")]
     pub use super::rich_presence::{
         ActivityJoinEvent, ActivityJoinRequestEvent, ActivitySpectateEvent,
         CloseActivityRequestArgs, SendActivityJoinInviteArgs, SetActivityArgs,

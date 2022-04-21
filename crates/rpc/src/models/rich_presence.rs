@@ -1,5 +1,3 @@
-#![cfg(feature = "rich_presence")]
-
 use super::shared::PartialUser;
 use crate::utils;
 use std::default::Default;

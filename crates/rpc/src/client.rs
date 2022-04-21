@@ -1,4 +1,3 @@
-#[cfg(feature = "rich_presence")]
 use crate::models::rich_presence::{
     Activity, CloseActivityRequestArgs, SendActivityJoinInviteArgs, SetActivityArgs,
 };
@@ -65,7 +64,6 @@ impl Client {
         }
     }
 
-    #[cfg(feature = "rich_presence")]
     pub fn set_activity<F>(&mut self, f: F) -> Result<Payload<Activity>>
     where
         F: FnOnce(Activity) -> Activity,
@@ -73,7 +71,6 @@ impl Client {
         self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
     }
 
-    #[cfg(feature = "rich_presence")]
     pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
         self.execute(Command::SetActivity, SetActivityArgs::default(), None)
     }
@@ -81,7 +78,6 @@ impl Client {
     // NOTE: Not sure what the actual response values of
     //       SEND_ACTIVITY_JOIN_INVITE and CLOSE_ACTIVITY_REQUEST are,
     //       they are not documented.
-    #[cfg(feature = "rich_presence")]
     pub fn send_activity_join_invite(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::SendActivityJoinInvite,
@@ -90,7 +86,6 @@ impl Client {
         )
     }
 
-    #[cfg(feature = "rich_presence")]
     pub fn close_activity_request(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::CloseActivityRequest,
@@ -124,12 +119,9 @@ impl Client {
 
     event_handler_function!(on_error, Event::Error);
 
-    #[cfg(feature = "rich_presence")]
     event_handler_function!(on_activity_join, Event::ActivityJoin);
 
-    #[cfg(feature = "rich_presence")]
     event_handler_function!(on_activity_join_request, Event::ActivityJoinRequest);
 
-    #[cfg(feature = "rich_presence")]
     event_handler_function!(on_activity_spectate, Event::ActivitySpectate);
 }
