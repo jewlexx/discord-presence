@@ -1,7 +1,12 @@
+/// The Discord commands module
 pub mod commands;
+/// The events module
 pub mod events;
+/// The module to handle messages
 pub mod message;
+/// The module to handle payloads
 pub mod payload;
+/// The rich presence module
 pub mod rich_presence;
 mod shared;
 
