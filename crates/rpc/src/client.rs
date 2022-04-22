@@ -16,12 +16,19 @@ use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
 
 macro_rules! event_handler_function {
-    [ $name:ident, $event:expr ] => {
-        pub fn $name<F>(&mut self, handler: F)
-            where F: Fn(EventContext) + 'static + Send + Sync
-        {
-            self.on_event($event, handler);
-        }
+    ( $( $name:ident, $event:expr ),* ) => {
+        event_handler_function!{@gen $([ $name, $event, concat!("Listens for the `", stringify!($event), "` event")])*}
+    };
+
+    (@gen $( [ $name:ident, $event:expr, $doc:expr ] ), *) => {
+        $(
+            #[doc = $doc]
+            pub fn $name<F>(&mut self, handler: F)
+                where F: Fn(EventContext) + 'static + Send + Sync
+            {
+                self.on_event($event, handler);
+            }
+        )*
     }
 }
 
@@ -32,6 +39,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Creates a new `Client`
     pub fn new(client_id: u64) -> Self {
         let event_handler_registry = HandlerRegistry::new();
         let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
@@ -41,6 +49,7 @@ impl Client {
         }
     }
 
+    /// Start the client and connect to Discord
     pub fn start(&mut self) {
         self.connection_manager.start();
     }
