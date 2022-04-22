@@ -7,7 +7,6 @@
 //!
 //! ```rust
 //! use bevy::prelude::*;
-//!
 //! use bevy_discord_presence::{ActivityState, RPCConfig, RPCPlugin};
 //!
 //! fn main() {
@@ -26,7 +25,6 @@
 //! fn update_presence(mut state: ResMut<ActivityState>) {
 //!     state.details = Some("Hello World".to_string());
 //! }
-//!
 //! ```
 use std::{
     sync::{Arc, Mutex},
