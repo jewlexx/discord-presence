@@ -2,6 +2,7 @@ use super::shared::PartialUser;
 use crate::utils;
 use std::default::Default;
 
+/// Args to set Discord activity
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
     pid: u32,
@@ -11,6 +12,7 @@ pub struct SetActivityArgs {
 }
 
 impl SetActivityArgs {
+    /// Create a new `SetActivityArgs`
     pub fn new<F>(f: F) -> Self
     where
         F: FnOnce(Activity) -> Activity,
@@ -31,14 +33,18 @@ impl Default for SetActivityArgs {
     }
 }
 
+/// Args to invite a player to join a game
 #[derive(Debug, PartialEq, Deserialize, Serialize)]
 pub struct SendActivityJoinInviteArgs {
+    /// The user to invite
     pub user_id: String,
 }
 
+/// The args to close an activity request
 pub type CloseActivityRequestArgs = SendActivityJoinInviteArgs;
 
 impl SendActivityJoinInviteArgs {
+    /// Create a new `SendActivityJoinInviteArgs`
     pub fn new(user_id: u64) -> Self {
         Self {
             user_id: user_id.to_string(),
