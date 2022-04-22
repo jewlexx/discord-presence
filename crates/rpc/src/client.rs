@@ -32,6 +32,7 @@ macro_rules! event_handler_function {
     }
 }
 
+/// The Discord client
 #[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
@@ -73,6 +74,7 @@ impl Client {
         }
     }
 
+    /// Set the users current activity
     pub fn set_activity<F>(&mut self, f: F) -> Result<Payload<Activity>>
     where
         F: FnOnce(Activity) -> Activity,
@@ -80,6 +82,7 @@ impl Client {
         self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
     }
 
+    /// Clear the users current activity
     pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
         self.execute(Command::SetActivity, SetActivityArgs::default(), None)
     }
@@ -87,6 +90,7 @@ impl Client {
     // NOTE: Not sure what the actual response values of
     //       SEND_ACTIVITY_JOIN_INVITE and CLOSE_ACTIVITY_REQUEST are,
     //       they are not documented.
+    /// Send an invite to a user to join a game
     pub fn send_activity_join_invite(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::SendActivityJoinInvite,
@@ -95,6 +99,7 @@ impl Client {
         )
     }
 
+    /// Close request to join a game
     pub fn close_activity_request(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::CloseActivityRequest,
@@ -103,6 +108,7 @@ impl Client {
         )
     }
 
+    /// Subscribe to a given event
     pub fn subscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
     where
         F: FnOnce(SubscriptionArgs) -> SubscriptionArgs,
@@ -110,6 +116,7 @@ impl Client {
         self.execute(Command::Subscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
+    /// Unsubscribe from a given event
     pub fn unsubscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
     where
         F: FnOnce(SubscriptionArgs) -> SubscriptionArgs,
@@ -117,6 +124,7 @@ impl Client {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
+    /// Register a handler for a given event
     pub fn on_event<F>(&mut self, event: Event, handler: F)
     where
         F: Fn(EventContext) + 'static + Send + Sync,
