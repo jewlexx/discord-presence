@@ -27,92 +27,18 @@
 //! }
 //! ```
 
-use std::{
-    sync::{Arc, Mutex},
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use bevy::{log::prelude::*, prelude::*};
-use discord_presence::{
-    models::{Activity, ActivityAssets, ActivityParty, ActivitySecrets, ActivityTimestamps},
-    Client,
-};
+use discord_presence::models::ActivityTimestamps;
 
-/// Configuration for the RPC plugin
-#[derive(Clone)]
-pub struct RPCConfig {
-    /// The Discord application ID
-    pub app_id: u64,
-    /// Whether to show the current time in the activity
-    pub show_time: bool,
-}
-
-impl Default for RPCConfig {
-    fn default() -> Self {
-        Self {
-            app_id: 425407036495495169,
-            show_time: true,
-        }
-    }
-}
-
+/// The Discord configuration
+pub mod config;
 /// The state that holds the Discord activity
-#[derive(Default, Clone)]
-pub struct ActivityState {
-    /// The player's current party status
-    pub state: Option<String>,
-    /// What the player is currently doing
-    pub details: Option<String>,
-    /// Whether this activity is an instanced context, like a match
-    pub instance: Option<bool>,
-    /// Helps create elapsed/remaining timestamps on a player's profile
-    pub timestamps: Option<ActivityTimestamps>,
-    /// Assets to display on the player's profile
-    pub assets: Option<ActivityAssets>,
-    /// Information about the player's party. NOTE: Joining a party is not currently supported
-    pub party: Option<ActivityParty>,
-    /// Secret passwords for joining and spectating the player's game. NOTE: Joining a party is not currently supported
-    pub secrets: Option<ActivitySecrets>,
-}
+pub mod state;
 
-impl From<ActivityState> for Activity {
-    /// Converts the ActivityState into a Discord Presence
-    fn from(state: ActivityState) -> Self {
-        Activity {
-            state: state.state,
-            assets: state.assets,
-            details: state.details,
-            party: state.party,
-            secrets: state.secrets,
-            timestamps: state.timestamps,
-            instance: state.instance,
-        }
-    }
-}
-
-// TODO: Add guide on how to get `app_id`
-
-/// The main RPC plugin
-///
-/// # Arguments
-///
-/// * `config` - The configuration for the plugin. Vital field is `app_id`, as the Discord interactions cannot work without it.
-pub struct RPCPlugin(pub RPCConfig);
-
-/// The resource that holds the Discord Client
-pub struct RPCResource {
-    /// The actual Discord client used to interact with Discord APIs
-    pub client: Arc<Mutex<Client>>,
-}
-
-impl FromWorld for RPCResource {
-    fn from_world(world: &mut World) -> Self {
-        let config = world.get_resource::<RPCConfig>().unwrap();
-        Self {
-            client: Arc::new(Mutex::new(Client::new(config.app_id))),
-        }
-    }
-}
+use config::{RPCConfig, RPCPlugin, RPCResource};
+use state::ActivityState;
 
 /// Implements the Bevy plugin trait
 impl Plugin for RPCPlugin {
