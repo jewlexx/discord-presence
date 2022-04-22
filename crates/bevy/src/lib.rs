@@ -26,6 +26,7 @@
 //!     state.details = Some("Hello World".to_string());
 //! }
 //! ```
+
 use std::{
     sync::{Arc, Mutex},
     time::{SystemTime, UNIX_EPOCH},
