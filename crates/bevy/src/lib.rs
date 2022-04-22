@@ -7,7 +7,7 @@
 //!
 //! ```rust
 //! use bevy::prelude::*;
-//! use bevy_discord_presence::{ActivityState, RPCConfig, RPCPlugin};
+//! use bevy_discord_presence::{state::ActivityState, config::{RPCConfig, RPCPlugin}};
 //!
 //! fn main() {
 //!     println!("hello world!");
