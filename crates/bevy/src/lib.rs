@@ -19,7 +19,7 @@
 //!     }));
 //!     app.add_system(update_presence);
 //!
-//!     app.run();
+//!     // app.run();
 //! }
 //!
 //! fn update_presence(mut state: ResMut<ActivityState>) {
