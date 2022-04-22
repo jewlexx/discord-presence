@@ -16,15 +16,23 @@ use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
 
 macro_rules! event_handler_function {
-    [ $name:ident, $event:expr ] => {
-        pub fn $name<F>(&mut self, handler: F)
-            where F: Fn(EventContext) + 'static + Send + Sync
-        {
-            self.on_event($event, handler);
-        }
+    ( $( $name:ident, $event:expr ),* ) => {
+        event_handler_function!{@gen $([ $name, $event, concat!("Listens for the `", stringify!($event), "` event")])*}
+    };
+
+    (@gen $( [ $name:ident, $event:expr, $doc:expr ] ), *) => {
+        $(
+            #[doc = $doc]
+            pub fn $name<F>(&mut self, handler: F)
+                where F: Fn(EventContext) + 'static + Send + Sync
+            {
+                self.on_event($event, handler);
+            }
+        )*
     }
 }
 
+/// The Discord client
 #[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
@@ -32,6 +40,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Creates a new `Client`
     pub fn new(client_id: u64) -> Self {
         let event_handler_registry = HandlerRegistry::new();
         let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
@@ -41,6 +50,7 @@ impl Client {
         }
     }
 
+    /// Start the client and connect to Discord
     pub fn start(&mut self) {
         self.connection_manager.start();
     }
@@ -64,6 +74,7 @@ impl Client {
         }
     }
 
+    /// Set the users current activity
     pub fn set_activity<F>(&mut self, f: F) -> Result<Payload<Activity>>
     where
         F: FnOnce(Activity) -> Activity,
@@ -71,6 +82,7 @@ impl Client {
         self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
     }
 
+    /// Clear the users current activity
     pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
         self.execute(Command::SetActivity, SetActivityArgs::default(), None)
     }
@@ -78,6 +90,7 @@ impl Client {
     // NOTE: Not sure what the actual response values of
     //       SEND_ACTIVITY_JOIN_INVITE and CLOSE_ACTIVITY_REQUEST are,
     //       they are not documented.
+    /// Send an invite to a user to join a game
     pub fn send_activity_join_invite(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::SendActivityJoinInvite,
@@ -86,6 +99,7 @@ impl Client {
         )
     }
 
+    /// Close request to join a game
     pub fn close_activity_request(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::CloseActivityRequest,
@@ -94,6 +108,7 @@ impl Client {
         )
     }
 
+    /// Subscribe to a given event
     pub fn subscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
     where
         F: FnOnce(SubscriptionArgs) -> SubscriptionArgs,
@@ -101,6 +116,7 @@ impl Client {
         self.execute(Command::Subscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
+    /// Unsubscribe from a given event
     pub fn unsubscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
     where
         F: FnOnce(SubscriptionArgs) -> SubscriptionArgs,
@@ -108,6 +124,7 @@ impl Client {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
+    /// Register a handler for a given event
     pub fn on_event<F>(&mut self, event: Event, handler: F)
     where
         F: Fn(EventContext) + 'static + Send + Sync,

@@ -6,13 +6,20 @@ use std::{
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
 };
 
+/// Error types from Discord
 #[derive(Debug)]
 pub enum Error {
+    /// Io Error
     IoError(IoError),
+    /// Json Error
     JsonError(JsonError),
+    /// Timeout Error
     Timeout(ChannelTimeout),
+    /// Conversion Error
     Conversion,
+    /// Subscription Joining Error
     SubscriptionFailed,
+    /// Connection Closing error
     ConnectionClosed,
 }
 
@@ -53,4 +60,5 @@ impl From<ChannelTimeout> for Error {
     }
 }
 
+/// Result type for Discord RPC error types
 pub type Result<T> = StdResult<T, Error>;

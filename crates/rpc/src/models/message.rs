@@ -5,23 +5,33 @@ use num_traits::FromPrimitive;
 use serde::Serialize;
 use std::io::{Read, Write};
 
+/// Codes for payload types
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, FromPrimitive)]
 pub enum OpCode {
+    /// Handshake payload
     Handshake,
+    /// Frame payload
     Frame,
+    /// Close payload
     Close,
+    /// Ping payload
     Ping,
+    /// Pong payload
     Pong,
 }
 
+/// Message struct for the Discord RPC
 #[derive(Debug, PartialEq, Clone)]
 pub struct Message {
+    /// The payload type for this `Message`
     pub opcode: OpCode,
+    /// The actual payload
     pub payload: String,
 }
 
 impl Message {
+    /// Create a new `Message`
     pub fn new<T>(opcode: OpCode, payload: T) -> Self
     where
         T: Serialize,
@@ -32,6 +42,7 @@ impl Message {
         }
     }
 
+    /// Encode message
     pub fn encode(&self) -> Result<Vec<u8>> {
         let mut bytes: Vec<u8> = vec![];
 
@@ -42,6 +53,7 @@ impl Message {
         Ok(bytes)
     }
 
+    /// Decode message
     pub fn decode(mut bytes: &[u8]) -> Result<Self> {
         let opcode =
             OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(Error::Conversion)?;
