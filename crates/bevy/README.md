@@ -13,7 +13,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-bevy-discord-presence = "0.2"
+bevy-discord-presence = "0.3"
 ```
 
 or run:
@@ -29,7 +29,7 @@ if you have `cargo-edit` installed
 ```rust
 use bevy::prelude::*;
 
-use bevy_discord_presence::{RPCConfig, RPCPlugin};
+use bevy_discord_presence::config::{RPCConfig, RPCPlugin};
 
 fn main() {
     println!("hello world!");
