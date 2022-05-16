@@ -1,11 +1,10 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
 
-use bevy::prelude::*;
-
-use discord_presence::Client;
+use discord_presence::Client as DiscordRPC;
+use parking_lot::Mutex;
 
 /// Configuration for the RPC plugin
-#[derive(Clone)]
+#[derive(Copy, Clone)]
 pub struct RPCConfig {
     /// The Discord application ID
     pub app_id: u64,
@@ -31,17 +30,5 @@ impl Default for RPCConfig {
 /// * `config` - The configuration for the plugin. Vital field is `app_id`, as the Discord interactions cannot work without it.
 pub struct RPCPlugin(pub RPCConfig);
 
-/// The resource that holds the Discord Client
-pub struct RPCResource {
-    /// The actual Discord client used to interact with Discord APIs
-    pub client: Arc<Mutex<Client>>,
-}
-
-impl FromWorld for RPCResource {
-    fn from_world(world: &mut World) -> Self {
-        let config = world.get_resource::<RPCConfig>().unwrap();
-        Self {
-            client: Arc::new(Mutex::new(Client::new(config.app_id))),
-        }
-    }
-}
+/// The Discord Client
+pub type Client = Arc<Mutex<DiscordRPC>>;
