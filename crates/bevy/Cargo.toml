@@ -10,7 +10,7 @@ edition = "2021"
 
 [dependencies]
 discord-presence = "0.5.1"
-bevy = { git = "https://github.com/bevyengine/bevy.git", rev = "516e4aaa1050e583134cf49ef863f42d792139b0", version = "0.7.0", default-features = false }
+bevy = { version = "0.7.0", default-features = false }
 parking_lot = "0.12.0"
 
 [dev-dependencies]
