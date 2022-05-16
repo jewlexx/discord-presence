@@ -27,21 +27,17 @@
 //! }
 //! ```
 
-use std::{
-    sync::Arc,
-    time::{SystemTime, UNIX_EPOCH},
-};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use bevy::{log::prelude::*, prelude::*};
-use discord_presence::{models::ActivityTimestamps, Client as DiscordRPC};
+use discord_presence::{models::ActivityTimestamps, Client};
 
 /// The Discord configuration
 pub mod config;
 /// The state that holds the Discord activity
 pub mod state;
 
-use config::{Client, RPCConfig, RPCPlugin};
-use parking_lot::Mutex;
+use config::{RPCConfig, RPCPlugin};
 use state::ActivityState;
 
 /// Implements the Bevy plugin trait
@@ -56,7 +52,7 @@ impl Plugin for RPCPlugin {
         app.insert_resource::<RPCConfig>(client_config);
 
         app.init_resource::<ActivityState>();
-        app.insert_resource::<Client>(Arc::new(Mutex::new(DiscordRPC::new(client_config.app_id))));
+        app.insert_resource::<Client>(Client::new(client_config.app_id));
 
         debug!("Initialized resources");
     }
@@ -69,11 +65,9 @@ impl Plugin for RPCPlugin {
 /// Initializes the client and starts it running
 fn startup_client(
     mut activity: ResMut<ActivityState>,
-    client: ResMut<Client>,
+    mut client: ResMut<Client>,
     config: Res<RPCConfig>,
 ) {
-    let mut client = client.lock();
-
     if config.show_time {
         activity.timestamps = Some(ActivityTimestamps {
             start: Some(
@@ -99,10 +93,8 @@ fn startup_client(
 }
 
 /// Runs whenever the activity has been changed, and at startup
-fn check_activity_changed(activity: Res<ActivityState>, client: ResMut<Client>) {
+fn check_activity_changed(activity: Res<ActivityState>, mut client: ResMut<Client>) {
     if activity.is_changed() {
-        let mut client = client.lock();
-
         let res = client.set_activity(|_| activity.clone().into());
 
         if let Err(why) = res {

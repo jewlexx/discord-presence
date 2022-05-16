@@ -1,8 +1,3 @@
-use std::sync::Arc;
-
-use discord_presence::Client as DiscordRPC;
-use parking_lot::Mutex;
-
 /// Configuration for the RPC plugin
 #[derive(Copy, Clone)]
 pub struct RPCConfig {
@@ -29,6 +24,3 @@ impl Default for RPCConfig {
 ///
 /// * `config` - The configuration for the plugin. Vital field is `app_id`, as the Discord interactions cannot work without it.
 pub struct RPCPlugin(pub RPCConfig);
-
-/// The Discord Client
-pub type Client = Arc<Mutex<DiscordRPC>>;
