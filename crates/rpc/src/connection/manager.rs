@@ -5,7 +5,6 @@ use crate::{
     models::{payload::Payload, Event, Message},
 };
 use crossbeam_channel::{unbounded, Receiver, Sender};
-use log::{debug, error};
 use parking_lot::Mutex;
 use serde_json::Value as JsonValue;
 use std::{io::ErrorKind, sync::Arc, thread, time};

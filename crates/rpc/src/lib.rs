@@ -8,6 +8,9 @@
 extern crate serde_derive;
 
 #[macro_use]
+extern crate log;
+
+#[macro_use]
 mod macros;
 /// A client for the Discord Presence API
 pub mod client;

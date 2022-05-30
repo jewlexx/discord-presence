@@ -4,7 +4,6 @@ use crate::{
     utils,
 };
 use bytes::BytesMut;
-use log::{debug, error};
 use serde_json::json;
 use std::{
     io::{ErrorKind, Read, Write},
