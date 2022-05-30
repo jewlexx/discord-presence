@@ -14,35 +14,32 @@ use crate::models::Message;
 #[derive(Debug, AsError)]
 pub enum DiscordError {
     /// Io Error
+    #[error("Io Error")]
     IoError(#[from] IoError),
-    /// Communication between presence thread Error
+    /// Communication Error between presence thread
+    #[error("Communication Error between presence thread")]
     SendError(#[from] SendError<Message>),
     /// Error Receiving message
+    #[error("Error Receiving message")]
     ReceiveError(#[from] RecvError),
     /// Json Error
+    #[error("Error parsing Json")]
     JsonError(#[from] JsonError),
     /// Timeout Error
+    #[error("Error on Channel Timeout")]
     Timeout(#[from] ChannelTimeout),
     /// Option unwrapped to None
+    #[error("{0}")]
     NoneError(String),
     /// Conversion Error
+    #[error("Error converting values")]
     Conversion,
     /// Subscription Joining Error
+    #[error("Error subscribing to an event")]
     SubscriptionFailed,
     /// Connection Closing error
+    #[error("Connection was closed prematurely")]
     ConnectionClosed,
-}
-
-impl Display for DiscordError {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_str(self.description().as_str())
-    }
-}
-
-impl DiscordError {
-    fn description(&self) -> String {
-        self.to_string()
-    }
 }
 
 /// Result type for Discord RPC error types
