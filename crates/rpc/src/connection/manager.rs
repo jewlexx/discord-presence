@@ -71,7 +71,7 @@ impl Manager {
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
         self.event_handler_registry
-            .handle(Event::Ready, payload.data.unwrap())?;
+            .handle(Event::Ready, into_error!(payload.data)?)?;
         debug!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));
@@ -105,14 +105,12 @@ fn send_and_receive_loop(mut manager: Manager) {
                     &mut inbound,
                     &outbound,
                 ) {
-                    Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {
-                        ()
-                    }
+                    Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {}
                     Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
                         manager.disconnect()
                     }
                     Err(why) => error!("error: {}", why),
-                    _ => (),
+                    _ => {}
                 }
 
                 thread::sleep(time::Duration::from_millis(500));

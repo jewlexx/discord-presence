@@ -23,6 +23,8 @@ pub enum DiscordError {
     JsonError(#[from] JsonError),
     /// Timeout Error
     Timeout(#[from] ChannelTimeout),
+    /// Option unwrapped to None
+    NoneError(String),
     /// Conversion Error
     Conversion,
     /// Subscription Joining Error
