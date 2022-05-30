@@ -1,4 +1,4 @@
-use crossbeam_channel::SendError;
+use crossbeam_channel::{RecvError, SendError};
 use serde_json::Error as JsonError;
 use std::{
     fmt::{self, Display, Formatter},
@@ -17,6 +17,8 @@ pub enum DiscordError {
     IoError(#[from] IoError),
     /// Communication between presence thread Error
     SendError(#[from] SendError<Message>),
+    /// Error Receiving message
+    ReceiveError(#[from] RecvError),
     /// Json Error
     JsonError(#[from] JsonError),
     /// Timeout Error
@@ -37,15 +39,7 @@ impl Display for DiscordError {
 
 impl DiscordError {
     fn description(&self) -> String {
-        match self {
-            DiscordError::Conversion => "Failed to convert values".into(),
-            DiscordError::SubscriptionFailed => "Failed to subscribe to event".into(),
-            DiscordError::ConnectionClosed => "Connection closed".into(),
-            DiscordError::IoError(ref err) => err.to_string(),
-            DiscordError::JsonError(ref err) => err.to_string(),
-            DiscordError::Timeout(ref err) => err.to_string(),
-            DiscordError::SendError(ref err) => err.to_string(),
-        }
+        self.to_string()
     }
 }
 

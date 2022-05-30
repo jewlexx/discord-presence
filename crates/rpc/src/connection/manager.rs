@@ -54,7 +54,7 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        let message = self.inbound.0.recv().unwrap();
+        let message = self.inbound.0.recv()?;
         Ok(message)
     }
 
