@@ -50,7 +50,7 @@ pub trait Connection: Sized {
     fn handshake(&mut self, client_id: u64) -> Result<Message> {
         let hs = json![{
             "client_id": client_id.to_string(),
-            "v": 1,
+            "v": 1 as u8,
             "nonce": utils::nonce()
         }];
 
