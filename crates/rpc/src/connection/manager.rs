@@ -48,8 +48,7 @@ impl Manager {
     }
 
     pub fn send(&self, message: Message) -> Result<()> {
-        self.outbound.1.send(message).unwrap();
-        Ok(())
+        self.outbound.1.send(message)
     }
 
     pub fn recv(&self) -> Result<Message> {

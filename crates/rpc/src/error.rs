@@ -1,3 +1,4 @@
+use crossbeam_channel::SendError;
 use serde_json::Error as JsonError;
 use std::{
     fmt::{self, Display, Formatter},
@@ -5,16 +6,21 @@ use std::{
     result::Result as StdResult,
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
 };
+use thiserror::Error as AsError;
+
+use crate::models::Message;
 
 /// Error types from Discord
-#[derive(Debug)]
+#[derive(Debug, AsError)]
 pub enum Error {
     /// Io Error
-    IoError(IoError),
+    IoError(#[from] IoError),
+    /// Communication between presence thread Error
+    SendError(#[from] SendError<Message>),
     /// Json Error
-    JsonError(JsonError),
+    JsonError(#[from] JsonError),
     /// Timeout Error
-    Timeout(ChannelTimeout),
+    Timeout(#[from] ChannelTimeout),
     /// Conversion Error
     Conversion,
     /// Subscription Joining Error
@@ -38,6 +44,7 @@ impl Error {
             Error::IoError(ref err) => err.to_string(),
             Error::JsonError(ref err) => err.to_string(),
             Error::Timeout(ref err) => err.to_string(),
+            Error::SendError(ref err) => err.to_string(),
         }
     }
 }
