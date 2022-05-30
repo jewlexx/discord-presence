@@ -1,5 +1,5 @@
 use crate::{
-    error::{Error, Result},
+    error::{DiscordError, Result},
     models::message::{Message, OpCode},
     utils,
 };
@@ -19,7 +19,7 @@ macro_rules! try_until_done {
         loop {
             match $e {
                 Ok(v) => break v,
-                Err(Error::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
+                Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
                 Err(why) => return Err(why),
             }
 
@@ -90,7 +90,7 @@ pub trait Connection: Sized {
         debug!("Received {} bytes", n);
 
         if n == 0 {
-            return Err(Error::ConnectionClosed);
+            return Err(DiscordError::ConnectionClosed);
         }
 
         let message = Message::decode(&buf[..n])?;

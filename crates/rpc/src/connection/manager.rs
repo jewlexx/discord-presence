@@ -1,6 +1,6 @@
 use super::{Connection, SocketConnection};
 use crate::{
-    error::{Error, Result},
+    error::{DiscordError, Result},
     event_handler::HandlerRegistry,
     models::{payload::Payload, Event, Message},
 };
@@ -48,7 +48,9 @@ impl Manager {
     }
 
     pub fn send(&self, message: Message) -> Result<()> {
-        self.outbound.1.send(message)
+        self.outbound.1.send(message)?;
+
+        Ok(())
     }
 
     pub fn recv(&self) -> Result<Message> {
@@ -103,8 +105,12 @@ fn send_and_receive_loop(mut manager: Manager) {
                     &mut inbound,
                     &outbound,
                 ) {
-                    Err(Error::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
-                    Err(Error::IoError(_)) | Err(Error::ConnectionClosed) => manager.disconnect(),
+                    Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {
+                        ()
+                    }
+                    Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
+                        manager.disconnect()
+                    }
                     Err(why) => error!("error: {}", why),
                     _ => (),
                 }
@@ -114,7 +120,11 @@ fn send_and_receive_loop(mut manager: Manager) {
             None => match manager.connect() {
                 Err(err) => {
                     match err {
-                        Error::IoError(ref err) if err.kind() == ErrorKind::ConnectionRefused => (),
+                        DiscordError::IoError(ref err)
+                            if err.kind() == ErrorKind::ConnectionRefused =>
+                        {
+                            ()
+                        }
                         why => error!("Failed to connect: {:?}", why),
                     }
                     thread::sleep(time::Duration::from_secs(10));

@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::{DiscordError, Result};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
@@ -56,7 +56,7 @@ impl Message {
     /// Decode message
     pub fn decode(mut bytes: &[u8]) -> Result<Self> {
         let opcode =
-            OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(Error::Conversion)?;
+            OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(DiscordError::Conversion)?;
         let len = bytes.read_u32::<LittleEndian>()? as usize;
         let mut payload = String::with_capacity(len);
         bytes.read_to_string(&mut payload)?;

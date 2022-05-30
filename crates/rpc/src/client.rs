@@ -10,7 +10,7 @@ use crate::{
         payload::Payload,
         Command, Event, OpCode,
     },
-    Error, Result,
+    DiscordError, Result,
 };
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
@@ -69,7 +69,7 @@ impl Client {
         let response: Payload<E> = serde_json::from_str(&payload)?;
 
         match response.evt {
-            Some(Event::Error) => Err(Error::SubscriptionFailed),
+            Some(Event::Error) => Err(DiscordError::SubscriptionFailed),
             _ => Ok(response),
         }
     }

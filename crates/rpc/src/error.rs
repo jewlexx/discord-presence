@@ -12,7 +12,7 @@ use crate::models::Message;
 
 /// Error types from Discord
 #[derive(Debug, AsError)]
-pub enum Error {
+pub enum DiscordError {
     /// Io Error
     IoError(#[from] IoError),
     /// Communication between presence thread Error
@@ -29,43 +29,25 @@ pub enum Error {
     ConnectionClosed,
 }
 
-impl Display for Error {
+impl Display for DiscordError {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         f.write_str(self.description().as_str())
     }
 }
 
-impl Error {
+impl DiscordError {
     fn description(&self) -> String {
         match self {
-            Error::Conversion => "Failed to convert values".into(),
-            Error::SubscriptionFailed => "Failed to subscribe to event".into(),
-            Error::ConnectionClosed => "Connection closed".into(),
-            Error::IoError(ref err) => err.to_string(),
-            Error::JsonError(ref err) => err.to_string(),
-            Error::Timeout(ref err) => err.to_string(),
-            Error::SendError(ref err) => err.to_string(),
+            DiscordError::Conversion => "Failed to convert values".into(),
+            DiscordError::SubscriptionFailed => "Failed to subscribe to event".into(),
+            DiscordError::ConnectionClosed => "Connection closed".into(),
+            DiscordError::IoError(ref err) => err.to_string(),
+            DiscordError::JsonError(ref err) => err.to_string(),
+            DiscordError::Timeout(ref err) => err.to_string(),
+            DiscordError::SendError(ref err) => err.to_string(),
         }
     }
 }
 
-impl From<IoError> for Error {
-    fn from(err: IoError) -> Self {
-        Error::IoError(err)
-    }
-}
-
-impl From<JsonError> for Error {
-    fn from(err: JsonError) -> Self {
-        Error::JsonError(err)
-    }
-}
-
-impl From<ChannelTimeout> for Error {
-    fn from(err: ChannelTimeout) -> Self {
-        Error::Timeout(err)
-    }
-}
-
 /// Result type for Discord RPC error types
-pub type Result<T> = StdResult<T, Error>;
+pub type Result<T> = StdResult<T, DiscordError>;
