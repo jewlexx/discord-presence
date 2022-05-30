@@ -1,5 +1,4 @@
 use discord_presence::Client as DiscordRPC;
-use std::io;
 
 fn main() {
     let mut drpc = DiscordRPC::new(425407036495495169);
@@ -24,5 +23,7 @@ fn main() {
     }) {
         println!("Failed to set presence: {}", why);
     }
+
+    #[allow(clippy::empty_loop)]
     loop {}
 }
