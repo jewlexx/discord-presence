@@ -1,7 +1,7 @@
 #![warn(missing_docs)]
 #![forbid(unsafe_code)]
 
-//! A Bevy plugin that allows the developer to interact with the Discord Presence API with ease
+//! A Rust library that allows the developer to interact with the Discord Presence API with ease
 
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
