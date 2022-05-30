@@ -119,10 +119,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                 Err(err) => {
                     match err {
                         DiscordError::IoError(ref err)
-                            if err.kind() == ErrorKind::ConnectionRefused =>
-                        {
-                            ()
-                        }
+                            if err.kind() == ErrorKind::ConnectionRefused => {}
                         why => error!("Failed to connect: {:?}", why),
                     }
                     thread::sleep(time::Duration::from_secs(10));
