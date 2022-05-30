@@ -1,4 +1,5 @@
 #![warn(missing_docs)]
+#![forbid(unsafe_code)]
 
 //! A Bevy plugin that allows the developer to interact with the Discord Presence API with ease
 
