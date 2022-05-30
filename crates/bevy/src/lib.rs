@@ -80,11 +80,11 @@ fn startup_client(
         });
     }
 
-    client.on_ready(move |_| {
+    client.on_ready(|_| {
         debug!("Client is ready");
     });
 
-    client.on_error(move |e| {
+    client.on_error(|e| {
         debug!("Client error: {:?}", e);
     });
 
