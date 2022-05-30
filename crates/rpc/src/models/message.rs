@@ -76,9 +76,10 @@ mod tests {
 
     #[test]
     fn test_encoder() {
-        let msg = Message::new(OpCode::Frame, Something { empty: true });
-        let encoded = msg.encode().unwrap();
-        let decoded = Message::decode(&encoded).unwrap();
+        let msg = Message::new(OpCode::Frame, Something { empty: true })
+            .expect("Failed to serialize message");
+        let encoded = msg.encode().expect("Failed to encode message");
+        let decoded = Message::decode(&encoded).expect("Failed to decode message");
         assert_eq!(msg, decoded);
     }
 

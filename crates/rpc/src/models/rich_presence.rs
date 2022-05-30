@@ -124,7 +124,8 @@ mod tests {
                     .game("4b2fdce12f639de8bfa7e3591b71a0d679d7c93f")
             });
 
-        let json = serde_json::to_string_pretty(&activity).unwrap();
+        let json =
+            serde_json::to_string_pretty(&activity).expect("Failed to serialize into String");
 
         assert_eq!(expected, json);
     }
@@ -132,7 +133,7 @@ mod tests {
     #[test]
     fn can_serialize_empty_activity() {
         let activity = Activity::new();
-        let json = serde_json::to_string(&activity).unwrap();
+        let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
         assert_eq![json, "{}"];
     }
 }

@@ -50,11 +50,11 @@ pub trait Connection: Sized {
     fn handshake(&mut self, client_id: u64) -> Result<Message> {
         let hs = json![{
             "client_id": client_id.to_string(),
-            "v": 1 as u8,
+            "v": 1,
             "nonce": utils::nonce()
         }];
 
-        let msg = Message::new(OpCode::Handshake, hs);
+        let msg = Message::new(OpCode::Handshake, hs)?;
         try_until_done!(self.send(&msg));
         let msg = try_until_done!(self.recv());
 
@@ -64,7 +64,7 @@ pub trait Connection: Sized {
     /// Ping the server and get a pong response.
     /// Will block until complete.
     fn ping(&mut self) -> Result<OpCode> {
-        let message = Message::new(OpCode::Ping, json![{}]);
+        let message = Message::new(OpCode::Ping, json![{}])?;
         try_until_done!(self.send(&message));
         let response = try_until_done!(self.recv());
         Ok(response.opcode)
