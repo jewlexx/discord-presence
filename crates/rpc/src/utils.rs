@@ -1,6 +1,5 @@
 use uuid::Uuid;
 
-#[allow(unused)]
 pub fn pid() -> u32 {
     std::process::id()
 }
