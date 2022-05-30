@@ -148,7 +148,7 @@ fn send_and_receive(
         Payload {
             evt: Some(event), ..
         } => {
-            event_handler_registry.handle(event.clone(), payload.data.unwrap())?;
+            event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
             inbound.send(msg).expect("Failed to send received data");

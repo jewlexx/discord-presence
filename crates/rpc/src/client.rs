@@ -64,7 +64,7 @@ impl Client {
             OpCode::Frame,
             Payload::with_nonce(cmd, Some(args), None, evt),
         );
-        self.connection_manager.send(message)?;
+        self.connection_manager.send(message?)?;
         let Message { payload, .. } = self.connection_manager.recv()?;
         let response: Payload<E> = serde_json::from_str(&payload)?;
 

@@ -32,14 +32,14 @@ pub struct Message {
 
 impl Message {
     /// Create a new `Message`
-    pub fn new<T>(opcode: OpCode, payload: T) -> Self
+    pub fn new<T>(opcode: OpCode, payload: T) -> Result<Self>
     where
         T: Serialize,
     {
-        Self {
+        Ok(Self {
             opcode,
-            payload: serde_json::to_string(&payload).unwrap(),
-        }
+            payload: serde_json::to_string(&payload)?,
+        })
     }
 
     /// Encode message
