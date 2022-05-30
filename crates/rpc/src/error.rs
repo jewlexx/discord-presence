@@ -1,9 +1,7 @@
 use crossbeam_channel::{RecvError, SendError};
 use serde_json::Error as JsonError;
 use std::{
-    fmt::{self, Display, Formatter},
-    io::Error as IoError,
-    result::Result as StdResult,
+    io::Error as IoError, result::Result as StdResult,
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
 };
 use thiserror::Error as AsError;
