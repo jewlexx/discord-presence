@@ -22,6 +22,19 @@ macro_rules! builder_func {
     };
 }
 
+macro_rules! into_error {
+    ($opt:expr, $msg:expr) => {
+        match $opt {
+            Some(v) => Ok(v),
+            None => Err(crate::error::DiscordError::NoneError($msg)),
+        }
+    };
+
+    ($opt:expr) => {
+        into_error!($opt, String::from("Option unwrapped to None"))
+    };
+}
+
 macro_rules! builder {
     [ @st ( $name:ident $field:tt: $type:tt alias = $alias:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
         builder![ @st

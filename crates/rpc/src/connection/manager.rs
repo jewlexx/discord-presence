@@ -1,6 +1,6 @@
 use super::{Connection, SocketConnection};
 use crate::{
-    error::{Error, Result},
+    error::{DiscordError, Result},
     event_handler::HandlerRegistry,
     models::{payload::Payload, Event, Message},
 };
@@ -48,12 +48,13 @@ impl Manager {
     }
 
     pub fn send(&self, message: Message) -> Result<()> {
-        self.outbound.1.send(message).unwrap();
+        self.outbound.1.send(message)?;
+
         Ok(())
     }
 
     pub fn recv(&self) -> Result<Message> {
-        let message = self.inbound.0.recv().unwrap();
+        let message = self.inbound.0.recv()?;
         Ok(message)
     }
 
@@ -70,7 +71,7 @@ impl Manager {
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
         self.event_handler_registry
-            .handle(Event::Ready, payload.data.unwrap())?;
+            .handle(Event::Ready, into_error!(payload.data)?)?;
         debug!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));
@@ -104,10 +105,12 @@ fn send_and_receive_loop(mut manager: Manager) {
                     &mut inbound,
                     &outbound,
                 ) {
-                    Err(Error::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
-                    Err(Error::IoError(_)) | Err(Error::ConnectionClosed) => manager.disconnect(),
+                    Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {}
+                    Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
+                        manager.disconnect()
+                    }
                     Err(why) => error!("error: {}", why),
-                    _ => (),
+                    _ => {}
                 }
 
                 thread::sleep(time::Duration::from_millis(500));
@@ -115,7 +118,10 @@ fn send_and_receive_loop(mut manager: Manager) {
             None => match manager.connect() {
                 Err(err) => {
                     match err {
-                        Error::IoError(ref err) if err.kind() == ErrorKind::ConnectionRefused => (),
+                        // Ignore the following two errors as they are in fact somewhat expected
+                        DiscordError::IoError(ref err)
+                            if err.kind() == ErrorKind::ConnectionRefused
+                                || err.kind() == ErrorKind::NotFound => {}
                         why => error!("Failed to connect: {:?}", why),
                     }
                     thread::sleep(time::Duration::from_secs(10));
@@ -144,7 +150,7 @@ fn send_and_receive(
         Payload {
             evt: Some(event), ..
         } => {
-            event_handler_registry.handle(event.clone(), payload.data.unwrap())?;
+            event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
             inbound.send(msg).expect("Failed to send received data");

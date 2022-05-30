@@ -1,4 +1,4 @@
-use crate::{Error, Result};
+use crate::{DiscordError, Result};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use num_derive::FromPrimitive;
 use num_traits::FromPrimitive;
@@ -32,14 +32,14 @@ pub struct Message {
 
 impl Message {
     /// Create a new `Message`
-    pub fn new<T>(opcode: OpCode, payload: T) -> Self
+    pub fn new<T>(opcode: OpCode, payload: T) -> Result<Self>
     where
         T: Serialize,
     {
-        Self {
+        Ok(Self {
             opcode,
-            payload: serde_json::to_string(&payload).unwrap(),
-        }
+            payload: serde_json::to_string(&payload)?,
+        })
     }
 
     /// Encode message
@@ -56,7 +56,7 @@ impl Message {
     /// Decode message
     pub fn decode(mut bytes: &[u8]) -> Result<Self> {
         let opcode =
-            OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(Error::Conversion)?;
+            OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(DiscordError::Conversion)?;
         let len = bytes.read_u32::<LittleEndian>()? as usize;
         let mut payload = String::with_capacity(len);
         bytes.read_to_string(&mut payload)?;
@@ -76,9 +76,10 @@ mod tests {
 
     #[test]
     fn test_encoder() {
-        let msg = Message::new(OpCode::Frame, Something { empty: true });
-        let encoded = msg.encode().unwrap();
-        let decoded = Message::decode(&encoded).unwrap();
+        let msg = Message::new(OpCode::Frame, Something { empty: true })
+            .expect("Failed to serialize message");
+        let encoded = msg.encode().expect("Failed to encode message");
+        let decoded = Message::decode(&encoded).expect("Failed to decode message");
         assert_eq!(msg, decoded);
     }
 

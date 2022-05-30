@@ -1,6 +1,7 @@
 #![warn(missing_docs)]
+#![forbid(unsafe_code)]
 
-//! A Bevy plugin that allows the developer to interact with the Discord Presence API with ease
+//! A Rust library that allows the developer to interact with the Discord Presence API with ease
 
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
@@ -19,5 +20,5 @@ pub mod models;
 mod utils;
 
 pub use self::client::Client;
-pub use self::error::{Error, Result};
+pub use self::error::{DiscordError, Result};
 pub use self::models::Event;

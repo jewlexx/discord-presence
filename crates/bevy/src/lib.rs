@@ -73,7 +73,7 @@ fn startup_client(
             start: Some(
                 SystemTime::now()
                     .duration_since(UNIX_EPOCH)
-                    .unwrap()
+                    .expect("Time has gone backwards")
                     .as_secs(),
             ),
             end: None,

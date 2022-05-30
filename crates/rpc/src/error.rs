@@ -1,64 +1,44 @@
+use crossbeam_channel::{RecvError, SendError};
 use serde_json::Error as JsonError;
 use std::{
-    fmt::{self, Display, Formatter},
-    io::Error as IoError,
-    result::Result as StdResult,
+    io::Error as IoError, result::Result as StdResult,
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
 };
+use thiserror::Error as AsError;
+
+use crate::models::Message;
 
 /// Error types from Discord
-#[derive(Debug)]
-pub enum Error {
+#[derive(Debug, AsError)]
+pub enum DiscordError {
     /// Io Error
-    IoError(IoError),
+    #[error("Io Error")]
+    IoError(#[from] IoError),
+    /// Communication Error between presence thread
+    #[error("Communication Error between presence thread")]
+    SendError(#[from] SendError<Message>),
+    /// Error Receiving message
+    #[error("Error Receiving message")]
+    ReceiveError(#[from] RecvError),
     /// Json Error
-    JsonError(JsonError),
+    #[error("Error parsing Json")]
+    JsonError(#[from] JsonError),
     /// Timeout Error
-    Timeout(ChannelTimeout),
+    #[error("Error on Channel Timeout")]
+    Timeout(#[from] ChannelTimeout),
+    /// Option unwrapped to None
+    #[error("{0}")]
+    NoneError(String),
     /// Conversion Error
+    #[error("Error converting values")]
     Conversion,
     /// Subscription Joining Error
+    #[error("Error subscribing to an event")]
     SubscriptionFailed,
     /// Connection Closing error
+    #[error("Connection was closed prematurely")]
     ConnectionClosed,
 }
 
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_str(self.description().as_str())
-    }
-}
-
-impl Error {
-    fn description(&self) -> String {
-        match self {
-            Error::Conversion => "Failed to convert values".into(),
-            Error::SubscriptionFailed => "Failed to subscribe to event".into(),
-            Error::ConnectionClosed => "Connection closed".into(),
-            Error::IoError(ref err) => err.to_string(),
-            Error::JsonError(ref err) => err.to_string(),
-            Error::Timeout(ref err) => err.to_string(),
-        }
-    }
-}
-
-impl From<IoError> for Error {
-    fn from(err: IoError) -> Self {
-        Error::IoError(err)
-    }
-}
-
-impl From<JsonError> for Error {
-    fn from(err: JsonError) -> Self {
-        Error::JsonError(err)
-    }
-}
-
-impl From<ChannelTimeout> for Error {
-    fn from(err: ChannelTimeout) -> Self {
-        Error::Timeout(err)
-    }
-}
-
 /// Result type for Discord RPC error types
-pub type Result<T> = StdResult<T, Error>;
+pub type Result<T> = StdResult<T, DiscordError>;
