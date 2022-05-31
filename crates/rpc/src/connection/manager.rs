@@ -135,7 +135,7 @@ fn send_and_receive(
     outbound: &Rx,
 ) -> Result<()> {
     while let Ok(msg) = outbound.try_recv() {
-        connection.send(&msg).expect("Failed to send outgoing data");
+        connection.send(&msg)?;
     }
 
     let msg = connection.recv()?;
@@ -149,7 +149,7 @@ fn send_and_receive(
             event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
-            inbound.send(msg).expect("Failed to send received data");
+            inbound.send(msg)?;
         }
     }
 
