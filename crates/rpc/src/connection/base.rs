@@ -47,6 +47,7 @@ pub trait Connection: Sized {
         if base_path.exists() {
             base_path
         } else {
+            // This fixes issues with Unix implementations
             Self::ipc_path()
                 .join("app")
                 .join("com.discordapp.Discord")
