@@ -116,13 +116,10 @@ fn send_and_receive_loop(mut manager: Manager) {
             }
             None => match manager.connect() {
                 Err(err) => {
-                    match err {
-                        // Ignore the following two errors as they are in fact somewhat expected
-                        DiscordError::IoError(ref err)
-                            if err.kind() == ErrorKind::ConnectionRefused
-                                /* || err.kind() == ErrorKind::NotFound */ => {}
-                        why => error!("Failed to connect: {:?}", why),
+                    if !err.io_would_block() {
+                        error!("Failed to connect: {:?}", err)
                     }
+
                     thread::sleep(time::Duration::from_secs(10));
                 }
                 _ => manager.handshake_completed = true,

@@ -6,7 +6,7 @@ use crate::{
 use bytes::BytesMut;
 use serde_json::json;
 use std::{
-    io::{ErrorKind, Read, Write},
+    io::{Read, Write},
     marker::Sized,
     path::PathBuf,
     thread, time,
@@ -18,8 +18,7 @@ macro_rules! try_until_done {
         loop {
             match $e {
                 Ok(v) => break v,
-                Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
-                Err(why) => return Err(why),
+                Err(why) => if !why.io_would_block() { return Err(why); },
             }
 
             thread::sleep(time::Duration::from_millis(500));

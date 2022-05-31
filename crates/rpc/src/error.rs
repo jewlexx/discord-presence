@@ -40,5 +40,15 @@ pub enum DiscordError {
     ConnectionClosed,
 }
 
+impl DiscordError {
+    /// Tell whether an [`IoError`] would block the connection
+    pub fn io_would_block(&self) -> bool {
+        match self {
+            Self::IoError(ref err) => err.kind() == std::io::ErrorKind::WouldBlock,
+            _ => false,
+        }
+    }
+}
+
 /// Result type for Discord RPC error types
 pub type Result<T> = StdResult<T, DiscordError>;
