@@ -120,7 +120,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                         // Ignore the following two errors as they are in fact somewhat expected
                         DiscordError::IoError(ref err)
                             if err.kind() == ErrorKind::ConnectionRefused
-                                || err.kind() == ErrorKind::NotFound => {}
+                                /* || err.kind() == ErrorKind::NotFound */ => {}
                         why => error!("Failed to connect: {:?}", why),
                     }
                     thread::sleep(time::Duration::from_secs(10));
