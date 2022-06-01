@@ -22,6 +22,6 @@ mod event_handler;
 pub mod models;
 mod utils;
 
-pub use self::client::Client;
-pub use self::error::{DiscordError, Result};
-pub use self::models::Event;
+pub use client::Client;
+pub use error::{DiscordError, Result};
+pub use models::Event;
