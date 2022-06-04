@@ -116,13 +116,10 @@ fn send_and_receive_loop(mut manager: Manager) {
             }
             None => match manager.connect() {
                 Err(err) => {
-                    match err {
-                        // Ignore the following two errors as they are in fact somewhat expected
-                        DiscordError::IoError(ref err)
-                            if err.kind() == ErrorKind::ConnectionRefused
-                                || err.kind() == ErrorKind::NotFound => {}
-                        why => error!("Failed to connect: {:?}", why),
+                    if !err.io_would_block() {
+                        error!("Failed to connect: {:?}", err)
                     }
+
                     thread::sleep(time::Duration::from_secs(10));
                 }
                 _ => manager.handshake_completed = true,
@@ -138,7 +135,7 @@ fn send_and_receive(
     outbound: &Rx,
 ) -> Result<()> {
     while let Ok(msg) = outbound.try_recv() {
-        connection.send(&msg).expect("Failed to send outgoing data");
+        connection.send(&msg)?;
     }
 
     let msg = connection.recv()?;
@@ -152,7 +149,7 @@ fn send_and_receive(
             event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
-            inbound.send(msg).expect("Failed to send received data");
+            inbound.send(msg)?;
         }
     }
 

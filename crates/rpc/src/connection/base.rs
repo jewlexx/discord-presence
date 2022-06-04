@@ -6,7 +6,7 @@ use crate::{
 use bytes::BytesMut;
 use serde_json::json;
 use std::{
-    io::{ErrorKind, Read, Write},
+    io::{Read, Write},
     marker::Sized,
     path::PathBuf,
     thread, time,
@@ -18,8 +18,7 @@ macro_rules! try_until_done {
         loop {
             match $e {
                 Ok(v) => break v,
-                Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => (),
-                Err(why) => return Err(why),
+                Err(why) => if !why.io_would_block() { return Err(why); },
             }
 
             thread::sleep(time::Duration::from_millis(500));
@@ -41,7 +40,18 @@ pub trait Connection: Sized {
 
     /// The full socket path.
     fn socket_path(n: u8) -> PathBuf {
-        Self::ipc_path().join(format!("discord-ipc-{}", n))
+        let socket_path = format!("discord-ipc-{}", n);
+        let base_path = Self::ipc_path().join(socket_path.clone());
+
+        if base_path.exists() {
+            base_path
+        } else {
+            // This fixes issues with Unix implementations
+            Self::ipc_path()
+                .join("app")
+                .join("com.discordapp.Discord")
+                .join(socket_path)
+        }
     }
 
     /// Perform a handshake on this socket connection.

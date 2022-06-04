@@ -36,8 +36,8 @@ impl Connection for UnixConnection {
 
 impl Drop for UnixConnection {
     fn drop(&mut self) {
-        self.socket
-            .shutdown(Shutdown::Both)
-            .expect("Failed to properly shut down socket");
+        if self.socket.shutdown(Shutdown::Both).is_err() {
+            error!("Failed to properly shut down socket");
+        }
     }
 }

@@ -46,11 +46,11 @@ pub enum Event {
     ActivityJoinRequest,
 }
 
-pub use self::commands::*;
-pub use self::events::*;
-pub use self::message::{Message, OpCode};
+pub use commands::*;
+pub use events::*;
+pub use message::{Message, OpCode};
 
-pub use self::rich_presence::*;
+pub use rich_presence::*;
 
 /// Prelude for all Discord RPC types
 pub mod prelude {

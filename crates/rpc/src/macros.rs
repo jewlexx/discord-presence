@@ -23,14 +23,14 @@ macro_rules! builder_func {
 }
 
 macro_rules! into_error {
-    ($opt:expr, $msg:expr) => {
+    [ $opt:expr, $msg:expr ] => {
         match $opt {
             Some(v) => Ok(v),
             None => Err(crate::error::DiscordError::NoneError($msg)),
         }
     };
 
-    ($opt:expr) => {
+    [ $opt:expr ] => {
         into_error!($opt, String::from("Option unwrapped to None"))
     };
 }
