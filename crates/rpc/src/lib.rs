@@ -5,7 +5,7 @@
 
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
-extern crate serde_derive;
+extern crate serde;
 
 #[macro_use]
 extern crate log;
