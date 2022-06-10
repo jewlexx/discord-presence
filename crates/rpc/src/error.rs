@@ -4,6 +4,7 @@ use std::{
     io::Error as IoError, result::Result as StdResult,
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
 };
+use crossbeam_channel::RecvTimeoutError;
 use thiserror::Error as AsError;
 
 use crate::models::Message;
@@ -26,6 +27,9 @@ pub enum DiscordError {
     /// Timeout Error
     #[error("Error on Channel Timeout")]
     Timeout(#[from] ChannelTimeout),
+    /// Receiving timed out
+    #[error("Recieving timed out")]
+    RecvTimeoutError(#[from] RecvTimeoutError),
     /// Option unwrapped to None
     #[error("{0}")]
     NoneError(String),

@@ -53,7 +53,7 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        let message = self.inbound.0.recv()?;
+        let message = self.inbound.0.recv_timeout(Duration::from_millis(500))?;
         Ok(message)
     }
 
