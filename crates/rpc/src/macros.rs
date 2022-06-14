@@ -53,6 +53,7 @@ macro_rules! builder {
         builder![ @st
             ( $name $($rest)* ) -> (
                 $($out)*
+                #[doc = concat!("Optional " , stringify!($field), " field")]
                 #[serde(skip_serializing_if = "Option::is_none", rename = $alias)]
                 pub $field: Option<$type>,
             )
@@ -67,7 +68,7 @@ macro_rules! builder {
         builder![ @st
             ( $name $($rest)* ) -> (
                 $($out)*
-                #[doc = "omglsay"]
+                #[doc = concat!("Optional " , stringify!($field), " field")]
                 #[serde(skip_serializing_if = "Option::is_none")]
                 pub $field: Option<$type>,
             )
