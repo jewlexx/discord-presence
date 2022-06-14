@@ -6,6 +6,8 @@
 
 Discord RPC client for Rust forked from [Discord RPC Client](https://gitlab.com/valeth/discord-rpc-client.rs)
 
+> Note: If you are looking to add this into a game, check out the [Bevy implementation](https://github.com/jewlexx/bevy-discord-rpc)
+
 ## Installation
 
 Add this to your `Cargo.toml`:
