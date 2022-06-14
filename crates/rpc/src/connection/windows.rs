@@ -13,8 +13,8 @@ impl Connection for WindowsConnection {
     fn connect() -> Result<Self> {
         let connection_name = Self::socket_path(0);
         let mut socket = PipeClient::connect(connection_name)?;
-        socket.set_write_timeout(Some(time::Duration::from_secs(30)));
-        socket.set_read_timeout(Some(time::Duration::from_secs(30)));
+        socket.set_write_timeout(Some(time::Duration::from_secs(1)));
+        socket.set_read_timeout(Some(time::Duration::from_secs(1)));
         Ok(Self { socket })
     }
 
