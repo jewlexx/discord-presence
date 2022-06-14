@@ -54,6 +54,7 @@ macro_rules! builder {
         builder![ @st
             ( $name $($rest)* ) -> (
                 $($out)*
+                #[doc = "omglsay"]
                 #[serde(skip_serializing_if = "Option::is_none")]
                 pub $field: Option<$type>,
             )
@@ -61,6 +62,7 @@ macro_rules! builder {
     };
 
     [ @st ( $name:ident ) -> ( $($out:tt)* ) ] => {
+        #[doc = concat!(stringify!($name), " struct")]
         #[derive(Debug, Clone, Default, PartialEq, Deserialize, Serialize, Hash, Eq)]
         pub struct $name { $($out)* }
     };
@@ -79,6 +81,7 @@ macro_rules! builder {
 
     [ @im ( $name:ident ) -> ( $($out:tt)* ) ] => {
         impl $name {
+            #[doc = concat!("Instantiates the `", stringify!($name), "` struct using the `Default` implementation")]
             pub fn new() -> Self {
                 Self::default()
             }
