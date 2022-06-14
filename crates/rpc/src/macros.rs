@@ -1,5 +1,16 @@
+macro_rules! builder_func_doc {
+    [ $type:tt ] => {
+        concat!(
+            "Instantiates the current struct with the given ",
+            stringify!($type),
+            " value."
+        )
+    };
+}
+
 macro_rules! builder_func {
     [ $name:ident, $type:tt func ] => {
+        #[doc = builder_func_doc!($type)]
         pub fn $name<F>(mut self, func: F) -> Self
             where F: FnOnce($type) -> $type
         {
@@ -8,6 +19,7 @@ macro_rules! builder_func {
     };
 
     [ $name:ident, String ] => {
+        #[doc = builder_func_doc!(Stringish)]
         pub fn $name<S>(mut self, value: S) -> Self
             where S: Into<String>
         {
@@ -16,6 +28,7 @@ macro_rules! builder_func {
     };
 
     [ $name:ident, $type:ty ] => {
+        #[doc = builder_func_doc!($type)]
         pub fn $name(mut self, value: $type) -> Self {
             self.$name = Some(value); self
         }
