@@ -17,12 +17,12 @@ use serde_json::Value;
 
 macro_rules! event_handler_function {
     ( $( $name:ident, $event:expr ),* ) => {
-        event_handler_function!{@gen $([ $name, $event, concat!("Listens for the `", stringify!($event), "` event")])*}
+        event_handler_function!{@gen $([ $name, $event])*}
     };
 
-    (@gen $( [ $name:ident, $event:expr, $doc:expr ] ), *) => {
+    (@gen $( [ $name:ident, $event:expr ] ), *) => {
         $(
-            #[doc = $doc]
+            #[doc = concat!("Listens for the `", stringify!($event), "` event")]
             pub fn $name<F>(&mut self, handler: F)
                 where F: Fn(EventContext) + 'static + Send + Sync
             {
