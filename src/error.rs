@@ -1,4 +1,4 @@
-use crossbeam_channel::{RecvError, SendError};
+use crossbeam_channel::{RecvError, RecvTimeoutError, SendError, TryRecvError};
 use serde_json::Error as JsonError;
 use std::{
     io::Error as IoError, result::Result as StdResult,
@@ -26,6 +26,12 @@ pub enum DiscordError {
     /// Timeout Error
     #[error("Error on Channel Timeout")]
     Timeout(#[from] ChannelTimeout),
+    /// No Message Sent
+    #[error("No message sent")]
+    RecvError(#[from] TryRecvError),
+    /// Receiving timed out
+    #[error("Recieving timed out")]
+    RecvTimeoutError(#[from] RecvTimeoutError),
     /// Option unwrapped to None
     #[error("{0}")]
     NoneError(String),

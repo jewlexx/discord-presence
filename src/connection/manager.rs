@@ -53,8 +53,7 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        let message = self.inbound.0.recv()?;
-        Ok(message)
+        self.inbound.0.try_recv().map_err(DiscordError::from)
     }
 
     fn connect(&mut self) -> Result<()> {
@@ -108,7 +107,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                     Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
                         manager.disconnect()
                     }
-                    Err(why) => error!("error: {}", why),
+                    Err(why) => debug!("discord error: {}", why),
                     _ => {}
                 }
 
