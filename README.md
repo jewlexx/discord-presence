@@ -1,19 +1,69 @@
-# Discord Presence
+# Discord RPC
 
-The root project for both [Bevy Discord Presence](https://crates.io/crates/bevy-discord-presence) and regular [Discord Presence](https://crates.io/crates/discord-presence), both contained in the crates directory.
+[![crates.io](https://img.shields.io/crates/v/discord-presence.svg)](https://crates.io/crates/discord-presence)
+[![crates.io](https://img.shields.io/crates/d/discord-presence.svg)](https://crates.io/crates/discord-presence)
+[![docs.rs](https://docs.rs/discord-presence/badge.svg)](https://docs.rs/discord-presence)
 
-## FAQ
+Discord RPC client for Rust forked from [Discord RPC Client](https://gitlab.com/valeth/discord-rpc-client.rs)
 
-### How do I get invites to work?
-In all honesty, I'm not sure. That is a limitation with the current release, I have not given a standard way to implement join requests. I do plan on adding something in future but it will not be easy as there is no way of knowing what the end developer will use for their server and hence no way to ensure that my implementation works.
+## Installation
+
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+discord-presence = "0.5"
+```
+
+or run:
+
+```shell
+cargo add discord-presence
+```
+
+if you have `cargo-edit` installed
+
+## Example
+
+```rust
+use std::{env, thread, time};
+use discord_presence::{Client, Event};
+
+fn main() {
+    // Get our main status message
+    let state_message = env::args().nth(1).expect("Requires at least one argument");
+
+    // Create the client
+    let mut drpc = Client::new(425407036495495169);
+
+    // Register event handlers with the corresponding methods
+    drpc.on_ready(|_ctx| {
+        println!("ready?");
+    });
+
+    // or
+
+    drpc.on_event(Event::Ready, |ctx| {
+        println!("READY!");
+    });
+
+    // Start up the client connection, so that we can actually send and receive stuff
+    drpc.start();
+
+    // Set the activity
+    drpc.set_activity(|act| act.state(state_message))
+        .expect("Failed to set activity");
+
+    // Wait 10 seconds before exiting
+    thread::sleep(time::Duration::from_secs(10));
+}
+```
+
+> More examples can be found in the examples directory.
 
 ## Changelog
 
-Both projects have their respective changelogs that can be viewed as follows:
-
-- [Bevy Discord Presence](crates/bevy/CHANGELOG.md)
-
-- [Discord Presence](crates/rpc/CHANGELOG.md)
+See [CHANGELOG.md](CHANGELOG.md)
 
 ## Contributions
 
