@@ -1,6 +1,3 @@
-use crate::models::rich_presence::{
-    Activity, CloseActivityRequestArgs, SendActivityJoinInviteArgs, SetActivityArgs,
-};
 use crate::{
     connection::Manager as ConnectionManager,
     event_handler::{Context as EventContext, HandlerRegistry},
@@ -8,6 +5,9 @@ use crate::{
         commands::{Subscription, SubscriptionArgs},
         message::Message,
         payload::Payload,
+        rich_presence::{
+            Activity, CloseActivityRequestArgs, SendActivityJoinInviteArgs, SetActivityArgs,
+        },
         Command, Event, OpCode,
     },
     DiscordError, Result,
