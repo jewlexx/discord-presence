@@ -9,6 +9,13 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
+## [0.5.4](https://github.com/jewlexx/discord-presence/releases/tag/discord-rpc%400.5.0) - 2022-06-19
+
+### Fixed
+
+- Fixed issues with timeouts on Discord connections
+- Fixed issues with Unix connections
+
 ## [0.5.0](https://github.com/jewlexx/discord-presence/releases/tag/discord-rpc%400.5.0) - 2022-04-21
 
 ### Changed
