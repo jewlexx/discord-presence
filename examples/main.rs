@@ -1,4 +1,4 @@
-use discord_presence::{models::Event, Client as DiscordRPC};
+use discord_presence::Client as DiscordRPC;
 use std::{thread, time};
 
 fn main() {
@@ -17,18 +17,6 @@ fn main() {
     });
 
     drpc.start();
-
-    drpc.subscribe(Event::ActivityJoin, |j| j.secret("123456"))
-        .expect("Failed to subscribe to event");
-
-    drpc.subscribe(Event::ActivitySpectate, |s| s.secret("123456"))
-        .expect("Failed to subscribe to event");
-
-    drpc.subscribe(Event::ActivityJoinRequest, |s| s)
-        .expect("Failed to subscribe to event");
-
-    drpc.unsubscribe(Event::ActivityJoinRequest, |j| j)
-        .expect("Failed to unsubscribe from event");
 
     loop {
         thread::sleep(time::Duration::from_millis(500));
