@@ -4,6 +4,10 @@ use std::{thread, time};
 fn main() {
     let mut drpc = DiscordRPC::new(425407036495495169);
 
+    drpc.on_ready(|_ctx| {
+        println!("ready?");
+    });
+
     drpc.on_activity_join_request(|ctx| {
         println!("Join request: {:?}", ctx.event);
     });
@@ -17,6 +21,10 @@ fn main() {
     });
 
     drpc.start();
+
+    // Set the activity
+    drpc.set_activity(|act| act.state("rusting frfr"))
+        .expect("Failed to set activity");
 
     loop {
         thread::sleep(time::Duration::from_millis(500));
