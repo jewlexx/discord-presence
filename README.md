@@ -36,7 +36,7 @@ fn main() {
     let state_message = env::args().nth(1).expect("Requires at least one argument");
 
     // Create the client
-    let mut drpc = Client::new(425407036495495169);
+    let mut drpc = Client::new(1003450375732482138);
 
     // Register event handlers with the corresponding methods
     drpc.on_ready(|_ctx| {

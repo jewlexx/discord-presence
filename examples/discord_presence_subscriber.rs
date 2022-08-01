@@ -1,7 +1,7 @@
 use discord_presence::Client as DiscordRPC;
 
 fn main() {
-    let mut drpc = DiscordRPC::new(425407036495495169);
+    let mut drpc = DiscordRPC::new(1003450375732482138);
 
     drpc.on_ready(|_ctx| {
         println!("READY!");
