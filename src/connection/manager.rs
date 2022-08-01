@@ -53,7 +53,7 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        self.inbound.0.try_recv().map_err(DiscordError::from)
+        self.inbound.0.recv().map_err(DiscordError::from)
     }
 
     fn connect(&mut self) -> Result<()> {
@@ -134,7 +134,7 @@ fn send_and_receive(
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
-    while let Ok(msg) = outbound.try_recv() {
+    while let Ok(msg) = outbound.recv() {
         connection.send(&msg)?;
     }
 
