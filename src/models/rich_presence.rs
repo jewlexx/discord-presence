@@ -87,7 +87,7 @@ builder! {ActivityAssets
 }
 
 builder! {ActivityParty
-    id: u32,
+    id: String,
     size: (u32, u32),
 }
 
@@ -117,7 +117,7 @@ mod tests {
                     .small_image("rusting")
                     .small_text("Rusting...")
             })
-            .party(|p| p.id(1).size((3, 6)))
+            .party(|p| p.id("party").size((3, 6)))
             .secrets(|s| {
                 s.join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
                     .spectate("e7eb30d2ee025ed05c71ea495f770b76454ee4e0")
