@@ -26,6 +26,13 @@ fn main() {
     drpc.set_activity(|act| act.state("rusting frfr"))
         .expect("Failed to set activity");
 
+    ctrlc::set_handler(move || {
+        println!("Exiting...");
+        drpc.clear_activity().unwrap();
+        std::process::exit(0);
+    })
+    .unwrap();
+
     loop {
         thread::sleep(time::Duration::from_millis(500));
     }
