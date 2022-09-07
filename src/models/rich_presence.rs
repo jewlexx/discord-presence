@@ -3,7 +3,7 @@ use crate::utils;
 use std::default::Default;
 
 /// Args to set Discord activity
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
     pid: u32,
 
@@ -34,7 +34,7 @@ impl Default for SetActivityArgs {
 }
 
 /// Args to invite a player to join a game
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct SendActivityJoinInviteArgs {
     /// The user to invite
     pub user_id: String,

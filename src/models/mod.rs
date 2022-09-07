@@ -11,7 +11,7 @@ pub mod rich_presence;
 mod shared;
 
 /// Different Discord commands
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Command {
     /// Dispatch something to Discord

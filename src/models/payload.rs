@@ -3,7 +3,7 @@ use crate::utils;
 use serde::{de::DeserializeOwned, Serialize};
 
 /// The Discord client payload
-#[derive(Debug, PartialEq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 pub struct Payload<T>
 where
     T: Serialize,

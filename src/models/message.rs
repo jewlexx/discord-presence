@@ -7,7 +7,7 @@ use std::io::{Read, Write};
 
 /// Codes for payload types
 #[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, FromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, FromPrimitive)]
 pub enum OpCode {
     /// Handshake payload
     Handshake,
@@ -22,7 +22,7 @@ pub enum OpCode {
 }
 
 /// Message struct for the Discord RPC
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Message {
     /// The payload type for this `Message`
     pub opcode: OpCode,
