@@ -34,6 +34,7 @@ fn main() {
     .unwrap();
 
     loop {
-        thread::sleep(time::Duration::from_millis(500));
+        println!("Still executing");
+        thread::sleep(time::Duration::from_secs(5));
     }
 }
