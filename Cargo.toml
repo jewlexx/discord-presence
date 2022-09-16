@@ -1,0 +1,18 @@
+[package]
+name = "discord-ipc-rust"
+version = "0.1.0"
+authors = ["sardonicism-04 <110789901+sardonicism-04@users.noreply.github.com>"]
+edition = "2021"
+description = "A simple, cross-platform crate for interfacing with Discord IPC for more than just presence"
+readme = "README.md"
+repository = "https://github.com/hacksore/discord-ipc-rust"
+license = "MIT"
+keywords = ["discord", "rich-presence", "ipc"]
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde_json = "1.0"
+serde = "1.0"
+serde_derive = "1.0"
+uuid = { version = "0.8", features = ["v4"] }
