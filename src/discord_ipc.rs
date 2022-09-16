@@ -91,8 +91,9 @@ pub trait DiscordIpc {
       OPCODES::Handshake as u8,
     )?;
     
-    // TODO: Return an Err if the handshake is rejected
-    self.recv()?;
+    // // TODO: Return an Err if the handshake is rejected
+    // NOTE: this prolly shouldnt be done here as we dont want to consume messages here
+    // self.recv()?;
 
     Ok(())
   }

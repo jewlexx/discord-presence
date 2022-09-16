@@ -21,7 +21,8 @@
 
 mod discord_ipc;
 mod pack_unpack;
-mod opcodes;
+
+pub mod opcodes;
 pub use discord_ipc::*;
 pub mod activity;
 

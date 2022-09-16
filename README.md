@@ -6,6 +6,7 @@ This is copied from [sardonicism-04/discord-rich-presence](https://github.com/sa
 - [x] Change the name to `discord-ipc-rust` for clarity
 - [ ] Add a listen method to allow the consumer to recv all events sent from discord
 - [ ] Remove all the presence specific code
+- [ ] Possibly rewrite with `tokio::net::UnixStream` as it might be better?
 - [ ] Publish to crates.io
 
 ### Example

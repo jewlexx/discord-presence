@@ -18,3 +18,4 @@ serde_json = "1.0"
 serde = "1.0"
 serde_derive = "1.0"
 uuid = { version = "0.8", features = ["v4"] }
+dotenv = "0.15.0"
