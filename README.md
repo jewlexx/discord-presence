@@ -33,3 +33,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
   Ok(())
 }
 ```
+
+### Debugging for now
+`make` to run the default test

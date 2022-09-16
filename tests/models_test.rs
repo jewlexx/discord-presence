@@ -1,27 +1,23 @@
-use discord_ipc_rust::{activity, DiscordIpc, DiscordIpcClient};
+use discord_ipc_rust::{DiscordIpc, DiscordIpcClient};
 use std::error::Error;
 
 #[test]
 fn test_models() -> Result<(), Box<dyn Error>> {
-    let mut client = DiscordIpcClient::new("771124766517755954")?;
-    client.connect()?;
+  let mut client = DiscordIpcClient::new("771124766517755954")?;
 
-    let activity = activity::Activity::new()
-        .state("A test")
-        .details("A placeholder")
-        .assets(
-            activity::Assets::new()
-                .large_image("large-image")
-                .large_text("Large text"),
-        )
-        .buttons(vec![activity::Button::new(
-            "A button",
-            "https://github.com",
-        )]);
-    client.set_activity(activity)?;
+  println!("Connecting to client...");
+  client.connect()?;
 
-    std::thread::sleep(std::time::Duration::from_secs(10));
+  println!("Get data from socket...");
 
-    client.close()?;
-    Ok(())
+  loop {
+    let res = client.recv()?;
+    println!("Result{:?}", res);
+  }
+
+  // wait 5 seconds and exit
+  // std::thread::sleep(std::time::Duration::from_secs(5));
+
+  client.close()?;
+  Ok(())
 }
