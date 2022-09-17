@@ -1,12 +1,10 @@
 use crate::{
-  activity::Activity,
+  opcodes::OPCODES,
   pack_unpack::{pack, unpack},
-  opcodes::{ OPCODES }
 };
 use serde_json::{json, Value};
 use std::error::Error;
 use uuid::Uuid;
-
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
@@ -27,10 +25,12 @@ pub trait DiscordIpc {
   ///
   /// # Examples
   /// ```
-  /// let mut client = discord_ipc_rust::new_client("<some client id>")?;
+  /// let mut client = discord_ipc::new_client("<some client id>")?;
   /// client.connect()?;
   /// ```
   fn connect(&mut self) -> Result<()> {
+    println!("Connecting to client...");
+
     self.connect_ipc()?;
     self.send_handshake()?;
 
@@ -50,7 +50,7 @@ pub trait DiscordIpc {
   ///
   /// # Examples
   /// ```
-  /// let mut client = discord_ipc_rust::new_client("<some client id>")?;
+  /// let mut client = discord_ipc::new_client("<some client id>")?;
   /// client.connect()?;
   ///
   /// client.close()?;
@@ -90,12 +90,36 @@ pub trait DiscordIpc {
       }),
       OPCODES::Handshake as u8,
     )?;
-    
+
     // // TODO: Return an Err if the handshake is rejected
     // NOTE: this prolly shouldnt be done here as we dont want to consume messages here
     // self.recv()?;
 
     Ok(())
+  }
+
+  /// Send auth
+  ///
+  /// This method sends the auth token to the IPC.
+  ///
+  /// Returns an `Err` variant if sending the handshake failed.
+  fn login(&mut self, access_token: String) -> Result<()> {
+
+    let nonce = Uuid::new_v4().to_string();
+
+    self.send(
+      json!({
+        "cmd": "AUTHENTICATE",
+        "args": {
+          "access_token": access_token
+        },
+        "nonce": nonce
+      }),
+      OPCODES::Frame as u8,
+    )?;
+
+    Ok(())
+
   }
 
   /// Sends JSON data to the Discord IPC.
@@ -161,30 +185,6 @@ pub trait DiscordIpc {
 
   #[doc(hidden)]
   fn read(&mut self, buffer: &mut [u8]) -> Result<()>;
-
-  /// Sets a Discord activity.
-  ///
-  /// This method is an abstraction of [`send`],
-  /// wrapping it such that only an activity payload
-  /// is required.
-  ///
-  /// [`send`]: #method.send
-  ///
-  /// # Errors
-  /// Returns an `Err` variant if sending the payload failed.
-  fn set_activity(&mut self, activity_payload: Activity) -> Result<()> {
-    let data = json!({
-        "cmd": "SET_ACTIVITY",
-        "args": {
-            "pid": std::process::id(),
-            "activity": activity_payload
-        },
-        "nonce": Uuid::new_v4().to_string()
-    });
-    self.send(data, 1)?;
-
-    Ok(())
-  }
 
   /// Closes the Discord IPC connection. Implementation is dependent on platform.
   fn close(&mut self) -> Result<()>;

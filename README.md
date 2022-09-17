@@ -14,7 +14,7 @@ This is copied from [sardonicism-04/discord-rich-presence](https://github.com/sa
 This is not working currently and is the "concept" of how it'd work.
 
 ```rust
-use discord_ipc_rust::{activity, DiscordIpc, DiscordIpcClient};
+use discord_ipc::{activity, DiscordIpc, DiscordIpcClient};
 
 fn handle_connection(stream: TcpStream) {
   // TODO: get data frames?
