@@ -1,13 +1,10 @@
-use discord_ipc::{DiscordIpc, DiscordIpcClient, opcodes};
+use discord_ipc::{opcodes, DiscordIpc, DiscordIpcClient, EventType, models::* };
 
-use std::time::Duration;
 use serde_json::json;
-
+use std::time::Duration;
 mod models;
 
-use crate::models::BasedEvents;
-
-fn main()  {
+fn main() {
   // load env vars
   dotenv::dotenv().ok();
 
@@ -16,38 +13,60 @@ fn main()  {
 
   // connect to discord client with overlayed id
   let mut client = DiscordIpcClient::new("905987126099836938").unwrap();
+
+  // this will send the handshake
   client.connect().unwrap();
 
-  std::thread::sleep(Duration::from_millis(100));
-
+  // this sends the login packet
   client.login(access_token).unwrap();
 
-  std::thread::sleep(Duration::from_millis(100));
-
-  // 
-  client.send(json!({
-    "cmd": "GET_SELECTED_VOICE_CHANNEL",
-    "args": {},    
-  }), opcodes::OPCODES::Frame as u8).unwrap();
+  client
+    .send(
+      json!({
+        "cmd": "GET_SELECTED_VOICE_CHANNEL",
+        "args": {},
+        "nonce": "limga"
+      }),
+      opcodes::OPCODES::Frame as u8,
+    )
+    .unwrap();
 
   loop {
     let (_opcode, payload) = client.recv().unwrap();
-    let event = serde_json::from_str(&payload).unwrap();
+    // println!("{}", payload);
 
-    match event {
-      BasedEvents::Login { data, .. } => {
-        println!("got login event, {:#?}", data);
-      },
-      BasedEvents::Ready { data, .. } => {
-        println!("got ready event, {:#?}", data);
-      },
-      _ => {
+    let event = serde_json::from_str::<EventType>(&payload);
 
+    // handle events
+    if let Ok(event) = event {
+
+      if let EventType::Command(data) = event {
+        match data {
+          BasedCommands::GetSelectedVoiceChannel { data, .. } => {
+            println!("got voice select event, {:#?}", data);
+          }
+          // _ => {
+          //   println!("no handled");
+          // }
+        }
+      } else if let EventType::Event(data) = event {
+        match data {
+          BasedEvents::Login { data, .. } => {
+            println!("got login event, {:#?}", data);
+          }
+          BasedEvents::Ready { data, .. } => {
+            println!("got ready event, {:#?}", data);
+          }
+          BasedEvents::Error { data, .. } => {
+            println!("got err event, {:#?}", data);
+          }
+          // _ => {
+          //   println!("no handled");
+          // }
+        }
       }
-      // BasedEvents::Voice { data, .. } => {
-      //   println!("got ready event, {:#?}", data);
-      // },
+    } else if let Err(err) = event {
+      println!("{}", err);
     }
-
   }
 }

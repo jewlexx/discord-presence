@@ -1,4 +1,5 @@
 use crate::{
+  models::BasedEvents,
   opcodes::OPCODES,
   pack_unpack::{pack, unpack},
 };
@@ -8,8 +9,7 @@ use uuid::Uuid;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
-
-const CLIENT_ID: &str = "905987126099836938";
+// const CLIENT_ID: &str = "905987126099836938";
 
 /// A client that connects to and communicates with the Discord IPC.
 ///
@@ -36,6 +36,19 @@ pub trait DiscordIpc {
 
     self.connect_ipc()?;
     self.send_handshake()?;
+
+    let (_opcode, payload) = self.recv().unwrap();
+
+    // spooky line is not working
+    let payload = serde_json::from_str(&payload)?;
+    match payload {
+      BasedEvents::Ready { .. } => {
+        println!("Connected to dxiscord and got ready event!");
+      }
+      _ => {
+        println!("Could not connect to discord...");
+      }
+    }
 
     Ok(())
   }
@@ -107,7 +120,6 @@ pub trait DiscordIpc {
   ///
   /// Returns an `Err` variant if sending the handshake failed.
   fn login(&mut self, access_token: String) -> Result<()> {
-
     let nonce = Uuid::new_v4().to_string();
 
     self.send(
@@ -121,8 +133,9 @@ pub trait DiscordIpc {
       OPCODES::Frame as u8,
     )?;
 
-    Ok(())
+    self.recv()?;
 
+    Ok(())
   }
   /// Send auth
   ///

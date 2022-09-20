@@ -17,7 +17,7 @@
 //!     client.set_activity(payload)?;
 //! }
 //! ```
-#![deny(missing_docs)]
+#![allow(missing_docs)]
 
 mod discord_ipc;
 mod pack_unpack;
@@ -29,6 +29,10 @@ pub use discord_ipc::*;
 mod ipc_unix;
 #[cfg(unix)]
 use ipc_unix as ipc;
+use serde::{Deserialize, Serialize};
+
+pub mod models;
+use models::*;
 
 #[cfg(windows)]
 mod ipc_windows;
@@ -36,3 +40,10 @@ mod ipc_windows;
 use ipc_windows as ipc;
 
 pub use ipc::DiscordIpcClient;
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum EventType {
+  Command(BasedCommands),
+  Event(BasedEvents),
+}
