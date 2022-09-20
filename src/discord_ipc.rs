@@ -8,6 +8,9 @@ use uuid::Uuid;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
+
+const CLIENT_ID: &str = "905987126099836938";
+
 /// A client that connects to and communicates with the Discord IPC.
 ///
 /// Implemented via the [`DiscordIpcClient`](struct@crate::DiscordIpcClient) struct.
@@ -121,6 +124,28 @@ pub trait DiscordIpc {
     Ok(())
 
   }
+  /// Send auth
+  ///
+  /// This method sends the auth token to the IPC.
+  ///
+  /// Returns an `Err` variant if sending the handshake failed.
+  // fn auth(&mut self) -> Result<()> {
+  //   let nonce = Uuid::new_v4().to_string();
+  //   self.send(
+  //     json!({
+  //       "cmd": "AUTHORIZE",
+  //       "args": {
+  //         "client_id": CLIENT_ID,
+  //         "scopes": ["rpc"]
+  //       },
+  //       "nonce": nonce
+  //     }),
+  //     OPCODES::Frame as u8,
+  //   )?;
+
+  //   Ok(())
+
+  // }
 
   /// Sends JSON data to the Discord IPC.
   ///
@@ -164,7 +189,7 @@ pub trait DiscordIpc {
   ///
   /// println!("{:?}", client.recv()?);
   /// ```
-  fn recv(&mut self) -> Result<(u32, Value)> {
+  fn recv(&mut self) -> Result<(u32, String)> {
     let mut header = [0; 8];
 
     self.read(&mut header)?;
@@ -174,13 +199,8 @@ pub trait DiscordIpc {
     self.read(&mut data)?;
 
     let response = String::from_utf8(data.to_vec())?;
-    let json_data = serde_json::from_str::<Value>(&response)?;
 
-    let command = json_data.get("cmd");
-
-    println!("Got command, {:?}", command);
-
-    Ok((op, json_data))
+    Ok((op, response))
   }
 
   #[doc(hidden)]
