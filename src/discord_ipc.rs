@@ -1,15 +1,14 @@
 use crate::{
+  models::BasedCommands,
   models::BasedEvents,
   opcodes::OPCODES,
   pack_unpack::{pack, unpack},
 };
 use serde_json::{json, Value};
-use std::error::Error;
+use std::{collections::HashMap, error::Error};
 use uuid::Uuid;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
-
-// const CLIENT_ID: &str = "905987126099836938";
 
 /// A client that connects to and communicates with the Discord IPC.
 ///
@@ -101,9 +100,10 @@ pub trait DiscordIpc {
   fn send_handshake(&mut self) -> Result<()> {
     self.send(
       json!({
-          "v": 1,
-          "client_id": self.get_client_id()
-      }),
+        "v": 1,
+        "client_id": self.get_client_id()
+      })
+      .to_string(),
       OPCODES::Handshake as u8,
     )?;
 
@@ -122,6 +122,7 @@ pub trait DiscordIpc {
   fn login(&mut self, access_token: String) -> Result<()> {
     let nonce = Uuid::new_v4().to_string();
 
+    // TODO: move this to a struct and call send_cmd
     self.send(
       json!({
         "cmd": "AUTHENTICATE",
@@ -129,7 +130,8 @@ pub trait DiscordIpc {
           "access_token": access_token
         },
         "nonce": nonce
-      }),
+      })
+      .to_string(),
       OPCODES::Frame as u8,
     )?;
 
@@ -137,28 +139,6 @@ pub trait DiscordIpc {
 
     Ok(())
   }
-  /// Send auth
-  ///
-  /// This method sends the auth token to the IPC.
-  ///
-  /// Returns an `Err` variant if sending the handshake failed.
-  // fn auth(&mut self) -> Result<()> {
-  //   let nonce = Uuid::new_v4().to_string();
-  //   self.send(
-  //     json!({
-  //       "cmd": "AUTHORIZE",
-  //       "args": {
-  //         "client_id": CLIENT_ID,
-  //         "scopes": ["rpc"]
-  //       },
-  //       "nonce": nonce
-  //     }),
-  //     OPCODES::Frame as u8,
-  //   )?;
-
-  //   Ok(())
-
-  // }
 
   /// Sends JSON data to the Discord IPC.
   ///
@@ -173,12 +153,25 @@ pub trait DiscordIpc {
   /// let payload = serde_json::json!({ "field": "value" });
   /// client.send(payload, 0)?;
   /// ```
-  fn send(&mut self, data: Value, opcode: u8) -> Result<()> {
-    let data_string = data.to_string();
-    let header = pack(opcode.into(), data_string.len() as u32)?;
+  fn send(&mut self, data: String, opcode: u8) -> Result<()> {
+    let header = pack(opcode.into(), data.len() as u32)?;
 
     self.write(&header)?;
-    self.write(data_string.as_bytes())?;
+    self.write(data.as_bytes())?;
+
+    Ok(())
+  }
+
+  fn send_cmd(&mut self, command: BasedCommands) -> Result<()> {
+    let uuid = Uuid::new_v4();
+    let mut payload = serde_json::to_value(command)?;
+    let payload = payload.as_object_mut().unwrap();
+
+    payload.insert("nonce".to_string(), Value::String(uuid.to_string()));
+
+    self
+      .send(serde_json::to_string(&payload)?, OPCODES::Frame as u8)
+      .unwrap();
 
     Ok(())
   }

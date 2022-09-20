@@ -1,7 +1,4 @@
-use discord_ipc::{opcodes, DiscordIpc, DiscordIpcClient, EventType, models::* };
-
-use serde_json::json;
-use std::time::Duration;
+use discord_ipc::{DiscordIpc, DiscordIpcClient, EventType, models::* };
 mod models;
 
 fn main() {
@@ -10,30 +7,27 @@ fn main() {
 
   // access token
   let access_token = dotenv::var("ACCESS_TOKEN").unwrap();
+  let client_id = dotenv::var("CLIENT_ID").unwrap();
 
   // connect to discord client with overlayed id
-  let mut client = DiscordIpcClient::new("905987126099836938").unwrap();
+  let mut client = DiscordIpcClient::new(&client_id).unwrap();
 
-  // this will send the handshake
+  // this will send the handshake to the IPC
   client.connect().unwrap();
 
-  // this sends the login packet
+  // this sends the login packet to the client and wait for the READY event
   client.login(access_token).unwrap();
 
-  client
-    .send(
-      json!({
-        "cmd": "GET_SELECTED_VOICE_CHANNEL",
-        "args": {},
-        "nonce": "limga"
-      }),
-      opcodes::OPCODES::Frame as u8,
-    )
-    .unwrap();
+  // send a simple event to the discord client
+  let cmd = BasedCommands::GetSelectedVoiceChannel;
+  client.send_cmd(cmd).ok();
+
+  // let cmd = BasedCommands::SelectVoiceChannel { id: 123 };
+  // client.send_cmd(cmd);
 
   loop {
     let (_opcode, payload) = client.recv().unwrap();
-    // println!("{}", payload);
+    println!("{}", payload);
 
     let event = serde_json::from_str::<EventType>(&payload);
 
@@ -42,12 +36,12 @@ fn main() {
 
       if let EventType::Command(data) = event {
         match data {
-          BasedCommands::GetSelectedVoiceChannel { data, .. } => {
+          BasedCommands::GetSelectedVoiceChannel => {
             println!("got voice select event, {:#?}", data);
           }
-          // _ => {
-          //   println!("no handled");
-          // }
+          _ => {
+            println!("no handled");
+          }
         }
       } else if let EventType::Event(data) = event {
         match data {

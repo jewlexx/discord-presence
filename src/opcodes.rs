@@ -7,7 +7,13 @@ pub enum OPCODES {
 
   /// When sending data as to the ipc
   Frame,
+
+  // Socket closed by discord
   Close,
+
+  // ping event
   Ping,
+
+  // pong event
   Pong
 }

@@ -1,10 +1,6 @@
 #![allow(missing_docs)]
 use serde::{ Serialize, Deserialize };
 
-// TODO: move this to the commands mod
-mod login;
-use login::*;
-
 mod commands;
 mod events;
 
@@ -45,11 +41,10 @@ pub enum BasedEvents {
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "cmd")]
-#[serde(rename_all = "UPPERCASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedCommands {  
-  GetSelectedVoiceChannel {
-    #[serde(flatten)]
-    default: Based,
-    data: GetSelectedVoiceChannelData,
+  GetSelectedVoiceChannel,
+  SelectVoiceChannel {
+    id: u32,
   }
 }
