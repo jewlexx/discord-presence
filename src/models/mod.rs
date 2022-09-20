@@ -1,5 +1,5 @@
 #![allow(missing_docs)]
-use serde::{ Serialize, Deserialize };
+use serde::{Deserialize, Serialize};
 
 mod commands;
 mod events;
@@ -8,43 +8,41 @@ mod events;
 use events::*;
 
 // commands types
-use commands::*;
+// use commands::*;
 
 /// Includes the base props from discord
 /// ex: evt, nonce
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Based {
   pub cmd: Option<String>,
-  pub nonce: Option<String>
+  pub nonce: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "evt")]
 #[serde(rename_all = "UPPERCASE")]
-pub enum BasedEvents {  
+pub enum BasedEvents {
   Ready {
     #[serde(flatten)]
     default: Based,
-    data: ReadyData,    
+    data: ReadyData,
   },
   Login {
     #[serde(flatten)]
     default: Based,
-    data: LoginData,    
-  },  
+    data: LoginData,
+  },
   Error {
     #[serde(flatten)]
     default: Based,
-    data: ErrorData,    
-  },  
+    data: ErrorData,
+  },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "cmd")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
-pub enum BasedCommands {  
+pub enum BasedCommands {
   GetSelectedVoiceChannel,
-  SelectVoiceChannel {
-    id: u32,
-  }
+  SelectVoiceChannel { id: u32 },
 }

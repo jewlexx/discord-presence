@@ -2,10 +2,10 @@ use crate::{
   models::BasedCommands,
   models::BasedEvents,
   opcodes::OPCODES,
-  pack_unpack::{pack, unpack},
+  pack_unpack::{pack, unpack}, EventType,
 };
 use serde_json::{json, Value};
-use std::{collections::HashMap, error::Error};
+use std::error::Error;
 use uuid::Uuid;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
@@ -214,4 +214,14 @@ pub trait DiscordIpc {
 
   /// Closes the Discord IPC connection. Implementation is dependent on platform.
   fn close(&mut self) -> Result<()>;
+
+  fn add_event_handler(&mut self, f: fn(EventType) -> ()) {
+    loop {
+      let (_opcode, payload) = self.recv().unwrap();
+      let event = serde_json::from_str::<EventType>(&payload);
+
+      f(event.unwrap());
+    }
+  }
+
 }

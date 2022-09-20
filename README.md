@@ -1,39 +1,61 @@
 # discord-ipc-rust
 
-This is copied from [sardonicism-04/discord-rich-presence](https://github.com/sardonicism-04/discord-rich-presence) with to goal to be able to subscribe/listen to events from the discord IPC socket allowing more than presence control.
+Copied from [sardonicism-04/discord-rich-presence](https://github.com/sardonicism-04/discord-rich-presence)
 
-### Goals/Progress
-- [x] Change the name to `discord-ipc-rust` for clarity
-- [ ] Add a listen method to allow the consumer to recv all events sent from discord
-- [ ] Remove all the presence specific code
-- [ ] Possibly rewrite with `tokio::net::UnixStream` as it might be better?
-- [ ] Publish to crates.io
+### Why/Goals?
+- Login with `access_token`
+- Send RPC commands
+- Receive events/commands
 
 ### Example
 
-This is not working currently and is the "concept" of how it'd work.
+Simple demo of how to use this
 
 ```rust
-use discord_ipc::{activity, DiscordIpc, DiscordIpcClient};
+use discord_ipc::{DiscordIpc, DiscordIpcClient, EventType, models::BasedCommands::* };
 
-fn handle_connection(stream: TcpStream) {
-  // TODO: get data frames?
+// get all messages from the client
+fn hadle_message(event_type: EventType) {
+  println!("Data: {:?}", event_type);
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-  let mut client = DiscordIpcClient::new("<some application ID>")?;
+fn main() {
+  // load env vars
+  dotenv::dotenv().ok();
 
-  client.connect()?;
+  // access token from env
+  let access_token = dotenv::var("ACCESS_TOKEN").unwrap();
+  // client id from env
+  let client_id = dotenv::var("CLIENT_ID").unwrap();
 
-  // TOOD: some rust code for a callback/listener?
-  // to be clear I know almost nothing about rust so this is 🍝
-  client.on_message(handle_connection)
-  
-  client.close()?;
+  // connect to discord client with overlayed id
+  let mut client = DiscordIpcClient::new(&client_id).unwrap();
 
-  Ok(())
+  // login to the client
+  client.login(access_token).unwrap();
+
+  // send a simple event to the discord client
+  client.send_cmd(GetSelectedVoiceChannel).ok();
+
+  // sub to all events to via this listener
+  client.add_event_handler(hadle_message);
 }
 ```
 
-### Debugging for now
-`make` to run the default test
+### Setup
+Make sure to add an `.env` file with a valid access token and client id.
+```
+ACCESS_TOKEN="dank_meme"
+CLIENT_ID="42069420"
+```
+
+### Run locally
+`make` or `carco run` to run the main file
+
+### See also
+https://github.com/sardonicism-04/discord-rich-presence
+https://gitlab.com/valeth/discord-rpc-client.rs
+https://github.com/ldesgoui/discord_game_sdk
+https://github.com/jewlexx/discord-presence
+
+https://discord.com/developers/docs/topics/rpc

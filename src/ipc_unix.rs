@@ -24,6 +24,9 @@ pub struct DiscordIpcClient {
   pub connected: bool,
   // Socket ref to the open socket
   pub socket: Option<UnixStream>,
+
+  // a valid access 
+  pub access_token: Option<String>
 }
 
 impl DiscordIpcClient {
@@ -34,11 +37,15 @@ impl DiscordIpcClient {
   /// let ipc_client = DiscordIpcClient::new("<some client id>")?;
   /// ```
   pub fn new(client_id: &str) -> Result<Self> {
-    let client = Self {
+    let mut client = Self {
       client_id: client_id.to_string(),
       connected: false,
       socket: None,
+      access_token: None
     };
+
+    // connect to client
+    client.connect().unwrap();
 
     Ok(client)
   }
@@ -115,4 +122,9 @@ impl DiscordIpc for DiscordIpcClient {
   fn get_client_id(&self) -> &String {
     &self.client_id
   }
+
+  // fn on_message(&self) -> Result<()> {
+  //   Ok(());
+  // }
+
 }
