@@ -12,33 +12,68 @@ Copied from [sardonicism-04/discord-rich-presence](https://github.com/sardonicis
 Simple demo of how to use this
 
 ```rust
-use discord_ipc::{DiscordIpc, DiscordIpcClient, EventType, models::BasedCommands::* };
+use discord_ipc::{
+  models::commands::*, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
+};
 
 // get all messages from the client
-fn hadle_message(event_type: EventType) {
-  println!("Data: {:?}", event_type);
+fn handle_message(event: EventReceive) {
+  if let EventReceive::CommandReturn(event_type) = event {
+    match event_type {
+      BasedCommandReturn::GetSelectedVoiceChannel { data } => {
+        println!("{:#?}", data.guild_id);
+
+        for user in data.voice_states.iter() {
+          println!("{}", user.nick);
+        }
+      }
+      BasedCommandReturn::SelectVoiceChannel { .. } => todo!(),
+      _ => {
+        println!("{:#?}", event_type);
+      }
+    }
+  } else if let EventReceive::Event(event_type) = event {
+    println!("Evt {:#?}", event_type);
+  }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
   // load env vars
   dotenv::dotenv().ok();
 
   // access token from env
   let access_token = dotenv::var("ACCESS_TOKEN").unwrap();
+
   // client id from env
   let client_id = dotenv::var("CLIENT_ID").unwrap();
 
   // connect to discord client with overlayed id
-  let mut client = DiscordIpcClient::new(&client_id).unwrap();
+  let mut client = DiscordIpcClient::new(&client_id)
+    .await
+    .expect("Client failed to connect");
 
   // login to the client
-  client.login(access_token).unwrap();
+  client.login(access_token).await.unwrap();
 
-  // send a simple event to the discord client
-  client.send_cmd(GetSelectedVoiceChannel).ok();
+  // test join a voice channel
+  client
+    .emit(Command::get_selected_voice_channel())
+    .await
+    .ok();
+
+  client
+    .emit(Event::speaking_start_event("1022132922565804062"))
+    .await
+    .ok();
+    
+  client
+    .emit(Event::speaking_stop_event("1022132922565804062"))
+    .await
+    .ok();
 
   // sub to all events to via this listener
-  client.add_event_handler(hadle_message);
+  client.handler(handle_message).await.ok();
 }
 ```
 
