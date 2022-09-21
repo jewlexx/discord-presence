@@ -32,7 +32,7 @@ use ipc_unix as ipc;
 use serde::{Deserialize, Serialize};
 
 pub mod models;
-use models::*;
+use models::{ events::BasedEvent, commands::BasedCommandReturn };
 
 #[cfg(windows)]
 mod ipc_windows;
@@ -44,6 +44,6 @@ pub use ipc::DiscordIpcClient;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum EventReceive {
-  Event(BasedEvents),
-  CommandReturn(BasedCommandsReturn),
+  Event(BasedEvent),
+  CommandReturn(BasedCommandReturn),
 }

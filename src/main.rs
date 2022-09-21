@@ -1,5 +1,5 @@
 use discord_ipc::{
-  models::{rpc_event::RPCEvent, rpc_event::RPCTest, BasedCommandsReturn, RPCArg},
+  models::{rpc_event::RPCTest, commands::* },
   DiscordIpc, DiscordIpcClient, EventReceive,
 };
 
@@ -7,14 +7,19 @@ use discord_ipc::{
 fn hadle_message(event: EventReceive) {
   if let EventReceive::CommandReturn(event_type) = event {
     match event_type {
-      BasedCommandsReturn::GetSelectedVoiceChannel { data } => {
+      BasedCommandReturn::GetSelectedVoiceChannel { data } => {
         println!("{:#?}", data.guild_id);
 
         for user in data.voice_states.iter() {
           println!("{}", user.nick);
         }
       }
-      BasedCommandsReturn::SelectVoiceChannel { .. } => todo!(),
+      BasedCommandReturn::SelectVoiceChannel { .. } => todo!(),
+      _=> {
+        println!("{:#?}", event_type);
+      },
+      // BasedCommandsReturn::Subscribe { .. } => todo!(),
+      // BasedCommandsReturn::Dispatch { .. } => todo!(),
     }
   } else if let EventReceive::Event(event_type) = event {
     println!("Evt {:#?}", event_type);
@@ -38,10 +43,10 @@ async fn main() {
     client.login(access_token).await.unwrap();
 
     // send a simple event to the discord client
-    // client
-    //   .send_cmd(discord_ipc::models::BasedCommands::GetSelectedVoiceChannel)
-    //   .await
-    //   .ok();
+    client
+      .send_cmd(BasedCommand::GetSelectedVoiceChannel)
+      .await
+      .ok();
 
     // test join a voice channel
     client.subscribe(RPCTest::speaking_start_event("1022132922565804062")).await.ok();

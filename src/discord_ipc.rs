@@ -1,6 +1,6 @@
 use crate::{
-  models::BasedCommands,
-  models::{rpc_event::RPCEvent, BasedEvents, RPCArg},
+  models::commands::BasedCommand,
+  models::events::BasedEvent,
   opcodes::OPCODES,
   pack_unpack::{pack, unpack},
   EventReceive,
@@ -44,7 +44,7 @@ pub trait DiscordIpc {
     // spooky line is not working
     let payload = serde_json::from_str(&payload)?;
     match payload {
-      BasedEvents::Ready { .. } => {
+      BasedEvent::Ready { .. } => {
         println!("Connected to discord and got ready event!");
       }
       _ => {
@@ -169,7 +169,8 @@ pub trait DiscordIpc {
     Ok(())
   }
 
-  async fn send_cmd(&mut self, command: BasedCommands) -> Result<()> {
+  /// Depercated for now I think?
+  async fn send_cmd(&mut self, command: BasedCommand) -> Result<()> {
     let uuid = Uuid::new_v4();
     let mut payload = serde_json::to_value(command)?;
     let payload = payload.as_object_mut().unwrap();

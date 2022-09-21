@@ -1,8 +1,6 @@
 use serde::{Deserialize, Serialize};
-use serde_json::map::Values;
 use uuid::Uuid;
-use serde_json::{json, Value};
-use std::error::Error;
+use serde_json::{Value};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -26,26 +24,9 @@ pub struct RPCTest {
 
 impl RPCTest {
   // TODO: do something with this?
-  fn generate_base_payload() -> String {
-    return String::from("test");
-
-    // create a base payload
-    // let uuid = Uuid::new_v4();
-    // let raw_payload = serde_json::json!({
-    //   "cmd": "SUBSCRIBE",
-    //   "evt": command,
-    //   "args": args,
-    //   "nonce": Value::String(uuid.to_string())
-    // });
-
-    // println!("{:#?}", raw_payload);
-
-    // self
-    //   .send(serde_json::to_string(&raw_payload)?, OPCODES::Frame as u8)
-    //   .await
-    //   .unwrap();
-
-  }
+  // fn generate_base_payload() -> String {
+  //   return String::from("test");
+  // }
 
   /// send a command to sub to the SPEAKING_START event
   pub fn speaking_start_event(id: &str) -> String {
