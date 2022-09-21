@@ -21,9 +21,17 @@
 
 mod discord_ipc;
 mod pack_unpack;
+mod rpc;
+mod utils;
 
 pub mod opcodes;
 pub use discord_ipc::*;
+
+/// get all stuff from here
+pub use utils::*;
+
+// events
+pub use rpc::{Command, Event};
 
 #[cfg(unix)]
 mod ipc_unix;
@@ -32,7 +40,7 @@ use ipc_unix as ipc;
 use serde::{Deserialize, Serialize};
 
 pub mod models;
-use models::{ events::BasedEvent, commands::BasedCommandReturn };
+use models::{commands::BasedCommandReturn, events::BasedEvent};
 
 #[cfg(windows)]
 mod ipc_windows;

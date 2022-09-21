@@ -5,7 +5,7 @@ use crate::{
   EventReceive,
 };
 use async_trait::async_trait;
-use serde_json::{json};
+use serde_json::json;
 use std::error::Error;
 use uuid::Uuid;
 
@@ -170,10 +170,7 @@ pub trait DiscordIpc {
 
   /// send a json string payload to the socket
   async fn emit(&mut self, payload: String) -> Result<()> {
-    self
-      .send(payload, OPCODES::Frame as u8)
-      .await
-      .unwrap();
+    self.send(payload, OPCODES::Frame as u8).await.unwrap();
     Ok(())
   }
 
@@ -218,7 +215,8 @@ pub trait DiscordIpc {
 
   async fn start() {}
 
-  async fn add_event_handler(&mut self, f: fn(EventReceive) -> ()) -> Result<()> {
+  /// This will let you consume the messages from the socket
+  async fn handler(&mut self, f: fn(EventReceive) -> ()) -> Result<()> {
     loop {
       let (_opcode, payload) = self.recv().await.unwrap();
 
@@ -226,12 +224,11 @@ pub trait DiscordIpc {
       match serde_json::from_str::<EventReceive>(&payload) {
         Ok(e) => {
           f(e);
-        }, 
+        }
         Err(e) => {
           println!("{:#?}", e);
         }
       }
-
     }
   }
 }

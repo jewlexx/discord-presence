@@ -1,10 +1,9 @@
 use discord_ipc::{
-  models::{rpc_event::Event, commands::* },
-  DiscordIpc, DiscordIpcClient, EventReceive,
+  models::commands::*, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
 };
 
 // get all messages from the client
-fn hadle_message(event: EventReceive) {
+fn handle_message(event: EventReceive) {
   if let EventReceive::CommandReturn(event_type) = event {
     match event_type {
       BasedCommandReturn::GetSelectedVoiceChannel { data } => {
@@ -15,9 +14,9 @@ fn hadle_message(event: EventReceive) {
         }
       }
       BasedCommandReturn::SelectVoiceChannel { .. } => todo!(),
-      _=> {
+      _ => {
         println!("{:#?}", event_type);
-      },
+      }
     }
   } else if let EventReceive::Event(event_type) = event {
     println!("Evt {:#?}", event_type);
@@ -36,20 +35,28 @@ async fn main() {
   let client_id = dotenv::var("CLIENT_ID").unwrap();
 
   // connect to discord client with overlayed id
-  if let Ok(mut client) = DiscordIpcClient::new(&client_id).await {
-    // login to the client
-    client.login(access_token).await.unwrap();
+  let mut client = DiscordIpcClient::new(&client_id)
+    .await
+    .expect("Client failed to connect");
 
-    // test join a voice channel
-    // TODO: move impl to standalone class    
-    client.emit(Event::get_selected_voice_channel()).await.ok();
+  // login to the client
+  client.login(access_token).await.unwrap();
 
-    client.emit(Event::speaking_start_event("1022132922565804062")).await.ok();
-    client.emit(Event::speaking_stop_event("1022132922565804062")).await.ok();
-    
-    // sub to all events to via this listener
-    client.add_event_handler(hadle_message).await.ok();
-  } else {
-    println!("ERROR: Failed to connect to Discord IPC")
-  }
+  // test join a voice channel
+  client
+    .emit(Command::get_selected_voice_channel())
+    .await
+    .ok();
+
+  client
+    .emit(Event::speaking_start_event("1022132922565804062"))
+    .await
+    .ok();
+  client
+    .emit(Event::speaking_stop_event("1022132922565804062"))
+    .await
+    .ok();
+
+  // sub to all events to via this listener
+  client.handler(handle_message).await.ok();
 }

@@ -10,12 +10,8 @@ use super::GetSelectedVoiceChannelData;
 pub enum BasedCommandReturn {
   GetSelectedVoiceChannel { data: GetSelectedVoiceChannelData },
   SelectVoiceChannel { id: u32 },
-  Subscribe {
-    data: HashMap<String, String>
-  },
-  Dispatch {
-    data: HashMap<String, String>
-  }
+  Subscribe { data: HashMap<String, String> },
+  Dispatch { data: HashMap<String, String> },
 }
 
 #[derive(Serialize, Deserialize, Debug)]
