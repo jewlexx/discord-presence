@@ -185,22 +185,11 @@ pub trait DiscordIpc {
     Ok(())
   }
 
-  async fn subscribe(&mut self, command: RPCEvent, args: RPCArg) -> Result<()> {
-    let uuid = Uuid::new_v4();
-    let raw_payload = serde_json::json!({
-      "cmd": "SUBSCRIBE",
-      "evt": command,
-      "args": args,
-      "nonce": Value::String(uuid.to_string())
-    });
-
-    println!("{:#?}", raw_payload);
-
+  async fn subscribe(&mut self, payload: String) -> Result<()> {
     self
-      .send(serde_json::to_string(&raw_payload)?, OPCODES::Frame as u8)
+      .send(payload, OPCODES::Frame as u8)
       .await
       .unwrap();
-
     Ok(())
   }
 

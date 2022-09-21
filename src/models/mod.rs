@@ -67,6 +67,7 @@ pub enum BasedCommands {
   SelectVoiceChannel { args: SelectVoiceChannelArgs },
 }
 
+/// Enum that types the properties used for sending a comme
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]

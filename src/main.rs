@@ -1,5 +1,5 @@
 use discord_ipc::{
-  models::{rpc_event::RPCEvent, BasedCommandsReturn, RPCArg},
+  models::{rpc_event::RPCEvent, rpc_event::RPCTest, BasedCommandsReturn, RPCArg},
   DiscordIpc, DiscordIpcClient, EventReceive,
 };
 
@@ -43,12 +43,10 @@ async fn main() {
     //   .await
     //   .ok();
 
-    let args = RPCArg::VoiceStateUpdate {
-      channel_id: "1019035649870934108".to_string(),
-    };
-
-    client.subscribe(RPCEvent::SpeakingStart, args).await.ok();
-
+    // test join a voice channel
+    client.subscribe(RPCTest::speaking_start_event("1022132922565804062")).await.ok();
+    client.subscribe(RPCTest::speaking_stop_event("1022132922565804062")).await.ok();
+    
     // sub to all events to via this listener
     client.add_event_handler(hadle_message).await.ok();
   } else {
