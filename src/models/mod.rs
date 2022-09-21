@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 
 mod commands;
 mod events;
+pub mod rpc_command;
+pub mod rpc_event;
 mod shared;
 
 // event types
@@ -22,38 +24,35 @@ pub struct Based {
   pub nonce: Option<String>,
 }
 
+/// ex: evt, nonce
+#[derive(Serialize, Deserialize, Debug)]
+pub struct VoiceStateUpdateData {
+  pub evt: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "evt")]
-#[serde(rename_all = "UPPERCASE")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedEvents {
   Ready {
-    #[serde(flatten)]
-    default: Based,
     data: ReadyData,
   },
   Login {
-    #[serde(flatten)]
-    default: Based,
     data: LoginData,
   },
   Error {
-    #[serde(flatten)]
-    default: Based,
     data: ErrorData,
   },
+
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "cmd")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedCommandsReturn {
-  GetSelectedVoiceChannel  {
-    data: GetSelectedVoiceChannelData
-  },
+  GetSelectedVoiceChannel { data: GetSelectedVoiceChannelData },
   SelectVoiceChannel { id: u32 },
 }
-
-
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SelectVoiceChannelArgs {
@@ -65,7 +64,16 @@ pub struct SelectVoiceChannelArgs {
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedCommands {
   GetSelectedVoiceChannel,
-  SelectVoiceChannel { 
-    args: SelectVoiceChannelArgs
-  },
+  SelectVoiceChannel { args: SelectVoiceChannelArgs },
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum RPCArg {
+  // argless
+  GetSelectedVoiceChannel,
+  // takes args
+  SetUserVoiceSettings { user_id: String, mute: bool },
+  VoiceStateUpdate { channel_id: String },
 }

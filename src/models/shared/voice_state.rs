@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct VoiceState {
@@ -6,8 +6,8 @@ pub struct VoiceState {
   pub mute: bool,
   pub volume: u8,
   pub pan: VoicePan,
-  #[serde(rename="voice_state")]
-  pub state: VoiceStateData
+  #[serde(rename = "voice_state")]
+  pub state: VoiceStateData,
 }
 
 #[derive(Serialize, Deserialize, Debug)]

@@ -6,15 +6,14 @@ use crate::models::shared::VoiceState;
 pub struct GetSelectedVoiceChannelData {
   pub id: String,
   pub name: String,
-  /// This is the "type" field that comes from the discord api 
+  /// This is the "type" field that comes from the discord api
   /// but we have to rename this shit cause rust is "good"
-  #[serde(rename="type")]
+  #[serde(rename = "type")]
   pub event_type: u32,
   pub topic: String,
   pub bitrate: u32,
   pub user_limit: u32,
   pub guild_id: String,
   pub position: u32,
-  pub voice_states: Vec<VoiceState>
+  pub voice_states: Vec<VoiceState>,
 }
-

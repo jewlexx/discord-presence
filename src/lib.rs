@@ -45,13 +45,13 @@ pub use ipc::DiscordIpcClient;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum EventType {
-    Command(BasedCommands),
-    Event(BasedEvents),
+  Command(BasedCommands),
+  Event(BasedEvents),
 }
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum EventReceive {
-    CommandReturn(BasedCommandsReturn),
-    Event(BasedEvents),
+  Event(BasedEvents),
+  CommandReturn(BasedCommandsReturn),
 }

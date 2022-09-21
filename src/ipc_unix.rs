@@ -18,108 +18,108 @@ type Result<T> = std::result::Result<T, Box<dyn Error>>;
 /// A wrapper struct for the functionality contained in the
 /// underlying [`DiscordIpc`](trait@DiscordIpc) trait.
 pub struct DiscordIpcClient {
-    /// Client ID of the IPC client.
-    pub client_id: String,
-    pub connected: bool,
-    // Socket ref to the open socket
-    pub socket: Option<UnixStream>,
+  /// Client ID of the IPC client.
+  pub client_id: String,
+  pub connected: bool,
+  // Socket ref to the open socket
+  pub socket: Option<UnixStream>,
 
-    // a valid access
-    pub access_token: Option<String>,
+  // a valid access
+  pub access_token: Option<String>,
 }
 
 impl DiscordIpcClient {
-    /// Creates a new `DiscordIpcClient`.
-    ///
-    /// # Examples
-    /// ```
-    /// let ipc_client = DiscordIpcClient::new("<some client id>")?;
-    /// ```
-    pub async fn new(client_id: &str) -> Result<Self> {
-        let mut client = Self {
-            client_id: client_id.to_string(),
-            connected: false,
-            socket: None,
-            access_token: None,
-        };
+  /// Creates a new `DiscordIpcClient`.
+  ///
+  /// # Examples
+  /// ```
+  /// let ipc_client = DiscordIpcClient::new("<some client id>")?;
+  /// ```
+  pub async fn new(client_id: &str) -> Result<Self> {
+    let mut client = Self {
+      client_id: client_id.to_string(),
+      connected: false,
+      socket: None,
+      access_token: None,
+    };
 
-        // connect to client
-        client.connect().await.unwrap();
+    // connect to client
+    client.connect().await?;
 
-        Ok(client)
-    }
+    Ok(client)
+  }
 
-    fn get_pipe_pattern() -> PathBuf {
-        let mut path = String::new();
+  fn get_pipe_pattern() -> PathBuf {
+    let mut path = String::new();
 
-        for key in &ENV_KEYS {
-            match var(key) {
-                Ok(val) => {
-                    path = val;
-                    break;
-                }
-                Err(_e) => continue,
-            }
+    for key in &ENV_KEYS {
+      match var(key) {
+        Ok(val) => {
+          path = val;
+          break;
         }
-        PathBuf::from(path)
+        Err(_e) => continue,
+      }
     }
+    PathBuf::from(path)
+  }
 }
 
 #[async_trait]
 impl DiscordIpc for DiscordIpcClient {
-    async fn connect_ipc(&mut self) -> Result<()> {
-        // iterate over the likely places to find the socket
-        for i in 0..10 {
-            let path = DiscordIpcClient::get_pipe_pattern().join(format!("discord-ipc-{}", i));
+  async fn connect_ipc(&mut self) -> Result<()> {
+    // iterate over the likely places to find the socket
+    for i in 0..10 {
+      let path = DiscordIpcClient::get_pipe_pattern().join(format!("discord-ipc-{}", i));
 
-            println!("Found socket @ {:?}", path);
-            match UnixStream::connect(&path).await {
-                Ok(socket) => {
-                    self.socket = Some(socket);
-                    self.connected = true;
-                    return Ok(());
-                }
-                Err(_) => continue,
-            }
+      println!("Found socket @ {:?}", path);
+      match UnixStream::connect(&path).await {
+        Ok(socket) => {
+          self.socket = Some(socket);
+          self.connected = true;
+          return Ok(());
         }
-
-        Err("Couldn't connect to the Discord IPC socket".into())
+        Err(_) => continue,
+      }
     }
 
-    async fn write(&mut self, data: &[u8]) -> Result<()> {
-        let socket = self.socket.as_mut().expect("Client not connected");
+    Err("Couldn't connect to the Discord IPC socket".into())
+  }
 
-        socket.write_all(data).await?;
+  async fn write(&mut self, data: &[u8]) -> Result<()> {
+    let socket = self.socket.as_mut().expect("Client not connected");
 
-        Ok(())
-    }
+    socket.write_all(data).await?;
 
-    async fn read(&mut self, buffer: &mut [u8]) -> Result<()> {
-        let socket = self.socket.as_mut().unwrap();
-        socket.read_exact(buffer).await?;
+    Ok(())
+  }
 
-        Ok(())
-    }
+  async fn read(&mut self, buffer: &mut [u8]) -> Result<()> {
+    let socket = self.socket.as_mut().unwrap();
+    socket.read_exact(buffer).await?;
 
-    async fn close(&mut self) -> Result<()> {
-        let data = json!({});
-        if self.send(data.to_string(), 2).await.is_ok() {}
+    Ok(())
+  }
 
-        let socket = self.socket.as_mut().unwrap();
+  async fn close(&mut self) -> Result<()> {
+    let data = json!({});
+    if self.send(data.to_string(), 2).await.is_ok() {}
 
-        socket.flush().await?;
-        socket.shutdown().await?;
+    let socket = self.socket.as_mut().unwrap();
 
-        self.connected = false;
+    socket.flush().await?;
+    socket.shutdown().await?;
 
-        Ok(())
-    }
+    self.connected = false;
 
-    fn get_client_id(&self) -> &String {
-        &self.client_id
-    }
+    Ok(())
+  }
 
-    // fn on_message(&self) -> Result<()> {
-    //   Ok(());
-    // }
+  fn get_client_id(&self) -> &String {
+    &self.client_id
+  }
+
+  // fn on_message(&self) -> Result<()> {
+  //   Ok(());
+  // }
 }
