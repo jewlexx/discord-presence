@@ -1,43 +1,49 @@
-use discord_ipc::{models::{BasedCommands::*, BasedCommandsReturn}, DiscordIpc, DiscordIpcClient, EventReceieve};
+use discord_ipc::{
+    models::{BasedCommands::*, BasedCommandsReturn},
+    DiscordIpc, DiscordIpcClient, EventReceive,
+};
 
 // get all messages from the client
-fn hadle_message(event: EventReceieve) { 
-  if let EventReceieve::CommandReturn(event_type) = event {
-    match event_type {
-      BasedCommandsReturn::GetSelectedVoiceChannel { data } => {
-        println!("{:#?}", data.guild_id);
+fn hadle_message(event: EventReceive) {
+    if let EventReceive::CommandReturn(event_type) = event {
+        match event_type {
+            BasedCommandsReturn::GetSelectedVoiceChannel { data } => {
+                println!("{:#?}", data.guild_id);
 
-        for user in data.voice_states.iter() {
-          println!("{}", user.nick);        
+                for user in data.voice_states.iter() {
+                    println!("{}", user.nick);
+                }
+            }
+            BasedCommandsReturn::SelectVoiceChannel { .. } => todo!(),
         }
-      },
-      BasedCommandsReturn::SelectVoiceChannel { .. } => todo!(),
+    } else if let EventReceive::Event(event_type) = event {
+        println!("Evt {:#?}", event_type);
     }
-  } else if let EventReceieve::Event(event_type) = event {
-    println!("Evt {:#?}", event_type);
-  }
 }
 
 #[tokio::main]
 async fn main() {
-  // load env vars
-  dotenv::dotenv().ok();
+    // load env vars
+    dotenv::dotenv().ok();
 
-  // access token from env
-  let access_token = dotenv::var("ACCESS_TOKEN").unwrap();
-  
-  // client id from env
-  let client_id = dotenv::var("CLIENT_ID").unwrap();
+    // access token from env
+    let access_token = dotenv::var("ACCESS_TOKEN").unwrap();
 
-  // connect to discord client with overlayed id
-  let mut client = DiscordIpcClient::new(&client_id).unwrap();
+    // client id from env
+    let client_id = dotenv::var("CLIENT_ID").unwrap();
 
-  // login to the client
-  client.login(access_token).unwrap();
+    // connect to discord client with overlayed id
 
-  // send a simple event to the discord client
-  client.send_cmd(GetSelectedVoiceChannel).ok();
+    if let Ok(mut client) = DiscordIpcClient::new(&client_id).await {
+        // login to the client
+        client.login(access_token).await.unwrap();
 
-  // sub to all events to via this listener
-  client.add_event_handler(hadle_message).unwrap();
+        // send a simple event to the discord client
+        client.send_cmd(GetSelectedVoiceChannel).await.ok();
+
+        // sub to all events to via this listener
+        client.add_event_handler(hadle_message).await.ok();
+    } else {
+        println!("ERROR: Failed to connect to Discord IPC")
+    }
 }
