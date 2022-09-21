@@ -1,8 +1,17 @@
-use discord_ipc::{DiscordIpc, DiscordIpcClient, EventType, models::BasedCommands::* };
+use discord_ipc::{models::{BasedCommands::*, BasedCommandsReturn}, DiscordIpc, DiscordIpcClient, EventReceieve};
 
 // get all messages from the client
-fn hadle_message(event_type: EventType) {
-  println!("Data: {:?}", event_type);
+fn hadle_message(event: EventReceieve) { 
+  if let EventReceieve::CommandReturn(event_type) = event {
+    match event_type {
+      BasedCommandsReturn::GetSelectedVoiceChannel { data } => {
+        println!("{:#?}", data.voice_states[0].nick);
+      },
+      BasedCommandsReturn::SelectVoiceChannel { .. } => todo!(),
+    }
+  } else if let EventReceieve::Event(event_type) = event {
+    println!("Evt {:#?}", event_type);
+  }
 }
 
 fn main() {
@@ -11,6 +20,7 @@ fn main() {
 
   // access token from env
   let access_token = dotenv::var("ACCESS_TOKEN").unwrap();
+  
   // client id from env
   let client_id = dotenv::var("CLIENT_ID").unwrap();
 
@@ -24,5 +34,5 @@ fn main() {
   client.send_cmd(GetSelectedVoiceChannel).ok();
 
   // sub to all events to via this listener
-  client.add_event_handler(hadle_message);
+  client.add_event_handler(hadle_message).unwrap();
 }

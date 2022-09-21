@@ -41,9 +41,17 @@ use ipc_windows as ipc;
 
 pub use ipc::DiscordIpcClient;
 
+/// Not used anymore?
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum EventType {
   Command(BasedCommands),
+  Event(BasedEvents),
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(untagged)]
+pub enum EventReceieve {
+  CommandReturn(BasedCommandsReturn),
   Event(BasedEvents),
 }

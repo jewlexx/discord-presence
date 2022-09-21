@@ -1,11 +1,15 @@
 #![allow(missing_docs)]
+
 use serde::{Deserialize, Serialize};
 
 mod commands;
 mod events;
+mod shared;
 
 // event types
 use events::*;
+
+use self::commands::*;
 
 // commands types
 // use commands::*;
@@ -42,7 +46,17 @@ pub enum BasedEvents {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "cmd")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum BasedCommandsReturn {
+  GetSelectedVoiceChannel  {
+    data: GetSelectedVoiceChannelData
+  },
+  SelectVoiceChannel { id: u32 },
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(tag = "cmd")]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedCommands {
   GetSelectedVoiceChannel,
-  SelectVoiceChannel { id: u32 },
+  SelectVoiceChannel { id: String },
 }

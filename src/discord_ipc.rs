@@ -2,7 +2,8 @@ use crate::{
   models::BasedCommands,
   models::BasedEvents,
   opcodes::OPCODES,
-  pack_unpack::{pack, unpack}, EventType,
+  pack_unpack::{pack, unpack},
+  EventReceieve,
 };
 use serde_json::{json, Value};
 use std::error::Error;
@@ -42,7 +43,7 @@ pub trait DiscordIpc {
     let payload = serde_json::from_str(&payload)?;
     match payload {
       BasedEvents::Ready { .. } => {
-        println!("Connected to dxiscord and got ready event!");
+        println!("Connected to discord and got ready event!");
       }
       _ => {
         println!("Could not connect to discord...");
@@ -215,13 +216,12 @@ pub trait DiscordIpc {
   /// Closes the Discord IPC connection. Implementation is dependent on platform.
   fn close(&mut self) -> Result<()>;
 
-  fn add_event_handler(&mut self, f: fn(EventType) -> ()) {
+  fn add_event_handler(&mut self, f: fn(EventReceieve) -> ()) -> Result<()> {
     loop {
-      let (_opcode, payload) = self.recv().unwrap();
-      let event = serde_json::from_str::<EventType>(&payload);
+      let (_opcode, payload) = self.recv().unwrap();      
+      let event = serde_json::from_str::<EventReceieve>(&payload)?;
 
-      f(event.unwrap());
+      f(event);
     }
   }
-
 }

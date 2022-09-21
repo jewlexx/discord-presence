@@ -7,5 +7,5 @@ pub struct LoginConfig {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct LoginData {
-  pub config: LoginConfig
+  pub config: LoginConfig,
 }

@@ -15,5 +15,5 @@ pub enum OPCODES {
   Ping,
 
   // pong event
-  Pong
+  Pong,
 }

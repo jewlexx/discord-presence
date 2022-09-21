@@ -6,7 +6,7 @@ use std::{
   error::Error,
   io::{Read, Write},
   net::Shutdown,
-  path::PathBuf
+  path::PathBuf,
 };
 
 // Environment keys to search for the Discord pipe
@@ -25,8 +25,8 @@ pub struct DiscordIpcClient {
   // Socket ref to the open socket
   pub socket: Option<UnixStream>,
 
-  // a valid access 
-  pub access_token: Option<String>
+  // a valid access
+  pub access_token: Option<String>,
 }
 
 impl DiscordIpcClient {
@@ -41,7 +41,7 @@ impl DiscordIpcClient {
       client_id: client_id.to_string(),
       connected: false,
       socket: None,
-      access_token: None
+      access_token: None,
     };
 
     // connect to client
@@ -68,7 +68,6 @@ impl DiscordIpcClient {
 
 impl DiscordIpc for DiscordIpcClient {
   fn connect_ipc(&mut self) -> Result<()> {
-
     // iterate over the likely places to find the socket
     for i in 0..10 {
       let path = DiscordIpcClient::get_pipe_pattern().join(format!("discord-ipc-{}", i));
@@ -76,7 +75,7 @@ impl DiscordIpc for DiscordIpcClient {
       println!("Found socket @ {:?}", path);
       match UnixStream::connect(&path) {
         Ok(socket) => {
-          self.socket = Some(socket);          
+          self.socket = Some(socket);
           self.connected = true;
           return Ok(());
         }
@@ -126,5 +125,4 @@ impl DiscordIpc for DiscordIpcClient {
   // fn on_message(&self) -> Result<()> {
   //   Ok(());
   // }
-
 }

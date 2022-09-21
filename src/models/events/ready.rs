@@ -1,6 +1,12 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
+pub struct ReadyEvent {
+  pub cmd: String,
+  pub data: ReadyData,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Config {
   pub cdn_host: String,
   pub api_endpoint: String,
