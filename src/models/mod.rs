@@ -53,10 +53,19 @@ pub enum BasedCommandsReturn {
   SelectVoiceChannel { id: u32 },
 }
 
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SelectVoiceChannelArgs {
+  id: u64,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "cmd")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedCommands {
   GetSelectedVoiceChannel,
-  SelectVoiceChannel { id: String },
+  SelectVoiceChannel { 
+    args: SelectVoiceChannelArgs
+  },
 }

@@ -5,7 +5,11 @@ fn hadle_message(event: EventReceieve) {
   if let EventReceieve::CommandReturn(event_type) = event {
     match event_type {
       BasedCommandsReturn::GetSelectedVoiceChannel { data } => {
-        println!("{:#?}", data.voice_states[0].nick);
+        println!("{:#?}", data.guild_id);
+
+        for user in data.voice_states.iter() {
+          println!("{}", user.nick);        
+        }
       },
       BasedCommandsReturn::SelectVoiceChannel { .. } => todo!(),
     }
@@ -14,7 +18,8 @@ fn hadle_message(event: EventReceieve) {
   }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
   // load env vars
   dotenv::dotenv().ok();
 

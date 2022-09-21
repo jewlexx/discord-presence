@@ -1,6 +1,12 @@
 use crate::discord_ipc::DiscordIpc;
 use serde_json::json;
-use std::os::unix::net::UnixStream;
+
+
+use tokio::net::UnixStream;
+use tokio::io::AsyncWriteExt;
+use tokio::io::AsyncReadExt;
+
+// use std::os::unix::net::UnixStream;
 use std::{
   env::var,
   error::Error,
@@ -89,29 +95,26 @@ impl DiscordIpc for DiscordIpcClient {
   fn write(&mut self, data: &[u8]) -> Result<()> {
     let socket = self.socket.as_mut().expect("Client not connected");
 
-    socket.write_all(data)?;
+    socket.write_all(data);
 
     Ok(())
   }
 
   fn read(&mut self, buffer: &mut [u8]) -> Result<()> {
     let socket = self.socket.as_mut().unwrap();
-    socket.read_exact(buffer)?;
+    socket.read_exact(buffer).await?;
 
     Ok(())
   }
 
-  fn close(&mut self) -> Result<()> {
+  async fn close(&mut self) -> Result<()> {
     let data = json!({});
     if self.send(data.to_string(), 2).is_ok() {}
 
     let socket = self.socket.as_mut().unwrap();
 
-    socket.flush()?;
-    match socket.shutdown(Shutdown::Both) {
-      Ok(()) => (),
-      Err(_err) => (),
-    };
+    socket.flush().await?;
+    socket.shutdown().await?;
 
     self.connected = false;
 

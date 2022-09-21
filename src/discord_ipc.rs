@@ -8,12 +8,14 @@ use crate::{
 use serde_json::{json, Value};
 use std::error::Error;
 use uuid::Uuid;
+use async_trait::async_trait;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
 /// A client that connects to and communicates with the Discord IPC.
 ///
 /// Implemented via the [`DiscordIpcClient`](struct@crate::DiscordIpcClient) struct.
+#[async_trait]
 pub trait DiscordIpc {
   /// Connects the client to the Discord IPC.
   ///
@@ -167,8 +169,9 @@ pub trait DiscordIpc {
     let uuid = Uuid::new_v4();
     let mut payload = serde_json::to_value(command)?;
     let payload = payload.as_object_mut().unwrap();
-
+    
     payload.insert("nonce".to_string(), Value::String(uuid.to_string()));
+    println!("{:#?}", payload);
 
     self
       .send(serde_json::to_string(&payload)?, OPCODES::Frame as u8)
@@ -214,14 +217,19 @@ pub trait DiscordIpc {
   fn read(&mut self, buffer: &mut [u8]) -> Result<()>;
 
   /// Closes the Discord IPC connection. Implementation is dependent on platform.
-  fn close(&mut self) -> Result<()>;
+  async fn close(&mut self) -> Result<()>;
 
-  fn add_event_handler(&mut self, f: fn(EventReceieve) -> ()) -> Result<()> {
+
+  fn start () {
     loop {
       let (_opcode, payload) = self.recv().unwrap();      
       let event = serde_json::from_str::<EventReceieve>(&payload)?;
 
       f(event);
     }
+  }
+
+  fn add_event_handler(&mut self, f: fn(EventReceieve) -> ()) -> Result<()> {
+    // TODO:
   }
 }
