@@ -1,13 +1,13 @@
 [package]
-name = "discord-ipc"
+name = "discord-rpc-rs"
 version = "0.0.1-alpha.1"
 authors = ["Hacksore <996134+Hacksore@users.noreply.github.com>", "Adel-ak <adelkerow@gmail.com>", "sardonicism-04 <110789901+sardonicism-04@users.noreply.github.com>"]
 edition = "2021"
-description = "A simple, cross-platform crate for interfacing with Discord IPC for more than just presence"
+description = "A simple, cross-platform crate for interfacing with Discord client locally via RPC"
 readme = "README.md"
 repository = "https://github.com/hacksore/discord-ipc-rust"
 license = "MIT"
-keywords = ["discord", "rich-presence", "ipc"]
+keywords = ["discord", "ipc", "RPC", "client"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]

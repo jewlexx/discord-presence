@@ -1,4 +1,5 @@
-use discord_ipc::{
+// TODO: fix name?
+use discord_rpc_rs::{
   models::commands::*, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
 };
 
@@ -13,7 +14,9 @@ fn handle_message(event: EventReceive) {
           println!("{}", user.nick);
         }
       }
-      BasedCommandReturn::SelectVoiceChannel { .. } => todo!(),
+      BasedCommandReturn::SelectVoiceChannel { data } => {
+        println!("{:#?}", data.name);
+      },
       _ => {
         println!("{:#?}", event_type);
       }
@@ -42,21 +45,29 @@ async fn main() {
   // login to the client
   client.login(access_token).await.unwrap();
 
-  // test join a voice channel
-  client
-    .emit(Command::get_selected_voice_channel())
-    .await
-    .ok();
+  // client
+  //   .emit(Command::get_selected_voice_channel())
+  //   .await
+  //   .ok();
 
   client
     .emit(Event::speaking_start_event("1022132922565804062"))
     .await
     .ok();
+
   client
     .emit(Event::speaking_stop_event("1022132922565804062"))
     .await
     .ok();
 
+
+  client
+    .emit(Command::select_voice_channel("1022132922565804062"))
+    .await
+    .ok();
+
   // sub to all events to via this listener
   client.handler(handle_message).await.ok();
+
+  // println!("Test blocking?");
 }

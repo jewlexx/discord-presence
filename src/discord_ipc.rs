@@ -11,6 +11,9 @@ use uuid::Uuid;
 
 type Result<T> = std::result::Result<T, Box<dyn Error>>;
 
+/// TODO: probably should move things we dont want the consumer to use 
+/// into the struct so they dont do anything bad
+/// 
 /// A client that connects to and communicates with the Discord IPC.
 ///
 /// Implemented via the [`DiscordIpcClient`](struct@crate::DiscordIpcClient) struct.
@@ -216,14 +219,20 @@ pub trait DiscordIpc {
   async fn start() {}
 
   /// This will let you consume the messages from the socket
-  async fn handler(&mut self, f: fn(EventReceive) -> ()) -> Result<()> {
+  /// Arguments:
+  /// * `func` A function that returns an EventReceieve that you for now have to match over
+  /// 
+  /// Currently this is a bit cursed and could be easier to use
+  /// 
+  /// TODO: this currently is blocking which is not ideal
+  async fn handler(&mut self, func: fn(EventReceive) -> ()) -> Result<()> {
     loop {
       let (_opcode, payload) = self.recv().await.unwrap();
 
       println!("{:#?}", payload);
       match serde_json::from_str::<EventReceive>(&payload) {
         Ok(e) => {
-          f(e);
+          func(e);
         }
         Err(e) => {
           println!("{:#?}", e);

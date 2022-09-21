@@ -1,17 +1,3 @@
-# discord-ipc-rust
-
-Copied from [sardonicism-04/discord-rich-presence](https://github.com/sardonicism-04/discord-rich-presence)
-
-### Why/Goals?
-- Login with `access_token`
-- Send RPC commands
-- Receive events/commands
-
-### Example
-
-Simple demo of how to use this
-
-```rust
 use discord_ipc::{
   models::commands::*, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
 };
@@ -66,7 +52,6 @@ async fn main() {
     .emit(Event::speaking_start_event("1022132922565804062"))
     .await
     .ok();
-    
   client
     .emit(Event::speaking_stop_event("1022132922565804062"))
     .await
@@ -75,21 +60,3 @@ async fn main() {
   // sub to all events to via this listener
   client.handler(handle_message).await.ok();
 }
-```
-
-### Setup
-Make sure to add an `.env` file with a valid access token and client id.
-```
-ACCESS_TOKEN="dank_meme"
-CLIENT_ID="42069420"
-```
-
-### Run locally
-`make` or `carco run` to run the main file
-
-### See also
-https://github.com/sardonicism-04/discord-rich-presence
-https://gitlab.com/valeth/discord-rpc-client.rs
-https://github.com/ldesgoui/discord_game_sdk
-https://github.com/jewlexx/discord-presence
-https://discord.com/developers/docs/topics/rpc

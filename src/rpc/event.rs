@@ -2,8 +2,9 @@ pub struct Event;
 
 use crate::{models::rpc_event::RPCEvent, utils::create_json};
 
+/// allow you to create JSON payloads to send to the socket for subscribing to events
 impl Event {
-  /// create a json payload for the SPEAKING_START event
+  /// create a json payload for the `SPEAKING_START` event
   /// which will subscribe to the channel supplied
   ///
   /// Arguments:
@@ -20,7 +21,7 @@ impl Event {
     create_json(json)
   }
 
-  /// create a json payload for the SPEAKING_STOP event
+  /// create a json payload for the `SPEAKING_STOP` event
   /// which will subscribe to the channel supplied
   ///
   /// Arguments:
