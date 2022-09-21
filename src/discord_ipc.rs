@@ -1,12 +1,11 @@
 use crate::{
-  models::commands::BasedCommand,
   models::events::BasedEvent,
   opcodes::OPCODES,
   pack_unpack::{pack, unpack},
   EventReceive,
 };
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{json};
 use std::error::Error;
 use uuid::Uuid;
 
@@ -169,24 +168,8 @@ pub trait DiscordIpc {
     Ok(())
   }
 
-  /// Depercated for now I think?
-  async fn send_cmd(&mut self, command: BasedCommand) -> Result<()> {
-    let uuid = Uuid::new_v4();
-    let mut payload = serde_json::to_value(command)?;
-    let payload = payload.as_object_mut().unwrap();
-
-    payload.insert("nonce".to_string(), Value::String(uuid.to_string()));
-    println!("{:#?}", payload);
-
-    self
-      .send(serde_json::to_string(&payload)?, OPCODES::Frame as u8)
-      .await
-      .unwrap();
-
-    Ok(())
-  }
-
-  async fn subscribe(&mut self, payload: String) -> Result<()> {
+  /// send a json string payload to the socket
+  async fn emit(&mut self, payload: String) -> Result<()> {
     self
       .send(payload, OPCODES::Frame as u8)
       .await

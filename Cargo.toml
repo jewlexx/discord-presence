@@ -21,3 +21,4 @@ uuid = { version = "0.8", features = ["v4"] }
 dotenv = "0.15.0"
 tokio = { version = "1.21.1", features = ["full"] }
 async-trait = "0.1.57"
+# strum = "0.24.1"

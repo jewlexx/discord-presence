@@ -1,5 +1,5 @@
 use discord_ipc::{
-  models::{rpc_event::RPCTest, commands::* },
+  models::{rpc_event::Event, commands::* },
   DiscordIpc, DiscordIpcClient, EventReceive,
 };
 
@@ -18,8 +18,6 @@ fn hadle_message(event: EventReceive) {
       _=> {
         println!("{:#?}", event_type);
       },
-      // BasedCommandsReturn::Subscribe { .. } => todo!(),
-      // BasedCommandsReturn::Dispatch { .. } => todo!(),
     }
   } else if let EventReceive::Event(event_type) = event {
     println!("Evt {:#?}", event_type);
@@ -42,15 +40,12 @@ async fn main() {
     // login to the client
     client.login(access_token).await.unwrap();
 
-    // send a simple event to the discord client
-    client
-      .send_cmd(BasedCommand::GetSelectedVoiceChannel)
-      .await
-      .ok();
-
     // test join a voice channel
-    client.subscribe(RPCTest::speaking_start_event("1022132922565804062")).await.ok();
-    client.subscribe(RPCTest::speaking_stop_event("1022132922565804062")).await.ok();
+    // TODO: move impl to standalone class    
+    client.emit(Event::get_selected_voice_channel()).await.ok();
+
+    client.emit(Event::speaking_start_event("1022132922565804062")).await.ok();
+    client.emit(Event::speaking_stop_event("1022132922565804062")).await.ok();
     
     // sub to all events to via this listener
     client.add_event_handler(hadle_message).await.ok();
