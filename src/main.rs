@@ -34,6 +34,9 @@ fn handle_message(event: EventReceive) {
   }
 }
 
+
+const CHANNEL_ID: &str = "1019035649870934108";
+
 #[tokio::main]
 async fn main() {
   // load env vars
@@ -59,19 +62,16 @@ async fn main() {
     .ok();
 
   client
-    .emit(Event::speaking_start_event("1021507676871589939"))
+    .emit(Event::speaking_start_event(CHANNEL_ID))
     .await
     .ok();
 
   client
-    .emit(Event::speaking_stop_event("1021507676871589939"))
+    .emit(Event::speaking_stop_event(CHANNEL_ID))
     .await
     .ok();
 
-  // sub to all events to via this listener
-  // tokio::task::spawn(async move {
   client.handler(|e| handle_message(e)).await;
-  // });
-
+  
   println!("made it here");
 }
