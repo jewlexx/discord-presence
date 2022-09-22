@@ -1,5 +1,4 @@
-// TODO: fix name?
-use discord_rpc_rs::{
+use rpc_discord::{
   models::commands::*, models::events::BasedEvent, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
 };
 
@@ -71,6 +70,10 @@ async fn main() {
     .ok();
 
   // sub to all events to via this listener
-  client.handler(handle_message).await.ok();
+  tokio::task::spawn(async move {
+    client.handler(handle_message).await.ok();
+  });
+
+  println!("made it here");
 
 }

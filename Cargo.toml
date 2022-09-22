@@ -1,6 +1,6 @@
 [package]
-name = "discord-rpc-rs"
-version = "0.0.1-alpha.1"
+name = "rpc-discord"
+version = "0.0.1-alpha.2"
 authors = ["Hacksore <996134+Hacksore@users.noreply.github.com>", "Adel-ak <adelkerow@gmail.com>", "sardonicism-04 <110789901+sardonicism-04@users.noreply.github.com>"]
 edition = "2021"
 description = "A simple, cross-platform crate for interfacing with Discord client locally via RPC"
