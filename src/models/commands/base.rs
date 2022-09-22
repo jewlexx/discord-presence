@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use super::{GetSelectedVoiceChannelData, ChannelData};
+use super::{ChannelData, SpeakingData};
 
 
 /// Currently this handles all the received commands from the discord socket
@@ -10,7 +10,7 @@ use super::{GetSelectedVoiceChannelData, ChannelData};
 #[serde(tag = "cmd")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedCommandReturn {
-  GetSelectedVoiceChannel { data: GetSelectedVoiceChannelData },
+  GetSelectedVoiceChannel { data: ChannelData },
 
   /// Get the selected voice channel
   SelectVoiceChannel { data: ChannelData },

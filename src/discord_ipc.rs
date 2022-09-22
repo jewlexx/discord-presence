@@ -228,8 +228,8 @@ pub trait DiscordIpc {
   async fn handler(&mut self, func: fn(EventReceive) -> ()) -> Result<()> {
     loop {
       let (_opcode, payload) = self.recv().await.unwrap();
-
-      println!("{:#?}", payload);
+      // println!("{:#?}", payload);
+      
       match serde_json::from_str::<EventReceive>(&payload) {
         Ok(e) => {
           func(e);

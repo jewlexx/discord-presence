@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+use crate::models::commands::SpeakingData;
+
 use super::error::ErrorData;
 use super::login::LoginData;
 use super::ready::ReadyData;
@@ -11,4 +13,13 @@ pub enum BasedEvent {
   Ready { data: ReadyData },
   Login { data: LoginData },
   Error { data: ErrorData },
+
+  // speaking start
+  SpeakingStart {
+    data: SpeakingData
+  },
+  // speaking stop
+  SpeakingStop {
+    data: SpeakingData
+  },
 }

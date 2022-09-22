@@ -1,6 +1,6 @@
 // TODO: fix name?
 use discord_rpc_rs::{
-  models::commands::*, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
+  models::commands::*, models::events::BasedEvent, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
 };
 
 // get all messages from the client
@@ -22,7 +22,17 @@ fn handle_message(event: EventReceive) {
       }
     }
   } else if let EventReceive::Event(event_type) = event {
-    println!("Evt {:#?}", event_type);
+    match event_type {
+      BasedEvent::SpeakingStart { data } => {
+        println!("{} started speaking", data.user_id);
+      }
+      BasedEvent::SpeakingStop { data } => {
+        println!("{} stopped speaking", data.user_id);
+      },
+      _=> {
+
+      }
+    }
   }
 }
 
@@ -45,29 +55,22 @@ async fn main() {
   // login to the client
   client.login(access_token).await.unwrap();
 
-  // client
-  //   .emit(Command::get_selected_voice_channel())
-  //   .await
-  //   .ok();
-
   client
-    .emit(Event::speaking_start_event("1022132922565804062"))
+    .emit(Command::get_selected_voice_channel())
     .await
     .ok();
 
   client
-    .emit(Event::speaking_stop_event("1022132922565804062"))
+    .emit(Event::speaking_start_event("1021507676871589939"))
     .await
     .ok();
 
-
   client
-    .emit(Command::select_voice_channel("1022132922565804062"))
+    .emit(Event::speaking_stop_event("1021507676871589939"))
     .await
     .ok();
 
   // sub to all events to via this listener
   client.handler(handle_message).await.ok();
 
-  // println!("Test blocking?");
 }
