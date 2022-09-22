@@ -1,5 +1,6 @@
 use rpc_discord::{
-  models::commands::*, models::events::BasedEvent, Command, DiscordIpc, DiscordIpcClient, Event, EventReceive,
+  models::commands::*, models::events::BasedEvent, Command, DiscordIpc, DiscordIpcClient, Event,
+  EventReceive,
 };
 
 // get all messages from the client
@@ -15,7 +16,7 @@ fn handle_message(event: EventReceive) {
       }
       BasedCommandReturn::SelectVoiceChannel { data } => {
         println!("{:#?}", data.name);
-      },
+      }
       _ => {
         println!("{:#?}", event_type);
       }
@@ -27,10 +28,8 @@ fn handle_message(event: EventReceive) {
       }
       BasedEvent::SpeakingStop { data } => {
         println!("{} stopped speaking", data.user_id);
-      },
-      _=> {
-
       }
+      _ => {}
     }
   }
 }
@@ -70,10 +69,9 @@ async fn main() {
     .ok();
 
   // sub to all events to via this listener
-  tokio::task::spawn(async move {
-    client.handler(handle_message).await.ok();
-  });
+  // tokio::task::spawn(async move {
+  client.handler(|e| handle_message(e)).await;
+  // });
 
   println!("made it here");
-
 }
