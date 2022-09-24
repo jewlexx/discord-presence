@@ -15,11 +15,7 @@ pub enum BasedEvent {
   Error { data: ErrorData },
 
   // speaking start
-  SpeakingStart {
-    data: SpeakingData
-  },
+  SpeakingStart { data: SpeakingData },
   // speaking stop
-  SpeakingStop {
-    data: SpeakingData
-  },
+  SpeakingStop { data: SpeakingData },
 }
