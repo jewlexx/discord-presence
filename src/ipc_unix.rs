@@ -28,20 +28,6 @@ pub struct DiscordIpcClient {
     pub access_token: Option<String>,
 }
 
-// impl Clone for UnixStream {
-//     fn clone(&self) -> Self {
-//         Self {
-//             io: self.io.clone(),
-//         }
-//     }
-
-//     fn clone_from(&mut self, source: &Self) {
-//         *self = source.clone()
-//     }
-// }
-
-// impl Copy for String {}
-
 impl DiscordIpcClient {
     pub async fn handler(&self, func: fn(EventReceive) -> ()) {
         let mut client = self.clone();
