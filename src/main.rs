@@ -73,7 +73,7 @@ async fn main() {
 
   // sub to all events to via this listener
   // tokio::task::spawn(async move {
-  client.handler(handle_message).await.ok();
+  client.handler(handle_message).await;
   // });
 
   println!("made it here");
