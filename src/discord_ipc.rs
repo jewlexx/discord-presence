@@ -213,17 +213,3 @@ pub trait DiscordIpc {
 
     async fn start() {}
 }
-
-// stream! {
-//     while let Some(msg) = redis_stream.next().await {
-//         if let Ok(json) = msg.get_payload::<String>()  {
-//             let data = from_str::<Test>(json.as_str());
-//             if data.is_ok() {
-//                 let unwrapped_data = data.unwrap();
-//                 if text == unwrapped_data.text {
-//                     yield unwrapped_data;
-//                 }
-//             }
-//         }
-//     };
-// }

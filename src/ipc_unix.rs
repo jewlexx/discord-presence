@@ -151,8 +151,4 @@ impl DiscordIpc for DiscordIpcClient {
     fn get_client_id(&self) -> &String {
         &self.client_id
     }
-
-    // fn on_message(&self) -> Result<()> {
-    //   Ok(());
-    // }
 }
