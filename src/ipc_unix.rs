@@ -38,8 +38,7 @@ impl DiscordIpcClient {
     tokio::spawn(async move {
       loop {
         let (_opcode, payload) = client.recv().await.unwrap();
-        println!("{:#?}", payload);
-
+        
         match serde_json::from_str::<EventReceive>(&payload) {
           Ok(e) => {
             func(e);

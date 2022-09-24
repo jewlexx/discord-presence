@@ -38,6 +38,7 @@ pub trait DiscordIpc {
     self.connect_ipc().await?;
     self.send_handshake().await?;
 
+    // TODO: handle error
     let (_opcode, payload) = self.recv().await.unwrap();
 
     // spooky line is not working
