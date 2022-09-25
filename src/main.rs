@@ -54,6 +54,8 @@ async fn main() {
   // login to the client
   client.login(access_token).await.unwrap();
 
+  client.emit(Event::speaking_start_event(CHANNEL_ID)).await.ok();
+
   // sub to all events to via this listener
   client.handler(handle_message).await;
 
@@ -61,6 +63,9 @@ async fn main() {
     .emit(Command::get_selected_voice_channel())
     .await
     .ok();
-
-  loop {}
+ 
+  // Keep running after prev thread starts
+  loop {
+    std::thread::sleep(std::time::Duration::from_millis(1000));
+  }
 }

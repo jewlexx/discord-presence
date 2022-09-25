@@ -49,6 +49,8 @@ use ipc_windows as ipc;
 
 pub use ipc::DiscordIpcClient;
 
+/// Currently this is used to allow for matching of an event or type
+/// Not all events/commands are implemented so serializing can fail
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum EventReceive {
