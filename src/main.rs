@@ -7,7 +7,7 @@ fn handle_message(event: EventReceive) {
   if let EventReceive::CommandReturn(event_type) = event {
     match event_type {
       BasedCommandReturn::GetSelectedVoiceChannel { data } => {
-        println!("{:#?}", data.guild_id);
+        println!("{:#?}", data);
 
         for user in data.voice_states.iter() {
           println!("{}", user.nick);

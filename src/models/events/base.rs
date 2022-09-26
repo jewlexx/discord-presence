@@ -5,7 +5,6 @@ use serde_json::Value;
 
 use crate::models::commands::SpeakingData;
 
-// use super::selected_channel::SelectedChannelData;
 use super::error::ErrorData;
 use super::login::LoginData;
 use super::ready::ReadyData;

@@ -204,7 +204,7 @@ pub trait DiscordIpc {
     self.read(&mut data).await?;
 
     let response = String::from_utf8(data.to_vec())?;
-    println!("{response}");
+    // println!("{response}");
 
     Ok((op, response))
   }

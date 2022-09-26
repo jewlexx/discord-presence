@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct VoiceState {
@@ -8,6 +9,7 @@ pub struct VoiceState {
   pub pan: VoicePan,
   #[serde(rename = "voice_state")]
   pub state: VoiceStateData,
+  pub user: Option<Value>
 }
 
 #[derive(Serialize, Deserialize, Debug)]
