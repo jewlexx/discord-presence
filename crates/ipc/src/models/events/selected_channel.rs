@@ -13,5 +13,5 @@ pub struct SelectedChannelData {
     pub user_limit: i64,
     pub guild_id: String,
     pub position: i64,
-    pub messages: Value
+    pub messages: Value,
 }

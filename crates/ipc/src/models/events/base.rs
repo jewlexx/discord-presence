@@ -13,29 +13,39 @@ use super::ready::ReadyData;
 #[serde(tag = "evt")]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum BasedEvent {
-  Ready { data: ReadyData },
-  Login { data: LoginData },
-  Error { data: ErrorData },
+    Ready {
+        data: ReadyData,
+    },
+    Login {
+        data: LoginData,
+    },
+    Error {
+        data: ErrorData,
+    },
 
-  /// speaking start
-  SpeakingStart { data: SpeakingData },
-  /// speaking stop
-  SpeakingStop { data: SpeakingData },
+    /// speaking start
+    SpeakingStart {
+        data: SpeakingData,
+    },
+    /// speaking stop
+    SpeakingStop {
+        data: SpeakingData,
+    },
 
-  // TODO: type these payloads
-  GetSelelectedVoiceChannel {
-    data: HashMap<String, Value>,
-  },
-  VoiceStateUpdate {
-    data: HashMap<String, Value>,
-  },
-  VoiceStateCreate {
-    data: HashMap<String, Value>,
-  },
-  VoiceStateDelete {
-    data: HashMap<String, Value>,
-  },
-  VoiceChannelSelect {
-    data: HashMap<String, Value>,
-  }
+    // TODO: type these payloads
+    GetSelelectedVoiceChannel {
+        data: HashMap<String, Value>,
+    },
+    VoiceStateUpdate {
+        data: HashMap<String, Value>,
+    },
+    VoiceStateCreate {
+        data: HashMap<String, Value>,
+    },
+    VoiceStateDelete {
+        data: HashMap<String, Value>,
+    },
+    VoiceChannelSelect {
+        data: HashMap<String, Value>,
+    },
 }

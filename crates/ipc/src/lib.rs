@@ -17,7 +17,7 @@
 //!     client.set_activity(payload)?;
 //! }
 //! ```
-#![allow(missing_docs)]
+#![warn(missing_docs)]
 
 mod discord_ipc;
 mod pack_unpack;
@@ -54,6 +54,6 @@ pub use ipc::DiscordIpcClient;
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(untagged)]
 pub enum EventReceive {
-  Event(BasedEvent),
-  CommandReturn(BasedCommandReturn),
+    Event(BasedEvent),
+    CommandReturn(BasedCommandReturn),
 }

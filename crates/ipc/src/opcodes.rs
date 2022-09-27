@@ -2,18 +2,18 @@
 
 // Opcodes used by the discord client
 pub enum OPCODES {
-  /// This is to connect to discord
-  Handshake,
+    /// This is to connect to discord
+    Handshake,
 
-  /// When sending data as to the ipc
-  Frame,
+    /// When sending data as to the ipc
+    Frame,
 
-  // Socket closed by discord
-  Close,
+    // Socket closed by discord
+    Close,
 
-  // ping event
-  Ping,
+    // ping event
+    Ping,
 
-  // pong event
-  Pong,
+    // pong event
+    Pong,
 }
