@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn can_serialize_full_activity() {
-        let expected = include_str!("../../tests/fixtures/activity_full.json");
+        let expected = include_str!("../../../../tests/fixtures/activity_full.json");
         let parsed_expected = serde_json::from_str::<Activity>(expected).unwrap();
 
         let activity = Activity::new()
