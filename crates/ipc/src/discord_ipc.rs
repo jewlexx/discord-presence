@@ -213,5 +213,6 @@ pub trait DiscordIpc {
     /// Closes the Discord IPC connection. Implementation is dependent on platform.
     async fn close(&mut self) -> Result<()>;
 
+    /// Starts the client.
     async fn start() {}
 }

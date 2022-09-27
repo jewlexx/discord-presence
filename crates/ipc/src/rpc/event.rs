@@ -1,3 +1,4 @@
+/// Event struct
 pub struct Event;
 
 use crate::{models::rpc_event::RPCEvent, utils::create_json};

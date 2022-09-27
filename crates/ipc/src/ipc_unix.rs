@@ -29,6 +29,7 @@ pub struct DiscordIpcClient {
 }
 
 impl DiscordIpcClient {
+    /// Add a handler for all events
     pub async fn handler<F>(&mut self, func: F)
     where
         F: Fn(EventReceive) + std::marker::Send + 'static,

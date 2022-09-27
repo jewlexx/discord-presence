@@ -1,3 +1,4 @@
+/// Command struct
 pub struct Command;
 
 use crate::{models::rpc_command::RPCCommand, utils::create_json};
