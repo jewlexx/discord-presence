@@ -14,12 +14,21 @@ keywords = ["discord", "ipc", "RPC", "client"]
 doctest = false
 
 [dependencies]
-serde = { version = "1.0.144", features = ["derive"] }
-serde_derive = "1.0.144"
-serde_json = { version = "1.0.85", features = ["preserve_order"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_derive = "1.0"
+serde_json = { version = "1.0", features = ["preserve_order"] }
 uuid = { version = "0.8", features = ["v4"] }
-dotenv = "0.15.0"
-tokio = { version = "1.21.1", features = ["full"] }
-async-trait = "0.1.57"
-async-net = "1.7.0"
-futures-lite = "1.12.0"
+dotenv = "0.15"
+tokio = { version = "1.21", features = ["full"] }
+async-trait = "0.1"
+async-net = "1.7"
+futures-lite = "1.12"
+byteorder = "1.4"
+log = "0.4"
+bytes = "1.2"
+parking_lot = "0.12"
+crossbeam-channel = "0.5"
+num-derive = "0.3"
+num-traits = "0.2"
+thiserror = "1.0"
+cfg-if = "1.0"

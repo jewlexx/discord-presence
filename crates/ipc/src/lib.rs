@@ -19,6 +19,7 @@
 //! ```
 #![warn(missing_docs)]
 
+mod connection;
 mod discord_ipc;
 mod pack_unpack;
 mod rpc;
