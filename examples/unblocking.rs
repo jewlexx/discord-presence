@@ -7,7 +7,7 @@ fn main() {
 
     let mut client = Client::new(1003450375732482138);
 
-    let _ = client.start();
+    _ = drpc.start();
 
     client
         .set_activity(|a| {

@@ -24,7 +24,7 @@ fn main() {
         println!("Spectate: {:?}", ctx.event);
     });
 
-    drpc.start();
+    _ = drpc.start();
 
     // Set the activity
     drpc.set_activity(|act| act.state("rusting frfr"))

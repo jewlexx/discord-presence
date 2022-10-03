@@ -15,7 +15,7 @@ fn main() {
         eprintln!("An error occured, {}", ctx.event);
     });
 
-    drpc.start();
+    _ = drpc.start();
 
     if let Err(why) = drpc.set_activity(|a| {
         a.state("Running examples").assets(|ass| {
