@@ -87,7 +87,7 @@ pub trait Connection: Sized {
                 self.socket().write_all(&bytes)?;
             }
         };
-        debug!("-> {:?}", message);
+        trace!("-> {:?}", message);
         Ok(())
     }
 
@@ -96,14 +96,14 @@ pub trait Connection: Sized {
         let mut buf = BytesMut::new();
         buf.resize(1024, 0);
         let n = self.socket().read(&mut buf)?;
-        debug!("Received {} bytes", n);
+        trace!("Received {} bytes", n);
 
         if n == 0 {
             return Err(DiscordError::ConnectionClosed);
         }
 
         let message = Message::decode(&buf[..n])?;
-        debug!("<- {:?}", message);
+        trace!("<- {:?}", message);
 
         Ok(message)
     }

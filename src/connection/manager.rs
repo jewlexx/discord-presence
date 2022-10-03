@@ -61,20 +61,20 @@ impl Manager {
             return Ok(());
         }
 
-        debug!("Connecting");
+        trace!("Connecting");
 
         let mut new_connection = SocketConnection::connect()?;
 
-        debug!("Performing handshake");
+        trace!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
         self.event_handler_registry
             .handle(Event::Ready, into_error!(payload.data)?)?;
-        debug!("Handshake completed");
+        trace!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));
 
-        debug!("Connected");
+        trace!("Connected");
 
         Ok(())
     }
@@ -86,7 +86,7 @@ impl Manager {
 }
 
 fn send_and_receive_loop(mut manager: Manager) {
-    debug!("Starting sender loop");
+    trace!("Starting sender loop");
 
     let mut inbound = manager.inbound.1.clone();
     let outbound = manager.outbound.0.clone();
@@ -108,7 +108,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                         manager.disconnect()
                     }
                     Err(DiscordError::RecvTimeoutError(_)) => continue,
-                    Err(why) => debug!("discord error: {}", why),
+                    Err(why) => trace!("discord error: {}", why),
                     _ => {}
                 }
 
