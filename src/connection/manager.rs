@@ -120,6 +120,8 @@ fn send_and_receive_loop(mut manager: Manager) {
                         error!("Failed to connect: {:?}", err)
                     }
 
+                    *crate::STARTED.lock() = false;
+
                     break;
                 }
                 _ => manager.handshake_completed = true,
