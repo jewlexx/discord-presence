@@ -56,7 +56,6 @@ impl Manager {
         self.inbound
             .0
             .recv()
-            // .recv_timeout(Duration::from_millis(250))
             .map_err(DiscordError::from)
     }
 
