@@ -1,5 +1,4 @@
 use discord_presence::Client as DiscordRPC;
-use std::{thread, time};
 
 fn main() {
     tracing_subscriber::fmt()
@@ -24,7 +23,7 @@ fn main() {
         println!("Spectate: {:?}", ctx.event);
     });
 
-    drpc.start();
+    let drpc_thread = drpc.start();
 
     // Set the activity
     drpc.set_activity(|act| act.state("rusting frfr"))
@@ -37,7 +36,5 @@ fn main() {
     })
     .unwrap();
 
-    loop {
-        thread::sleep(time::Duration::from_millis(500));
-    }
+    drpc_thread.join().unwrap();
 }

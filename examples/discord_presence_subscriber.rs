@@ -15,7 +15,7 @@ fn main() {
         eprintln!("An error occured, {}", ctx.event);
     });
 
-    drpc.start();
+    let drpc_thread = drpc.start();
 
     if let Err(why) = drpc.set_activity(|a| {
         a.state("Running examples").assets(|ass| {
@@ -28,6 +28,5 @@ fn main() {
         println!("Failed to set presence: {}", why);
     }
 
-    #[allow(clippy::empty_loop)]
-    loop {}
+    drpc_thread.join().unwrap()
 }
