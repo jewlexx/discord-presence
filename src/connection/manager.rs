@@ -144,12 +144,18 @@ fn send_and_receive(
     outbound: &Rx,
 ) -> Result<()> {
     while let Ok(msg) = outbound.recv() {
+        trace!("Sending message");
         connection.send(&msg)?;
+        trace!("Sent message");
     }
 
+    trace!("Receiving from connection");
     let msg = connection.recv()?;
+    trace!("Received from connection");
 
     let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
+
+    trace!("Received payload");
 
     match &payload {
         Payload {
