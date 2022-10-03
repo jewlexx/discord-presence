@@ -53,10 +53,7 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        self.inbound
-            .0
-            .recv()
-            .map_err(DiscordError::from)
+        self.inbound.0.recv().map_err(DiscordError::from)
     }
 
     fn connect(&mut self) -> Result<()> {
@@ -108,7 +105,8 @@ fn send_and_receive_loop(mut manager: Manager) {
                 ) {
                     Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {}
                     Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
-                        manager.disconnect()
+                        manager.disconnect();
+                        break;
                     }
                     Err(DiscordError::RecvTimeoutError(_)) => continue,
                     Err(why) => trace!("discord error: {}", why),
