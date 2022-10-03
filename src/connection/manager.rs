@@ -60,7 +60,8 @@ impl Manager {
     pub fn recv(&self) -> Result<Message> {
         self.inbound
             .0
-            .recv_timeout(Duration::from_millis(250))
+            .recv()
+            // .recv_timeout(Duration::from_millis(250))
             .map_err(DiscordError::from)
     }
 
@@ -154,9 +155,11 @@ fn send_and_receive(
         Payload {
             evt: Some(event), ..
         } => {
+            println!("Got event");
             event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
+            println!("Got message");
             inbound.send(msg)?;
         }
     }
