@@ -1,6 +1,10 @@
 use discord_presence::Client as DiscordRPC;
 
 fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .init();
+
     let mut drpc = DiscordRPC::new(1003450375732482138);
 
     drpc.on_ready(|_ctx| {

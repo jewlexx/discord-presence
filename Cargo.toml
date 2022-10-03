@@ -12,7 +12,6 @@ edition = "2018"
 [dependencies]
 serde_json = "1.0"
 byteorder = "1.4"
-log = "0.4"
 bytes = "1.2"
 parking_lot = "0.12"
 crossbeam-channel = "0.5"
@@ -20,6 +19,7 @@ num-derive = "0.3"
 num-traits = "0.2"
 thiserror = "1.0"
 cfg-if = "1.0"
+tracing = "0.1"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
@@ -35,4 +35,5 @@ features = ["v4"]
 [dev-dependencies]
 ctrlc = "3.2.3"
 rusty-hook = "0.11.2"
+tracing-subscriber = "0.3.15"
 version-sync = "0.9"
