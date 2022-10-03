@@ -106,7 +106,6 @@ fn send_and_receive_loop(mut manager: Manager) {
                     Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {}
                     Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
                         manager.disconnect();
-                        break;
                     }
                     Err(DiscordError::RecvTimeoutError(_)) => continue,
                     Err(why) => trace!("discord error: {}", why),
