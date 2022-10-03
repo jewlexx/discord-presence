@@ -1,6 +1,10 @@
 use discord_presence::Client;
 
 fn main() {
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::TRACE)
+        .init();
+
     let mut client = Client::new(1003450375732482138);
 
     client.start();
@@ -13,5 +17,5 @@ fn main() {
         })
         .unwrap();
 
-    println!("Made it to the final line");
+    tracing::trace!("Made it to the final line");
 }

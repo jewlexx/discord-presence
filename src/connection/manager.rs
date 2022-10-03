@@ -155,11 +155,11 @@ fn send_and_receive(
         Payload {
             evt: Some(event), ..
         } => {
-            println!("Got event");
+            trace!("Got event");
             event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
-            println!("Got message");
+            trace!("Got message");
             inbound.send(msg)?;
         }
     }
