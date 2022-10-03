@@ -7,7 +7,12 @@ use crate::{
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
 use serde_json::Value as JsonValue;
-use std::{io::ErrorKind, sync::Arc, thread, time};
+use std::{
+    io::ErrorKind,
+    sync::Arc,
+    thread,
+    time::{self, Duration},
+};
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
@@ -53,7 +58,10 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        self.inbound.0.recv_timeout(Duration::from_millis(250)).map_err(DiscordError::from)
+        self.inbound
+            .0
+            .recv_timeout(Duration::from_millis(250))
+            .map_err(DiscordError::from)
     }
 
     fn connect(&mut self) -> Result<()> {
