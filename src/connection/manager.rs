@@ -53,7 +53,7 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        self.inbound.0.recv().map_err(DiscordError::from)
+        self.inbound.0.recv_timeout(Duration::from_millis(250)).map_err(DiscordError::from)
     }
 
     fn connect(&mut self) -> Result<()> {
