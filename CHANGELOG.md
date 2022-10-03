@@ -9,6 +9,16 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
+## [0.5.9] - Unreleased
+
+### Fixed
+
+- Send/Receive loop would timeout indefinitely
+
+### Changed
+
+- Use [`tracing`](https://crates.io/crates/tracing) crate for logs
+
 ## [0.5.8](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.8) - 2022-09-18
 
 ### Fixed
