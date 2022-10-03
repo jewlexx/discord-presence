@@ -53,11 +53,15 @@ impl Client {
     /// Start the connection manager
     ///
     /// Only join the thread if there is no other task keeping the program alive.
+    ///
+    /// This must be called before all and any actions such as `set_activity`
     #[must_use]
     pub fn start(&mut self) -> std::thread::JoinHandle<()> {
         let thread = self.connection_manager.start();
 
-        crate::STARTED.thread
+        *crate::STARTED.lock() = true;
+
+        thread
     }
 
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
@@ -65,6 +69,10 @@ impl Client {
         A: Serialize + Send + Sync,
         E: Serialize + DeserializeOwned + Send + Sync,
     {
+        if !*crate::STARTED.lock() {
+            return Err(DiscordError::NotStarted);
+        }
+
         let message = Message::new(
             OpCode::Frame,
             Payload::with_nonce(cmd, Some(args), None, evt),
