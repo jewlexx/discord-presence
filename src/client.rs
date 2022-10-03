@@ -50,9 +50,12 @@ impl Client {
         }
     }
 
-    /// Start the client and connect to Discord
-    pub fn start(&mut self) {
-        self.connection_manager.start();
+    /// Start the connection manager
+    ///
+    /// Only join the thread if there is no other task keeping the program alive.
+    #[must_use]
+    pub fn start(&mut self) -> std::thread::JoinHandle<()> {
+        self.connection_manager.start()
     }
 
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>

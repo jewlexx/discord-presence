@@ -7,12 +7,7 @@ use crate::{
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
 use serde_json::Value as JsonValue;
-use std::{
-    io::ErrorKind,
-    sync::Arc,
-    thread,
-    time::{self, Duration},
-};
+use std::{io::ErrorKind, sync::Arc, thread, time};
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
@@ -44,11 +39,11 @@ impl Manager {
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self) -> std::thread::JoinHandle<()> {
         let manager_inner = self.clone();
         thread::spawn(move || {
             send_and_receive_loop(manager_inner);
-        });
+        })
     }
 
     pub fn send(&self, message: Message) -> Result<()> {
@@ -143,7 +138,7 @@ fn send_and_receive(
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
-    while let Ok(msg) = outbound.recv() {
+    while let Ok(msg) = outbound.try_recv() {
         trace!("Sending message");
         connection.send(&msg)?;
         trace!("Sent message");
