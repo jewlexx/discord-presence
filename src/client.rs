@@ -73,6 +73,8 @@ impl Client {
             return Err(DiscordError::NotStarted);
         }
 
+        trace!("Executing command: {:?}", cmd);
+
         let message = Message::new(
             OpCode::Frame,
             Payload::with_nonce(cmd, Some(args), None, evt),
