@@ -13,7 +13,7 @@
     "small_text": "Rusting..."
   },
   "party": {
-    "id": 1,
+    "id": "party",
     "size": [
       3,
       6

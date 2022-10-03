@@ -41,6 +41,9 @@ pub enum DiscordError {
     /// Connection Closing error
     #[error("Connection was closed prematurely")]
     ConnectionClosed,
+    /// Connection has not been started
+    #[error("Connection has not been started")]
+    NotStarted,
 }
 
 impl DiscordError {

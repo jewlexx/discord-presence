@@ -1,0 +1,2 @@
+[hooks]
+pre-push = "cargo test --all"

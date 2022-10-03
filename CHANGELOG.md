@@ -9,6 +9,38 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
+## [0.5.8](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.8) - 2022-09-18
+
+### Fixed
+
+- party.id should be String, not u32 by @bigfarts in <https://github.com/jewlexx/discord-presence/pull/15>
+
+### Changed
+
+- Update actions/cache action to v3.0.8 by @renovate in <https://github.com/jewlexx/discord-presence/pull/14>
+
+## [0.5.7](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.7) - 2022-08-05
+
+### Changed
+
+- Downgrade compiler edition by @jewlexx in <https://github.com/jewlexx/discord-presence/pull/13>
+
+## [0.5.6](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.6) - 2022-08-01
+
+### Fixed
+
+- Minor bug fix relating to empty RPC pipe
+
+### Changed
+
+- Configure Renovate by @renovate in <https://github.com/jewlexx/discord-presence/pull/8>
+- Update actions/cache action to v3.0.5 by @renovate in <https://github.com/jewlexx/discord-presence/pull/9>
+- Update Rust crate bytes to 1.2 by @renovate in <https://github.com/jewlexx/discord-presence/pull/11>
+
+## [0.5.5](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.5) - 2022-07-27
+
+Full Changelog: [v0.5.4...v0.5.5](https://github.com/jewlexx/discord-presence/compare/v0.5.4...v0.5.5)
+
 ## [0.5.4](https://github.com/jewlexx/discord-presence/releases/tag/discord-rpc%400.5.0) - 2022-06-19
 
 ### Fixed

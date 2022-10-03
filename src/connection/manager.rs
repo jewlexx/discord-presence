@@ -39,11 +39,11 @@ impl Manager {
         }
     }
 
-    pub fn start(&mut self) {
+    pub fn start(&mut self) -> std::thread::JoinHandle<()> {
         let manager_inner = self.clone();
         thread::spawn(move || {
             send_and_receive_loop(manager_inner);
-        });
+        })
     }
 
     pub fn send(&self, message: Message) -> Result<()> {
@@ -53,7 +53,11 @@ impl Manager {
     }
 
     pub fn recv(&self) -> Result<Message> {
-        self.inbound.0.recv().map_err(DiscordError::from)
+        self.inbound
+            .0
+            .recv()
+            // .recv_timeout(Duration::from_millis(250))
+            .map_err(DiscordError::from)
     }
 
     fn connect(&mut self) -> Result<()> {
@@ -61,20 +65,20 @@ impl Manager {
             return Ok(());
         }
 
-        debug!("Connecting");
+        trace!("Connecting");
 
         let mut new_connection = SocketConnection::connect()?;
 
-        debug!("Performing handshake");
+        trace!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
         self.event_handler_registry
             .handle(Event::Ready, into_error!(payload.data)?)?;
-        debug!("Handshake completed");
+        trace!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));
 
-        debug!("Connected");
+        trace!("Connected");
 
         Ok(())
     }
@@ -86,7 +90,7 @@ impl Manager {
 }
 
 fn send_and_receive_loop(mut manager: Manager) {
-    debug!("Starting sender loop");
+    trace!("Starting sender loop");
 
     let mut inbound = manager.inbound.1.clone();
     let outbound = manager.outbound.0.clone();
@@ -108,7 +112,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                         manager.disconnect()
                     }
                     Err(DiscordError::RecvTimeoutError(_)) => continue,
-                    Err(why) => debug!("discord error: {}", why),
+                    Err(why) => trace!("discord error: {}", why),
                     _ => {}
                 }
 
@@ -134,21 +138,29 @@ fn send_and_receive(
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
-    while let Ok(msg) = outbound.recv() {
+    while let Ok(msg) = outbound.try_recv() {
+        trace!("Sending message");
         connection.send(&msg)?;
+        trace!("Sent message");
     }
 
+    trace!("Receiving from connection");
     let msg = connection.recv()?;
+    trace!("Received from connection");
 
     let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
+
+    trace!("Received payload");
 
     match &payload {
         Payload {
             evt: Some(event), ..
         } => {
+            trace!("Got event");
             event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
         }
         _ => {
+            trace!("Got message");
             inbound.send(msg)?;
         }
     }
