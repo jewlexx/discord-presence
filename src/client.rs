@@ -1,3 +1,5 @@
+use std::sync::atomic::Ordering;
+
 use crate::{
     connection::Manager as ConnectionManager,
     event_handler::{Context as EventContext, HandlerRegistry},
@@ -59,7 +61,12 @@ impl Client {
     pub fn start(&mut self) -> std::thread::JoinHandle<()> {
         let thread = self.connection_manager.start();
 
-        *crate::STARTED.lock() = true;
+        crate::STARTED.store(true, Ordering::Relaxed);
+
+        self.on_ready(|_| {
+            trace!("Discord client is ready!");
+            crate::READY.store(true, Ordering::Relaxed);
+        });
 
         thread
     }
@@ -69,7 +76,7 @@ impl Client {
         A: Serialize + Send + Sync,
         E: Serialize + DeserializeOwned + Send + Sync,
     {
-        if !*crate::STARTED.lock() {
+        if !crate::STARTED.load(Ordering::Relaxed) {
             return Err(DiscordError::NotStarted);
         }
 

@@ -7,7 +7,11 @@ use crate::{
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
 use serde_json::Value as JsonValue;
-use std::{io::ErrorKind, sync::Arc, thread, time};
+use std::{
+    io::ErrorKind,
+    sync::{atomic::Ordering, Arc},
+    thread, time,
+};
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
@@ -120,7 +124,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                         error!("Failed to connect: {:?}", err)
                     }
 
-                    *crate::STARTED.lock() = false;
+                    crate::STARTED.store(false, Ordering::Relaxed);
 
                     break;
                 }

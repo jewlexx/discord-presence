@@ -3,8 +3,8 @@
 
 //! A Rust library that allows the developer to interact with the Discord Presence API with ease
 
-pub(crate) static STARTED: Mutex<bool> = Mutex::new(false);
-pub(crate) static READY: Mutex<bool> = Mutex::new(false);
+pub(crate) static STARTED: AtomicBool = AtomicBool::new(false);
+pub(crate) static READY: AtomicBool = AtomicBool::new(false);
 
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
@@ -25,7 +25,7 @@ mod event_handler;
 pub mod models;
 mod utils;
 
-use parking_lot::Mutex;
+use std::sync::atomic::AtomicBool;
 
 pub use client::Client;
 pub use error::{DiscordError, Result};
