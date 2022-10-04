@@ -132,7 +132,7 @@ fn send_and_receive_loop(mut manager: Manager) {
 
 fn send_and_receive(
     connection: &mut SocketConnection,
-    event_handler_registry: &mut HandlerRegistry,
+    event_handler_registry: &mut HandlerRegistry<'_>,
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {

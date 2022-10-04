@@ -1,9 +1,10 @@
-#![warn(missing_docs)]
+#![warn(missing_docs, rust_2018_compatibility, rust_2018_idioms, clippy::all)]
 #![forbid(unsafe_code)]
 
 //! A Rust library that allows the developer to interact with the Discord Presence API with ease
 
 pub(crate) static STARTED: Mutex<bool> = Mutex::new(false);
+pub(crate) static READY: Mutex<bool> = Mutex::new(false);
 
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
