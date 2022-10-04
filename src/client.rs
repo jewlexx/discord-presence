@@ -148,6 +148,12 @@ impl Client {
     }
 
     /// Block the current thread until the event is fired
+    ///
+    /// NOTE: Please only use this for the ready event, or if you know what you are doing.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the channel is disconnected for whatever reason.
     pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
         let (tx, rx) = crossbeam_channel::bounded::<crate::event_handler::Context>(1);
 
