@@ -149,6 +149,8 @@ impl Client {
 
     /// Block the current thread until the event is fired
     ///
+    /// Returns the context the event was fired in
+    ///
     /// NOTE: Please only use this for the ready event, or if you know what you are doing.
     ///
     /// # Panics
