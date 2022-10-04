@@ -147,6 +147,25 @@ impl Client {
         self.event_handler_registry.register(event, handler);
     }
 
+    /// Block the current thread until the event is fired
+    ///
+    /// Returns the context the event was fired in
+    ///
+    /// NOTE: Please only use this for the ready event, or if you know what you are doing.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the channel is disconnected for whatever reason.
+    pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
+        let (tx, rx) = crossbeam_channel::bounded::<crate::event_handler::Context>(1);
+
+        let handler = move |info| tx.send(info).unwrap();
+
+        self.event_handler_registry.register(event, handler);
+
+        Ok(rx.recv()?)
+    }
+
     event_handler_function!(on_ready, Event::Ready);
 
     event_handler_function!(on_error, Event::Error);

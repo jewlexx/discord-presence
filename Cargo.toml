@@ -6,7 +6,7 @@ keywords = ["discord", "rpc", "ipc"]
 license = "MIT"
 readme = "README.md"
 repository = "https://github.com/jewlexx/discord-presence.git"
-version = "0.5.9"
+version = "0.5.10"
 edition = "2018"
 
 [dependencies]
@@ -20,6 +20,7 @@ num-traits = "0.2"
 thiserror = "1.0"
 cfg-if = "1.0"
 tracing = "0.1"
+implicit-clone = "0.3.2"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
