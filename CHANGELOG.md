@@ -9,7 +9,7 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
-## [0.5.9] - Unreleased
+## [0.5.9](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.9) - 2022-10-04
 
 ### Fixed
 
