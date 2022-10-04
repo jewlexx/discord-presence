@@ -76,7 +76,7 @@ impl Client {
         A: Serialize + Send + Sync,
         E: Serialize + DeserializeOwned + Send + Sync,
     {
-        if !crate::STARTED.load(Ordering::Relaxed) {
+        if !crate::STARTED.load(Ordering::Relaxed) || !crate::READY.load(Ordering::Relaxed) {
             return Err(DiscordError::NotStarted);
         }
 
