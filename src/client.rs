@@ -147,6 +147,15 @@ impl Client {
         self.event_handler_registry.register(event, handler);
     }
 
+    /// Block the current thread until the event is fired
+    pub fn block_until_event(&mut self, event: Event) {
+        let (tx, rx) = crossbeam_channel::bounded::<()>(1);
+
+        let handler = move |info| tx.send(()).unwrap();
+
+        self.event_handler_registry.register(event, handler);
+    }
+
     event_handler_function!(on_ready, Event::Ready);
 
     event_handler_function!(on_error, Event::Error);
