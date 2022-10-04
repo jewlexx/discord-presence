@@ -148,12 +148,14 @@ impl Client {
     }
 
     /// Block the current thread until the event is fired
-    pub fn block_until_event(&mut self, event: Event) {
-        let (tx, rx) = crossbeam_channel::bounded::<()>(1);
+    pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
+        let (tx, rx) = crossbeam_channel::bounded::<crate::event_handler::Context>(1);
 
-        let handler = move |info| tx.send(()).unwrap();
+        let handler = move |info| tx.send(info).unwrap();
 
         self.event_handler_registry.register(event, handler);
+
+        Ok(rx.recv()?)
     }
 
     event_handler_function!(on_ready, Event::Ready);
