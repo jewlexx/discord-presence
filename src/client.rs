@@ -1,4 +1,4 @@
-use std::sync::atomic::Ordering;
+use std::{sync::atomic::Ordering, time::Instant};
 
 use crate::{
     connection::Manager as ConnectionManager,
@@ -108,6 +108,17 @@ impl Client {
     where
         F: FnOnce(Activity) -> Activity,
     {
+        {
+            let old_rl = crate::RATE_LIMIT_CHECK.lock();
+            if old_rl.0.elapsed().as_secs() < 20 {
+                if old_rl.1 > 5 {
+                    return Err(DiscordError::RateLimited);
+                }
+            } else {
+                *crate::RATE_LIMIT_CHECK.lock() = (Instant::now(), 0);
+            }
+        }
+
         self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
     }
 

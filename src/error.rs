@@ -44,6 +44,9 @@ pub enum DiscordError {
     /// Connection has not been started
     #[error("Connection has not been started")]
     NotStarted,
+    /// Run into discord rate limit
+    #[error("Run into discord rate limit")]
+    RateLimited,
 }
 
 impl DiscordError {
