@@ -1,4 +1,4 @@
-use discord_presence::{Client as DiscordRPC, Event};
+use discord_presence::Client as DiscordRPC;
 
 fn main() {
     tracing_subscriber::fmt()
@@ -25,7 +25,7 @@ fn main() {
 
     let drpc_thread = drpc.start();
 
-    drpc.block_until_event(Event::Ready).unwrap();
+    drpc.block_until_ready().unwrap();
 
     // Set the activity
     drpc.set_activity(|act| act.state("rusting frfr"))

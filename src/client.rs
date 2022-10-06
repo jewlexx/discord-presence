@@ -31,6 +31,11 @@ macro_rules! event_handler_function {
                 {
                     self.on_event($event, handler);
                 }
+
+                #[doc = concat!("Listens for the `", stringify!($event), "` event")]
+                pub fn [<block_until_ $name>](&mut self) -> Result<crate::event_handler::Context> {
+                    self.block_until_event($event)
+                }
             )*
         }
     }
