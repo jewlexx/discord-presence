@@ -25,14 +25,14 @@ macro_rules! event_handler_function {
     (@gen $( [ $name:ident, $event:expr ] ), *) => {
         ::paste::paste! {
             $(
-                #[doc = concat!("Listens for the `", stringify!($event), "` event")]
+                #[doc = concat!("Listens for the `", stringify!($event), "` event, and runs the provided handler")]
                 pub fn [<on_ $name>]<F>(&mut self, handler: F)
                     where F: Fn(EventContext) + 'static + Send + Sync
                 {
                     self.on_event($event, handler);
                 }
 
-                #[doc = concat!("Listens for the `", stringify!($event), "` event")]
+                #[doc = concat!("Blocks the current thread until the `", stringify!($event), "` event is fired")]
                 pub fn [<block_until_ $name>](&mut self) -> Result<crate::event_handler::Context> {
                     self.block_until_event($event)
                 }
