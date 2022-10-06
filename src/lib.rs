@@ -6,6 +6,10 @@
 pub(crate) static STARTED: AtomicBool = AtomicBool::new(false);
 pub(crate) static READY: AtomicBool = AtomicBool::new(false);
 
+lazy_static! {
+    pub(crate) static ref RATE_LIMIT_CHECK: Mutex<(Instant, u8)> = Mutex::new((Instant::now(), 0));
+}
+
 // Cannot remove this *macro_use*, would break derive inside of macros
 #[macro_use]
 extern crate serde;
@@ -25,8 +29,10 @@ mod event_handler;
 pub mod models;
 mod utils;
 
-use std::sync::atomic::AtomicBool;
+use std::{sync::atomic::AtomicBool, time::Instant};
 
 pub use client::Client;
 pub use error::{DiscordError, Result};
+use lazy_static::lazy_static;
 pub use models::Event;
+use parking_lot::Mutex;

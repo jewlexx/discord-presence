@@ -19,9 +19,10 @@ num-traits = "0.2"
 thiserror = "1.0"
 cfg-if = "1.0"
 tracing = "0.1"
-implicit-clone = "0.3.2"
-parking_lot = "0.12.1"
-paste = "1.0.9"
+implicit-clone = "0.3"
+parking_lot = "0.12"
+paste = "1.0"
+lazy_static = "1.4"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
