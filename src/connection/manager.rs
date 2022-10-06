@@ -140,6 +140,9 @@ fn send_and_receive(
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
+    // connection.handshake(0)?;
+    // trace!("Shook hands");
+
     while let Ok(msg) = outbound.try_recv() {
         trace!("Sending message");
         connection.send(&msg)?;
@@ -152,7 +155,7 @@ fn send_and_receive(
 
     let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
 
-    trace!("Received payload");
+    trace!("Received payload: {:?}", payload);
 
     match &payload {
         Payload {
