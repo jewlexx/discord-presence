@@ -23,14 +23,16 @@ macro_rules! event_handler_function {
     };
 
     (@gen $( [ $name:ident, $event:expr ] ), *) => {
-        $(
-            #[doc = concat!("Listens for the `", stringify!($event), "` event")]
-            pub fn $name<F>(&mut self, handler: F)
-                where F: Fn(EventContext) + 'static + Send + Sync
-            {
-                self.on_event($event, handler);
-            }
-        )*
+        ::paste::paste! {
+            $(
+                #[doc = concat!("Listens for the `", stringify!($event), "` event")]
+                pub fn [<on_ $name>]<F>(&mut self, handler: F)
+                    where F: Fn(EventContext) + 'static + Send + Sync
+                {
+                    self.on_event($event, handler);
+                }
+            )*
+        }
     }
 }
 
@@ -173,13 +175,13 @@ impl Client {
         Ok(rx.recv()?)
     }
 
-    event_handler_function!(on_ready, Event::Ready);
+    event_handler_function!(ready, Event::Ready);
 
-    event_handler_function!(on_error, Event::Error);
+    event_handler_function!(error, Event::Error);
 
-    event_handler_function!(on_activity_join, Event::ActivityJoin);
+    event_handler_function!(activity_join, Event::ActivityJoin);
 
-    event_handler_function!(on_activity_join_request, Event::ActivityJoinRequest);
+    event_handler_function!(activity_join_request, Event::ActivityJoinRequest);
 
-    event_handler_function!(on_activity_spectate, Event::ActivitySpectate);
+    event_handler_function!(activity_spectate, Event::ActivitySpectate);
 }
