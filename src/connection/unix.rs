@@ -1,21 +1,39 @@
+use std::{env, net::Shutdown, ops::RangeInclusive, path::PathBuf, time};
+
 use super::base::Connection;
-use crate::Result;
-use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf, time};
+use crate::{DiscordError, Result};
+
+use websocket::stream::sync::TcpStream;
 
 pub struct UnixConnection {
-    socket: UnixStream,
+    socket: TcpStream,
 }
 
+// The TCP port range that discord uses
+const DISCORD_PORT_RANGE: RangeInclusive<u16> = 6463..=6472;
+
 impl Connection for UnixConnection {
-    type Socket = UnixStream;
+    type Socket = TcpStream;
 
     fn connect() -> Result<Self> {
-        let connection_name = Self::socket_path(0);
-        let socket = UnixStream::connect(connection_name)?;
-        socket.set_nonblocking(true)?;
-        socket.set_write_timeout(Some(time::Duration::from_secs(30)))?;
-        socket.set_read_timeout(Some(time::Duration::from_secs(30)))?;
-        Ok(Self { socket })
+        let mut tcp_stream = None;
+
+        for i in DISCORD_PORT_RANGE {
+            match TcpStream::connect(("127.0.0.1", i)) {
+                Ok(v) => tcp_stream = Some(v),
+                Err(_) => continue,
+            };
+        }
+
+        if let Some(socket) = tcp_stream {
+            socket.set_nonblocking(true)?;
+            socket.set_write_timeout(Some(time::Duration::from_secs(30)))?;
+            socket.set_read_timeout(Some(time::Duration::from_secs(30)))?;
+
+            Ok(Self { socket })
+        } else {
+            Err(DiscordError::MissingSocket)
+        }
     }
 
     fn ipc_path() -> PathBuf {

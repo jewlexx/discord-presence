@@ -21,6 +21,7 @@ cfg-if = "1.0"
 tracing = "0.1"
 implicit-clone = "0.3.2"
 parking_lot = "0.12.1"
+websocket = "0.26.5"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"

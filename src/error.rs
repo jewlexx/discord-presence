@@ -44,6 +44,9 @@ pub enum DiscordError {
     /// Connection has not been started
     #[error("Connection has not been started")]
     NotStarted,
+    /// There was no socket provided by Discord
+    #[error("No Discord socket")]
+    MissingSocket,
 }
 
 impl DiscordError {
