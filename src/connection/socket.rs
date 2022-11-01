@@ -5,14 +5,14 @@ use crate::{DiscordError, Result};
 
 use websocket::stream::sync::TcpStream;
 
-pub struct UnixConnection {
+pub struct SocketConnection {
     socket: TcpStream,
 }
 
 // The TCP port range that discord uses
 const DISCORD_PORT_RANGE: RangeInclusive<u16> = 6463..=6472;
 
-impl Connection for UnixConnection {
+impl Connection for SocketConnection {
     type Socket = TcpStream;
 
     fn connect() -> Result<Self> {
@@ -52,7 +52,7 @@ impl Connection for UnixConnection {
     }
 }
 
-impl Drop for UnixConnection {
+impl Drop for SocketConnection {
     fn drop(&mut self) {
         if self.socket.shutdown(Shutdown::Both).is_err() {
             error!("Failed to properly shut down socket");
