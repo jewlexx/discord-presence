@@ -27,16 +27,5 @@ fn main() {
 
     let drpc_thread = drpc.start();
 
-    // Set the activity
-    drpc.set_activity(|act| act.state("rusting frfr"))
-        .expect("Failed to set activity");
-
-    ctrlc::set_handler(move || {
-        println!("Exiting...");
-        drpc.clear_activity().unwrap();
-        std::process::exit(0);
-    })
-    .unwrap();
-
     drpc_thread.join().unwrap();
 }
