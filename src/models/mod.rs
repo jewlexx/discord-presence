@@ -11,7 +11,7 @@ pub mod rich_presence;
 mod shared;
 
 /// Different Discord commands
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, PartialEq, Eq, Copy, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Command {
     /// Dispatch something to Discord
@@ -31,7 +31,7 @@ pub enum Command {
 }
 
 /// Discord events
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone, Hash, strum::EnumIter)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Copy, Clone, Hash, strum::EnumIter)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Event {
     /// Ready event, fired when the client is ready, but not if an error occurs
