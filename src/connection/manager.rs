@@ -10,7 +10,9 @@ use serde_json::Value as JsonValue;
 use std::{
     io::ErrorKind,
     sync::{atomic::Ordering, Arc},
-    thread, time,
+    thread,
+    time,
+    time::Duration
 };
 
 type Tx = Sender<Message>;
@@ -124,9 +126,9 @@ fn send_and_receive_loop(mut manager: Manager) {
                         error!("Failed to connect: {:?}", err)
                     }
 
-                    crate::STARTED.store(false, Ordering::Relaxed);
-
-                    break;
+                    // Can't connect now, try again in 15 seconds
+                    crate::READY.store(false, Ordering::Relaxed);
+                    thread::sleep(Duration::from_secs(15));
                 }
                 _ => manager.handshake_completed = true,
             },
