@@ -11,8 +11,7 @@ use std::{
     io::ErrorKind,
     sync::{atomic::Ordering, Arc},
     thread,
-    time,
-    time::Duration
+    time::{self, Duration}
 };
 
 type Tx = Sender<Message>;
