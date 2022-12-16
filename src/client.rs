@@ -41,6 +41,9 @@ pub struct Client {
     event_handler_registry: HandlerRegistry<'static>,
 }
 
+#[cfg(feature = "bevy")]
+impl bevy::prelude::Resource for Client {}
+
 impl Client {
     /// Creates a new `Client`
     pub fn new(client_id: u64) -> Self {
