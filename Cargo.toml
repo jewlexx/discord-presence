@@ -22,7 +22,7 @@ tracing = "0.1"
 implicit-clone = "0.3"
 parking_lot = "0.12"
 strum = { version = "0.24", features = ["derive"] }
-bevy = { version = ">=0.9", optional = true, default-features = false }
+bevy = { version = ">=0.9.1", optional = true, default-features = false }
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
