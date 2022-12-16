@@ -42,7 +42,7 @@ pub struct Client {
 }
 
 #[cfg(feature = "bevy")]
-impl bevy::prelude::Resource for Client {}
+impl bevy::ecs::system::Resource for Client {}
 
 impl Client {
     /// Creates a new `Client`
