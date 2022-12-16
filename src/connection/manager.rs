@@ -102,7 +102,7 @@ fn send_and_receive_loop(mut manager: Manager) {
             Some(ref conn) => {
                 let mut connection = conn.lock();
                 match send_and_receive(
-                    &mut *connection,
+                    &mut connection,
                     &mut manager.event_handler_registry,
                     &mut inbound,
                     &outbound,
@@ -159,7 +159,7 @@ fn send_and_receive(
             evt: Some(event), ..
         } => {
             trace!("Got event");
-            event_handler_registry.handle(event.clone(), into_error!(payload.data)?)?;
+            event_handler_registry.handle(*event, into_error!(payload.data)?)?;
         }
         _ => {
             trace!("Got message");

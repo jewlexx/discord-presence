@@ -19,9 +19,10 @@ num-traits = "0.2"
 thiserror = "1.0"
 cfg-if = "1.0"
 tracing = "0.1"
-implicit-clone = "0.3.2"
-parking_lot = "0.12.1"
-strum = { version = "0.24.1", features = ["derive"] }
+implicit-clone = "0.3"
+parking_lot = "0.12"
+strum = { version = "0.24", features = ["derive"] }
+bevy = { version = ">=0.6", optional = true, default-features = false }
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
