@@ -60,6 +60,9 @@ impl Client {
     /// Only join the thread if there is no other task keeping the program alive.
     ///
     /// This must be called before all and any actions such as `set_activity`
+    ///
+    /// Note that this will NOT retry upon failure. If this fails, the thread will throw an error and exit there.
+    /// If you want to retry, you must call this function again.
     #[must_use]
     pub fn start(&mut self) -> std::thread::JoinHandle<()> {
         let thread = self.connection_manager.start();
