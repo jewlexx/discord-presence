@@ -66,12 +66,6 @@ impl Client {
 
         crate::STARTED.store(true, Ordering::Relaxed);
 
-        self.on_ready(|_| {
-            trace!("Discord client is ready!");
-            crate::READY.store(true, Ordering::Relaxed);
-        })
-        .forget();
-
         thread
     }
 
