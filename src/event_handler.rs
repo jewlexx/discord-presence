@@ -27,6 +27,13 @@ pub struct EventHandle {
     pub uuid: Uuid,
 }
 
+impl EventHandle {
+    /// Will calls [`std::mem::forget`] on the handle, preventing it from being dropped, and thus meaning it will never be unregistered.
+    pub fn forget(&mut self) {
+        std::mem::forget(self);
+    }
+}
+
 impl Drop for EventHandle {
     fn drop(&mut self) {
         EVENT_HANDLER_REGISTRY.unregister(self.uuid).unwrap();

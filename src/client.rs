@@ -24,11 +24,12 @@ macro_rules! event_handler_function {
 
     (@gen $( [ $name:ident, $event:expr ] ), *) => {
         $(
+            #[must_use]
             #[doc = concat!("Listens for the `", stringify!($event), "` event")]
-            pub fn $name<F>(&mut self, handler: F)
+            pub fn $name<F>(&mut self, handler: F) -> EventHandle
                 where F: Fn(EventContext) + 'static + Send + Sync
             {
-                self.on_event($event, handler);
+                self.on_event($event, handler)
             }
         )*
     }
@@ -68,7 +69,8 @@ impl Client {
         self.on_ready(|_| {
             trace!("Discord client is ready!");
             crate::READY.store(true, Ordering::Relaxed);
-        });
+        })
+        .forget();
 
         thread
     }
@@ -149,6 +151,7 @@ impl Client {
     }
 
     /// Register a handler for a given event
+    #[must_use]
     pub fn on_event<F>(&mut self, event: Event, handler: F) -> EventHandle
     where
         F: Fn(EventContext) + 'static + Send + Sync,

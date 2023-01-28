@@ -9,19 +9,23 @@ fn main() {
 
     drpc.on_ready(|_ctx| {
         println!("ready?");
-    });
+    })
+    .forget();
 
     drpc.on_activity_join_request(|ctx| {
         println!("Join request: {:?}", ctx.event);
-    });
+    })
+    .forget();
 
     drpc.on_activity_join(|ctx| {
         println!("Joined: {:?}", ctx.event);
-    });
+    })
+    .forget();
 
     drpc.on_activity_spectate(|ctx| {
         println!("Spectate: {:?}", ctx.event);
-    });
+    })
+    .forget();
 
     let drpc_thread = drpc.start();
 
