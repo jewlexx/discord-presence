@@ -24,11 +24,11 @@ pub struct Manager {
     outbound: (Rx, Tx),
     inbound: (Rx, Tx),
     handshake_completed: bool,
-    event_handler_registry: HandlerRegistry<'static>,
+    event_handler_registry: Arc<HandlerRegistry>,
 }
 
 impl Manager {
-    pub fn new(client_id: u64, event_handler_registry: HandlerRegistry<'static>) -> Self {
+    pub fn new(client_id: u64, event_handler_registry: Arc<HandlerRegistry>) -> Self {
         let connection = Arc::new(None);
         let (sender_o, receiver_o) = unbounded();
         let (sender_i, receiver_i) = unbounded();
@@ -73,7 +73,8 @@ impl Manager {
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
         self.event_handler_registry
-            .handle(Event::Ready, into_error!(payload.data)?)?;
+            .clone()
+            .handle(Event::Ready, into_error!(payload.data)?);
         trace!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));
@@ -103,7 +104,7 @@ fn send_and_receive_loop(mut manager: Manager) {
                 let mut connection = conn.lock();
                 match send_and_receive(
                     &mut connection,
-                    &mut manager.event_handler_registry,
+                    &manager.event_handler_registry,
                     &mut inbound,
                     &outbound,
                 ) {
@@ -136,7 +137,7 @@ fn send_and_receive_loop(mut manager: Manager) {
 
 fn send_and_receive(
     connection: &mut SocketConnection,
-    event_handler_registry: &mut HandlerRegistry<'_>,
+    event_handler_registry: &Arc<HandlerRegistry>,
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
@@ -159,7 +160,9 @@ fn send_and_receive(
             evt: Some(event), ..
         } => {
             trace!("Got event");
-            event_handler_registry.handle(*event, into_error!(payload.data)?)?;
+            event_handler_registry
+                .clone()
+                .handle(*event, into_error!(payload.data)?);
         }
         _ => {
             trace!("Got message");

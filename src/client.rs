@@ -1,8 +1,11 @@
-use std::sync::atomic::Ordering;
+use std::{
+    mem::forget,
+    sync::{atomic::Ordering, Arc},
+};
 
 use crate::{
     connection::Manager as ConnectionManager,
-    event_handler::{Context as EventContext, HandlerRegistry},
+    event_handler::{Context as EventContext, EventCallbackHandle, HandlerRegistry},
     models::{
         commands::{Subscription, SubscriptionArgs},
         message::Message,
@@ -25,10 +28,11 @@ macro_rules! event_handler_function {
     (@gen $( [ $name:ident, $event:expr ] ), *) => {
         $(
             #[doc = concat!("Listens for the `", stringify!($event), "` event")]
-            pub fn $name<F>(&mut self, handler: F)
-                where F: Fn(EventContext) + 'static + Send + Sync
+            #[must_use = "event listeners will be immediately dropped if the handle is not kept"]
+            pub fn $name<F>(&self, handler: F) -> EventCallbackHandle
+                where F: FnMut(EventContext) + 'static + Send + Sync
             {
-                self.on_event($event, handler);
+                self.on_event($event, handler)
             }
         )*
     }
@@ -38,7 +42,7 @@ macro_rules! event_handler_function {
 #[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
-    event_handler_registry: HandlerRegistry<'static>,
+    event_handler_registry: Arc<HandlerRegistry>,
 }
 
 #[cfg(feature = "bevy")]
@@ -47,7 +51,7 @@ impl bevy::ecs::system::Resource for Client {}
 impl Client {
     /// Creates a new `Client`
     pub fn new(client_id: u64) -> Self {
-        let event_handler_registry = HandlerRegistry::new();
+        let event_handler_registry = Arc::new(HandlerRegistry::new());
         let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
         Self {
             connection_manager,
@@ -66,10 +70,12 @@ impl Client {
 
         crate::STARTED.store(true, Ordering::Relaxed);
 
-        self.on_ready(|_| {
+        let ready = self.on_ready(|_| {
             trace!("Discord client is ready!");
             crate::READY.store(true, Ordering::Relaxed);
         });
+
+        forget(ready);
 
         thread
     }
@@ -149,12 +155,53 @@ impl Client {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
-    /// Register a handler for a given event
-    pub fn on_event<F>(&mut self, event: Event, handler: F)
+    /// Listens for a given event, and returns a handle that unregisters the listener when it is dropped.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use std::{thread::sleep, time::Duration};
+    /// # use discord_presence::Client;
+    /// let mut drpc = Client::new(1003450375732482138);
+    /// let _ready = drpc.on_ready(|_ctx| {
+    ///     println!("READY!");
+    /// });
+    ///
+    /// let drpc_thread = drpc.start();
+    ///
+    /// {
+    ///     let _ready_first_3_seconds = drpc.on_ready(|_ctx| {
+    ///         println!("READY, IN THE FIRST 3 SECONDS!");
+    ///     });
+    ///     sleep(Duration::from_secs(3));
+    /// }
+    ///
+    /// drpc_thread.join().unwrap()
+    /// ```
+    ///
+    /// You can use [`std::mem::forget`] to disable the automatic unregister-on-drop:
+    ///
+    /// ```no_run
+    /// # use discord_presence::Client;
+    /// # let mut drpc = Client::new(1003450375732482138);
+    ///
+    /// {
+    ///     let ready = drpc.on_ready(|_ctx| {
+    ///         println!("READY!");
+    ///     });
+    ///     std::mem::forget(ready);
+    /// }
+    /// // the event listener is still registered
+    ///
+    /// # let drpc_thread = drpc.start();
+    /// # drpc_thread.join().unwrap()
+    /// ```
+    #[must_use = "event listeners will be immediately dropped if the handle is not kept"]
+    pub fn on_event<F>(&self, event: Event, handler: F) -> EventCallbackHandle
     where
-        F: Fn(EventContext) + 'static + Send + Sync,
+        F: FnMut(EventContext) + 'static + Send + Sync,
     {
-        self.event_handler_registry.register(event, handler);
+        self.event_handler_registry.register(event, handler)
     }
 
     /// Block the current thread until the event is fired
@@ -171,7 +218,8 @@ impl Client {
 
         let handler = move |info| tx.send(info).unwrap();
 
-        self.event_handler_registry.register(event, handler);
+        // `handler` is automatically unregistered once this variable drops
+        let _cb_handle = self.on_event(event, handler);
 
         Ok(rx.recv()?)
     }
