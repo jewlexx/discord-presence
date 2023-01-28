@@ -1,9 +1,12 @@
-use crate::{models::Event, Result};
-use parking_lot::RwLock;
-use serde_json::Value as JsonValue;
 use std::{collections::HashMap, sync::Arc};
 
-type Handler<'a> = Box<dyn Fn(Context) + 'a + Send + Sync>;
+use parking_lot::RwLock;
+use serde_json::Value as JsonValue;
+use uuid::Uuid;
+
+use crate::{client::EVENT_HANDLER_REGISTRY, models::Event, Result};
+
+type Handler<'a> = (Box<dyn Fn(Context) + 'a + Send + Sync>, Uuid);
 
 type HandlerList<'a> = Vec<Handler<'a>>;
 
@@ -19,6 +22,17 @@ impl Context {
     }
 }
 
+pub struct EventHandle {
+    pub event: Event,
+    pub uuid: Uuid,
+}
+
+impl Drop for EventHandle {
+    fn drop(&mut self) {
+        EVENT_HANDLER_REGISTRY.unregister(self.uuid).unwrap();
+    }
+}
+
 #[derive(Clone)]
 pub struct HandlerRegistry<'a> {
     handlers: Arc<RwLock<HashMap<Event, HandlerList<'a>>>>,
@@ -31,23 +45,42 @@ impl<'a> HandlerRegistry<'a> {
         }
     }
 
-    pub fn register<F>(&mut self, event: Event, handler: F)
+    pub fn register<F>(&self, event: Event, handler: F) -> Uuid
     where
         F: Fn(Context) + 'a + Send + Sync,
     {
+        let uuid = Uuid::new_v4();
         let mut event_handlers = self.handlers.write();
         let event_handler = event_handlers.entry(event).or_default();
-        event_handler.push(Box::new(handler));
+        event_handler.push((Box::new(handler), uuid));
+
+        uuid
     }
 
-    pub fn handle(&mut self, event: Event, data: JsonValue) -> Result<()> {
+    pub fn handle(&self, event: Event, data: JsonValue) -> Result<()> {
         let handlers = self.handlers.read();
         if let Some(handlers) = handlers.get(&event) {
             let context = Context::new(data);
 
             for handler in handlers {
-                handler(context.clone())
+                handler.0(context.clone())
             }
+        }
+
+        Ok(())
+    }
+
+    pub fn unregister_events(&self, event: Event) -> Result<()> {
+        let mut handlers = self.handlers.write();
+        handlers.remove(&event);
+
+        Ok(())
+    }
+
+    pub fn unregister(&self, uuid: Uuid) -> Result<()> {
+        let mut handlers = self.handlers.write();
+        for (_, handlers) in handlers.iter_mut() {
+            handlers.retain(|handler| handler.1 != uuid);
         }
 
         Ok(())
@@ -60,7 +93,7 @@ mod tests {
 
     #[test]
     fn can_register_event_handlers() {
-        let mut registry = HandlerRegistry::new();
+        let registry = HandlerRegistry::new();
         registry.register(Event::Ready, |_| unimplemented!());
         registry.register(Event::Ready, |_| unimplemented!());
         registry.register(Event::Error, |_| unimplemented!());

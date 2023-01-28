@@ -2,7 +2,7 @@ use std::sync::atomic::Ordering;
 
 use crate::{
     connection::Manager as ConnectionManager,
-    event_handler::{Context as EventContext, HandlerRegistry},
+    event_handler::{Context as EventContext, EventHandle, HandlerRegistry},
     models::{
         commands::{Subscription, SubscriptionArgs},
         message::Message,
@@ -34,11 +34,14 @@ macro_rules! event_handler_function {
     }
 }
 
+lazy_static::lazy_static! {
+    pub static ref EVENT_HANDLER_REGISTRY: HandlerRegistry<'static> = HandlerRegistry::new();
+}
+
 /// The Discord client
 #[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
-    event_handler_registry: HandlerRegistry<'static>,
 }
 
 #[cfg(feature = "bevy")]
@@ -47,12 +50,8 @@ impl bevy::ecs::system::Resource for Client {}
 impl Client {
     /// Creates a new `Client`
     pub fn new(client_id: u64) -> Self {
-        let event_handler_registry = HandlerRegistry::new();
-        let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
-        Self {
-            connection_manager,
-            event_handler_registry,
-        }
+        let connection_manager = ConnectionManager::new(client_id, EVENT_HANDLER_REGISTRY.clone());
+        Self { connection_manager }
     }
 
     /// Start the connection manager
@@ -150,11 +149,13 @@ impl Client {
     }
 
     /// Register a handler for a given event
-    pub fn on_event<F>(&mut self, event: Event, handler: F)
+    pub fn on_event<F>(&mut self, event: Event, handler: F) -> EventHandle
     where
         F: Fn(EventContext) + 'static + Send + Sync,
     {
-        self.event_handler_registry.register(event, handler);
+        let uuid = EVENT_HANDLER_REGISTRY.register(event, handler);
+
+        EventHandle { event, uuid }
     }
 
     /// Block the current thread until the event is fired
@@ -171,7 +172,7 @@ impl Client {
 
         let handler = move |info| tx.send(info).unwrap();
 
-        self.event_handler_registry.register(event, handler);
+        EVENT_HANDLER_REGISTRY.register(event, handler);
 
         Ok(rx.recv()?)
     }

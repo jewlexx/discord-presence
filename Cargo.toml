@@ -23,6 +23,7 @@ implicit-clone = "0.3"
 parking_lot = "0.12"
 strum = { version = "0.24", features = ["derive"] }
 bevy = { version = ">=0.9", optional = true, default-features = false }
+lazy_static = "1.4.0"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
@@ -33,7 +34,7 @@ features = ["derive"]
 
 [dependencies.uuid]
 version = "1.2"
-features = ["v4"]
+features = ["v4", "fast-rng"]
 
 [dev-dependencies]
 ctrlc = "3.2.4"
