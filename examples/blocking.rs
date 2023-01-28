@@ -9,10 +9,7 @@ fn main() {
 
     let drpc_thread = drpc.start();
 
-    println!("blocking");
     drpc.block_until_event(Event::Ready).unwrap();
-
-    println!("done");
 
     // Set the activity
     drpc.set_activity(|act| act.state("rusting frfr"))
