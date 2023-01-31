@@ -24,6 +24,14 @@ pub struct HandlerRegistry<'a> {
     handlers: Arc<RwLock<HashMap<Event, HandlerList<'a>>>>,
 }
 
+impl<'a> std::fmt::Debug for HandlerRegistry<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("HandlerRegistry")
+            .field("handlers", &"Handler Functions HashMap")
+            .finish()
+    }
+}
+
 impl<'a> HandlerRegistry<'a> {
     pub fn new() -> Self {
         Self {

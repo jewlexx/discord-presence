@@ -17,7 +17,7 @@ type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
 
 // TODO: Refactor connection manager
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Manager {
     connection: Arc<Option<Mutex<SocketConnection>>>,
     client_id: u64,

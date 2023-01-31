@@ -1,10 +1,17 @@
-use std::{env, net::Shutdown, ops::RangeInclusive, path::PathBuf, time};
+use std::{
+    env,
+    net::{Shutdown, ToSocketAddrs},
+    ops::RangeInclusive,
+    path::PathBuf,
+    time,
+};
 
 use super::base::Connection;
 use crate::{DiscordError, Result};
 
 use websocket::stream::sync::TcpStream;
 
+#[derive(Debug)]
 pub struct SocketConnection {
     socket: TcpStream,
 }
@@ -19,6 +26,8 @@ impl Connection for SocketConnection {
         let mut tcp_stream = None;
 
         for i in DISCORD_PORT_RANGE {
+            let url = (format!("ws://127.0.0.1/?v=1&client_id={client_id}"), i).to_socket_addrs();
+            dbg!(&url);
             match TcpStream::connect((format!("ws://127.0.0.1/?v=1&client_id={client_id}"), i)) {
                 Ok(v) => tcp_stream = Some(v),
                 Err(_) => continue,
