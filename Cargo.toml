@@ -10,6 +10,7 @@ version = "0.5.15"
 edition = "2018"
 
 [features]
+default = ["ws"]
 ipc = []
 ws = []
 

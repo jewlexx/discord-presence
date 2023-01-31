@@ -19,7 +19,7 @@ impl Connection for SocketConnection {
         let mut tcp_stream = None;
 
         for i in DISCORD_PORT_RANGE {
-            match TcpStream::connect(("ws://127.0.0.1/?v=1&client_id=", i)) {
+            match TcpStream::connect((format!("ws://127.0.0.1/?v=1&client_id={client_id}"), i)) {
                 Ok(v) => tcp_stream = Some(v),
                 Err(_) => continue,
             };
