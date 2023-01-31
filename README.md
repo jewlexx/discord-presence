@@ -23,6 +23,11 @@ or run:
 cargo add discord-presence
 ```
 
+## Features
+
+- **IPC**: Uses native sockets for the Discord connection. May be slightly faster and more reliable, but will not work on certain operating systems and environments
+- **Websocket**: Uses websocket connection rather than native sockets, meaning that it will work on theoretically any device and theoretically any environment
+
 ## Example
 
 ```rust

@@ -9,6 +9,10 @@ repository = "https://github.com/jewlexx/discord-presence.git"
 version = "0.5.15"
 edition = "2018"
 
+[features]
+ipc = []
+ws = []
+
 [dependencies]
 serde_json = "1.0"
 byteorder = "1.4"

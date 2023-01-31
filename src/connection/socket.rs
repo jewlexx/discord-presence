@@ -15,11 +15,11 @@ const DISCORD_PORT_RANGE: RangeInclusive<u16> = 6463..=6472;
 impl Connection for SocketConnection {
     type Socket = TcpStream;
 
-    fn connect() -> Result<Self> {
+    fn connect(client_id: u64) -> Result<Self> {
         let mut tcp_stream = None;
 
         for i in DISCORD_PORT_RANGE {
-            match TcpStream::connect(("127.0.0.1", i)) {
+            match TcpStream::connect(("ws://127.0.0.1/?v=1&client_id=", i)) {
                 Ok(v) => tcp_stream = Some(v),
                 Err(_) => continue,
             };

@@ -36,7 +36,7 @@ pub trait Connection: Sized {
     fn ipc_path() -> PathBuf;
 
     /// Establish a new connection to the server.
-    fn connect() -> Result<Self>;
+    fn connect(client_id: u64) -> Result<Self>;
 
     /// The full socket path.
     fn socket_path(n: u8) -> PathBuf {

@@ -67,7 +67,7 @@ impl Manager {
 
         trace!("Connecting");
 
-        let mut new_connection = SocketConnection::connect()?;
+        let mut new_connection = SocketConnection::connect(self.client_id)?;
 
         trace!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
