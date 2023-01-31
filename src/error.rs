@@ -1,9 +1,10 @@
-use crossbeam_channel::{RecvError, RecvTimeoutError, SendError};
-use serde_json::Error as JsonError;
 use std::{
     io::Error as IoError, result::Result as StdResult,
     sync::mpsc::RecvTimeoutError as ChannelTimeout,
 };
+
+use crossbeam_channel::{RecvError, RecvTimeoutError, SendError};
+use serde_json::Error as JsonError;
 use thiserror::Error as AsError;
 
 use crate::models::Message;
@@ -53,6 +54,11 @@ impl DiscordError {
             Self::IoError(ref err) => err.kind() == std::io::ErrorKind::WouldBlock,
             _ => false,
         }
+    }
+
+    /// Convert a [`DiscordError`] to a [`serde_json::Value`]
+    pub fn into_value(&self) -> serde_json::Value {
+        self.to_string().into()
     }
 }
 

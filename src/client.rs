@@ -65,14 +65,32 @@ impl Client {
     /// If you want to retry, you must call this function again.
     #[must_use]
     pub fn start(&mut self) -> std::thread::JoinHandle<()> {
-        let thread = self.connection_manager.start();
-
         crate::STARTED.store(true, Ordering::Relaxed);
 
-        thread
+        self.connection_manager.start()
     }
 
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
+    where
+        A: Serialize + Send + Sync,
+        E: Serialize + DeserializeOwned + Send + Sync,
+    {
+        match self.execute_inner(cmd, args, evt) {
+            Ok(payload) => Ok(payload),
+            Err(err) => {
+                EVENT_HANDLER_REGISTRY.handle(Event::Error, err.into_value())?;
+
+                Err(err)
+            }
+        }
+    }
+
+    fn execute_inner<A, E>(
+        &mut self,
+        cmd: Command,
+        args: A,
+        evt: Option<Event>,
+    ) -> Result<Payload<E>>
     where
         A: Serialize + Send + Sync,
         E: Serialize + DeserializeOwned + Send + Sync,
