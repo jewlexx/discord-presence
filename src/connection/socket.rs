@@ -1,59 +1,82 @@
-use std::{
-    env,
-    net::{Shutdown, ToSocketAddrs},
-    ops::RangeInclusive,
-    path::PathBuf,
-    time,
-};
+use std::{ops::RangeInclusive, path::PathBuf};
 
 use super::base::Connection;
 use crate::{DiscordError, Result};
 
+use tungstenite::{connect, stream::MaybeTlsStream, WebSocket};
+use url::Url;
 use websocket::stream::sync::TcpStream;
 
 #[derive(Debug)]
+pub struct RWSocketConnection {
+    socket: WebSocket<MaybeTlsStream<TcpStream>>,
+}
+
+impl std::io::Read for RWSocketConnection {
+    fn read(&mut self, mut buf: &mut [u8]) -> std::io::Result<usize> {
+        use std::io::{Error, ErrorKind, Write};
+        match self.socket.read_message() {
+            Ok(v) => {
+                let mut data = v.into_data();
+                buf.write_all(&mut data)?;
+                Ok(data.len())
+            }
+            Err(e) => Err(Error::new(ErrorKind::Other, e.to_string())),
+        }
+    }
+}
+
+impl std::io::Write for RWSocketConnection {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        use std::io::{Error, ErrorKind};
+        match self
+            .socket
+            .write_message(tungstenite::Message::Binary(buf.to_vec()))
+        {
+            Ok(_) => Ok(buf.len()),
+            Err(e) => Err(Error::new(ErrorKind::Other, e.to_string())),
+        }
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
+#[derive(Debug)]
 pub struct SocketConnection {
-    socket: TcpStream,
+    pub socket: RWSocketConnection,
 }
 
 // The TCP port range that discord uses
 const DISCORD_PORT_RANGE: RangeInclusive<u16> = 6463..=6472;
 
 impl Connection for SocketConnection {
-    type Socket = TcpStream;
+    type Socket = RWSocketConnection;
 
     fn connect(client_id: u64) -> Result<Self> {
         let mut tcp_stream = None;
 
         for i in DISCORD_PORT_RANGE {
-            let url = (format!("ws://127.0.0.1/?v=1&client_id={client_id}"), i).to_socket_addrs();
-            dbg!(&url);
-            match TcpStream::connect((format!("ws://127.0.0.1/?v=1&client_id={client_id}"), i)) {
+            let url_raw = format!("ws://127.0.0.1:{i}/?v=1&client_id={client_id}");
+            let url = Url::parse(&url_raw).expect("Invalid url");
+            match connect(url) {
                 Ok(v) => tcp_stream = Some(v),
                 Err(_) => continue,
             };
         }
 
-        if let Some(socket) = tcp_stream {
-            socket.set_nonblocking(true)?;
-            socket.set_write_timeout(Some(time::Duration::from_secs(30)))?;
-            socket.set_read_timeout(Some(time::Duration::from_secs(30)))?;
-
-            Ok(Self { socket })
+        if let Some((socket, _)) = tcp_stream {
+            Ok(Self {
+                socket: RWSocketConnection { socket },
+            })
         } else {
             Err(DiscordError::MissingSocket)
         }
     }
 
     fn ipc_path() -> PathBuf {
-        let tmp = env::var("XDG_RUNTIME_DIR")
-            .or_else(|_| env::var("TMPDIR"))
-            .or_else(|_| match env::temp_dir().to_str() {
-                None => Err("Failed to convert temp_dir"),
-                Some(tmp) => Ok(tmp.to_owned()),
-            })
-            .unwrap_or_else(|_| "/tmp".to_owned());
-        PathBuf::from(tmp)
+        PathBuf::new()
     }
 
     fn socket(&mut self) -> &mut Self::Socket {
@@ -63,7 +86,7 @@ impl Connection for SocketConnection {
 
 impl Drop for SocketConnection {
     fn drop(&mut self) {
-        if self.socket.shutdown(Shutdown::Both).is_err() {
+        if self.socket.socket.close(None).is_err() {
             error!("Failed to properly shut down socket");
         }
     }

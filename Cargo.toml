@@ -29,6 +29,8 @@ websocket = "0.26"
 implicit-clone = "0.3"
 strum = { version = "0.24", features = ["derive"] }
 bevy = { version = ">=0.9", optional = true, default-features = false }
+tungstenite = "0.18.0"
+url = "2.3.1"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
