@@ -7,9 +7,9 @@ use std::{
     thread,
 };
 
-type Handler = dyn FnMut(Context) + Send + Sync;
+type Handler = dyn Fn(Context) + Send + Sync;
 
-type HandlerList = Vec<Arc<RwLock<Handler>>>;
+type HandlerList = Vec<Arc<Handler>>;
 
 #[derive(Debug, Clone)]
 pub struct Context {
@@ -28,14 +28,17 @@ type Handlers = RwLock<HashMap<Event, HandlerList>>;
 pub struct EventCallbackHandle {
     event: Event,
     registry: Weak<HandlerRegistry>,
-    handler: Weak<RwLock<Handler>>,
+    handler: Weak<Handler>,
 }
 
 impl Drop for EventCallbackHandle {
     fn drop(&mut self) {
         // if the registry or this event handler has already been dropped, there's no reason to try and do it again
         if let (Some(registry), Some(handler)) = (self.registry.upgrade(), self.handler.upgrade()) {
-            registry.remove(self.event, &handler);
+            let success = registry.remove(self.event, &handler);
+            if !success {
+                println!("failed to drop");
+            }
         }
     }
 }
@@ -53,9 +56,9 @@ impl HandlerRegistry {
 
     pub fn register<F>(self: &Arc<Self>, event: Event, handler: F) -> EventCallbackHandle
     where
-        F: FnMut(Context) + Send + Sync + 'static,
+        F: Fn(Context) + Send + Sync + 'static,
     {
-        let handler: Arc<RwLock<Handler>> = Arc::new(RwLock::new(handler));
+        let handler: Arc<Handler> = Arc::new(handler);
         let callback_handle = EventCallbackHandle {
             event,
             registry: Arc::downgrade(self),
@@ -77,7 +80,6 @@ impl HandlerRegistry {
 
                 for handler in handlers {
                     let context = context.clone();
-                    let mut handler = handler.write();
                     handler(context);
                 }
             }
@@ -87,9 +89,10 @@ impl HandlerRegistry {
     /// Removes a handler from the registry, if it exists
     ///
     /// Returns `true` if a change was made
-    pub fn remove(self: &Arc<Self>, event: Event, target: &Arc<RwLock<Handler>>) -> bool {
+    pub fn remove(self: &Arc<Self>, event: Event, target: &Arc<Handler>) -> bool {
         let mut handlers = self.handlers.write();
         if let Some(handlers) = handlers.get_mut(&event) {
+            #[allow(clippy::vtable_address_comparisons)]
             if let Some(index) = handlers
                 .iter()
                 .position(|handler| Arc::ptr_eq(handler, target))

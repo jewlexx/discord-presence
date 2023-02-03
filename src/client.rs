@@ -30,7 +30,7 @@ macro_rules! event_handler_function {
             #[doc = concat!("Listens for the `", stringify!($event), "` event")]
             #[must_use = "event listeners will be immediately dropped if the handle is not kept"]
             pub fn $name<F>(&self, handler: F) -> EventCallbackHandle
-                where F: FnMut(EventContext) + 'static + Send + Sync
+                where F: Fn(EventContext) + 'static + Send + Sync
             {
                 self.on_event($event, handler)
             }
@@ -199,7 +199,7 @@ impl Client {
     #[must_use = "event listeners will be immediately dropped if the handle is not kept"]
     pub fn on_event<F>(&self, event: Event, handler: F) -> EventCallbackHandle
     where
-        F: FnMut(EventContext) + 'static + Send + Sync,
+        F: Fn(EventContext) + 'static + Send + Sync,
     {
         self.event_handler_registry.register(event, handler)
     }

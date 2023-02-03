@@ -13,9 +13,9 @@ fn main() {
 
     {
         let ready = client.on_ready({
-            let mut client = client.clone();
-
+            let client = client.clone();
             move |_ctx| {
+                let mut client = client.clone();
                 println!("READY!");
 
                 client
