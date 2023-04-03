@@ -44,24 +44,22 @@ impl Message {
 
     /// Encode message
     pub fn encode(&self) -> Result<Vec<u8>> {
-        let mut bytes: Vec<u8> = vec![];
-
-        bytes.write_u32::<LittleEndian>(self.opcode as u32)?;
-        bytes.write_u32::<LittleEndian>(self.payload.len() as u32)?;
-        bytes.write_all(self.payload.as_bytes())?;
-
-        Ok(bytes)
+        Ok(self.payload.as_bytes().to_vec())
     }
 
     /// Decode message
     pub fn decode(mut bytes: &[u8]) -> Result<Self> {
-        let opcode =
-            OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(DiscordError::Conversion)?;
-        let len = bytes.read_u32::<LittleEndian>()? as usize;
-        let mut payload = String::with_capacity(len);
+        // let opcode =
+        //     OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(DiscordError::Conversion)?;
+        // let len = bytes.read_u32::<LittleEndian>()? as usize;
+        let mut payload = String::new();
         bytes.read_to_string(&mut payload)?;
 
-        Ok(Self { opcode, payload })
+        // Temp Pong
+        Ok(Self {
+            opcode: OpCode::Pong,
+            payload: dbg!(payload),
+        })
     }
 }
 

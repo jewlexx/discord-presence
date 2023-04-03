@@ -55,16 +55,26 @@ impl Connection for SocketConnection {
     type Socket = RWSocketConnection;
 
     fn connect(client_id: u64) -> Result<Self> {
-        let mut tcp_stream = None;
-
-        for i in DISCORD_PORT_RANGE {
-            let url_raw = format!("ws://127.0.0.1:{i}/?v=1&client_id={client_id}");
+        let tcp_stream = if let Ok(port) = std::env::var("DISCORD_PORT") {
+            let url_raw = format!("ws://127.0.0.1:{port}/?v=1&client_id={client_id}");
             let url = Url::parse(&url_raw).expect("Invalid url");
             match connect(url) {
-                Ok(v) => tcp_stream = Some(v),
-                Err(_) => continue,
-            };
-        }
+                Ok(v) => Some(v),
+                Err(_) => None,
+            }
+        } else {
+            let mut valid_tcp = None;
+            // TODO: Try pinging all at once and then only return the one that succeeds
+            for i in DISCORD_PORT_RANGE {
+                let url_raw = format!("ws://127.0.0.1:{i}/?v=1&client_id={client_id}");
+                let url = Url::parse(&url_raw).expect("Invalid url");
+                match connect(url) {
+                    Ok(v) => valid_tcp = Some(v),
+                    Err(_) => continue,
+                };
+            }
+            valid_tcp
+        };
 
         if let Some((socket, _)) = tcp_stream {
             Ok(Self {
