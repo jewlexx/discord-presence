@@ -55,9 +55,9 @@ impl Message {
         let mut payload = String::new();
         bytes.read_to_string(&mut payload)?;
 
-        // Temp Pong
+        // Temp Frame
         Ok(Self {
-            opcode: OpCode::Pong,
+            opcode: OpCode::Frame,
             payload: dbg!(payload),
         })
     }
