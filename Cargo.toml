@@ -17,12 +17,11 @@ crossbeam-channel = "0.5"
 num-derive = "0.3"
 num-traits = "0.2"
 thiserror = "1.0"
-cfg-if = "1.0"
 tracing = "0.1"
-implicit-clone = "0.3"
 parking_lot = "0.12"
 strum = { version = "0.24", features = ["derive"] }
 bevy = { version = ">=0.9", optional = true, default-features = false }
+cfg-if = "1.0.0"
 
 [target.'cfg(windows)'.dependencies]
 named_pipe = "0.4"
