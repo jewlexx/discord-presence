@@ -74,6 +74,16 @@ impl Client {
         thread
     }
 
+    /// Check if the client is ready
+    pub fn is_ready() -> bool {
+        crate::READY.load(Ordering::Acquire)
+    }
+
+    /// Check if the client has started
+    pub fn is_started() -> bool {
+        crate::STARTED.load(Ordering::Acquire)
+    }
+
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
     where
         A: Serialize + Send + Sync,
