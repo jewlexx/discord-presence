@@ -196,3 +196,26 @@ impl Client {
 
     event_handler_function!(on_activity_spectate, Event::ActivitySpectate);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_is_started() {
+        assert!(!Client::is_started());
+
+        crate::STARTED.store(true, Ordering::Relaxed);
+
+        assert!(Client::is_started());
+    }
+
+    #[test]
+    fn test_is_ready() {
+        assert!(!Client::is_ready());
+
+        crate::READY.store(true, Ordering::Relaxed);
+
+        assert!(Client::is_ready());
+    }
+}
