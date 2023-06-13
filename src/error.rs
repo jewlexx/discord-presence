@@ -14,9 +14,9 @@ pub enum DiscordError {
     /// Io Error
     #[error("Io Error")]
     IoError(#[from] IoError),
-    /// Communication Error between presence thread
-    #[error("Communication Error between presence thread")]
-    SendError(#[from] SendError<Message>),
+    /// tx.send returned error
+    #[error("Could not send message: {0}")]
+    SendMessage(#[from] SendError<Message>),
     /// Error Receiving message
     #[error("Error Receiving message")]
     ReceiveError(#[from] RecvError),

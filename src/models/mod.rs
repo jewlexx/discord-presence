@@ -31,7 +31,7 @@ pub enum Command {
 }
 
 /// Discord events
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Copy, Clone, Hash, strum::EnumIter)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Copy, Clone, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Event {
     /// Ready event, fired when the client is ready, but not if an error occurs
