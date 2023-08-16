@@ -9,7 +9,39 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
-## [0.5.10] - Unreleased
+### Added
+
+- Implemented means for stopping client send and receive thread
+
+### Removed
+
+- Removed unused strum dependency
+
+## [0.5.15](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.15) - 2023-07-13
+
+### Added
+
+- Add is_ready and is_started checks
+
+### Removed
+
+- Removed unused deps by
+
+## [0.5.14](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.14) - 2022-12-16
+
+Full Changelog: [`v0.5.13...v0.5.14`](https://github.com/jewlexx/discord-presence/compare/v0.5.13...v0.5.14)
+
+## [0.5.13](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.13) - 2022-12-16
+
+### Changed
+
+- Update Rust crate bytes to 1.3 by @renovate in #31
+
+## [0.5.12](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.12) - 2022-11-07
+
+Full Changelog: [`v0.5.11...v0.5.12`](https://github.com/jewlexx/discord-presence/compare/v0.5.11...v0.5.12)
+
+## [0.5.11](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.11) - 2022-11-07
 
 ### Added
 
