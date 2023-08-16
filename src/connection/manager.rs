@@ -43,10 +43,10 @@ impl Manager {
         }
     }
 
-    pub fn start(&mut self) -> std::thread::JoinHandle<()> {
+    pub fn start(&mut self, rx: Receiver<()>) -> std::thread::JoinHandle<()> {
         let manager_inner = self.clone();
         thread::spawn(move || {
-            send_and_receive_loop(manager_inner);
+            send_and_receive_loop(manager_inner, rx);
         })
     }
 
@@ -89,13 +89,17 @@ impl Manager {
     }
 }
 
-fn send_and_receive_loop(mut manager: Manager) {
+fn send_and_receive_loop(mut manager: Manager, rx: Receiver<()>) {
     trace!("Starting sender loop");
 
     let mut inbound = manager.inbound.1.clone();
     let outbound = manager.outbound.0.clone();
 
     loop {
+        if rx.try_recv().is_ok() {
+            break;
+        }
+
         let connection = manager.connection.clone();
 
         match *connection {
