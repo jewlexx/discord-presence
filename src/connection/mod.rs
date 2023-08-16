@@ -8,8 +8,7 @@ cfg_if::cfg_if! {
     if #[cfg(unix)] {
         mod unix;
         pub use unix::UnixConnection as SocketConnection;
-    }
-    if #[cfg(windows)] {
+    } else if #[cfg(windows)] {
         mod windows;
         pub use windows::WindowsConnection as SocketConnection;
     }
