@@ -1,4 +1,7 @@
-use std::sync::atomic::Ordering;
+use std::{
+    sync::atomic::Ordering,
+    thread::{JoinHandle, Thread},
+};
 
 use crate::{
     connection::Manager as ConnectionManager,
@@ -14,6 +17,7 @@ use crate::{
     },
     DiscordError, Result,
 };
+use crossbeam_channel::Sender;
 use serde::{de::DeserializeOwned, Serialize};
 use serde_json::Value;
 
@@ -34,6 +38,36 @@ macro_rules! event_handler_function {
     }
 }
 
+/// Wrapper around the [`JoinHandle`] returned by [`Client::start`]
+pub struct ClientThread(JoinHandle<()>, Sender<()>);
+
+impl ClientThread {
+    /// Alias of [`JoinHandle::join`]
+    pub fn join(self) -> std::thread::Result<()> {
+        self.0.join()
+    }
+
+    /// Alias of [`JoinHandle::is_finished`]
+    pub fn is_finished(&self) -> bool {
+        self.0.is_finished()
+    }
+
+    /// Alias of [`JoinHandle::thread`]
+    pub fn thread(&self) -> &Thread {
+        self.0.thread()
+    }
+
+    /// Attempt to stop the client's send and receive loop
+    pub fn stop(self) -> Result<()> {
+        // Attempt to send the message to stop the thread
+        self.1.send(())?;
+
+        self.join().map_err(|_| DiscordError::EventLoopError)?;
+
+        Ok(())
+    }
+}
+
 /// The Discord client
 #[derive(Clone)]
 pub struct Client {
@@ -48,9 +82,8 @@ impl Client {
     /// Creates a new `Client`
     pub fn new(client_id: u64) -> Self {
         let event_handler_registry = HandlerRegistry::new();
-        let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
         Self {
-            connection_manager,
+            connection_manager: ConnectionManager::new(client_id, event_handler_registry.clone()),
             event_handler_registry,
         }
     }
@@ -61,8 +94,10 @@ impl Client {
     ///
     /// This must be called before all and any actions such as `set_activity`
     #[must_use]
-    pub fn start(&mut self) -> std::thread::JoinHandle<()> {
-        let thread = self.connection_manager.start();
+    pub fn start(&mut self) -> ClientThread {
+        let (tx, rx) = crossbeam_channel::bounded::<()>(1);
+
+        let thread = self.connection_manager.start(rx);
 
         crate::STARTED.store(true, Ordering::Relaxed);
 
@@ -71,7 +106,7 @@ impl Client {
             crate::READY.store(true, Ordering::Relaxed);
         });
 
-        thread
+        ClientThread(thread, tx)
     }
 
     /// Check if the client is ready

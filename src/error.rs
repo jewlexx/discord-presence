@@ -17,6 +17,9 @@ pub enum DiscordError {
     /// tx.send returned error
     #[error("Could not send message: {0}")]
     SendMessage(#[from] SendError<Message>),
+    /// tx.send returned error
+    #[error("Could not close event loop: {0}")]
+    CloseError(#[from] SendError<()>),
     /// Error Receiving message
     #[error("Error Receiving message")]
     ReceiveError(#[from] RecvError),
@@ -27,7 +30,7 @@ pub enum DiscordError {
     #[error("Error on Channel Timeout")]
     Timeout(#[from] ChannelTimeout),
     /// Receiving timed out
-    #[error("Recieving timed out")]
+    #[error("Receiving timed out")]
     RecvTimeoutError(#[from] RecvTimeoutError),
     /// Option unwrapped to None
     #[error("{0}")]
@@ -44,6 +47,9 @@ pub enum DiscordError {
     /// Connection has not been started
     #[error("Connection has not been started")]
     NotStarted,
+    /// The send & receive loop ran into an error
+    #[error("Event loop ran into an unknown error")]
+    EventLoopError,
 }
 
 impl DiscordError {
