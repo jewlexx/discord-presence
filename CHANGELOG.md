@@ -9,7 +9,7 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
-## Fixed
+### Fixed
 
 - Added back list of events for Bevy crate
 
