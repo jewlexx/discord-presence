@@ -9,6 +9,12 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
+### Fixed
+
+- Added back list of events for Bevy crate
+
+## [0.5.16](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.16) - 2023-08-16
+
 ### Added
 
 - Implemented means for stopping client send and receive thread

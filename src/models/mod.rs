@@ -10,6 +10,8 @@ pub mod payload;
 pub mod rich_presence;
 mod shared;
 
+use quork::traits::list::ListVariants;
+
 /// Different Discord commands
 #[derive(Debug, PartialEq, Eq, Copy, Clone, Deserialize, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -30,8 +32,9 @@ pub enum Command {
     CloseActivityRequest,
 }
 
+// NOTE: ListVariants is required to bevy-discord-rpc
 /// Discord events
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Copy, Clone, Hash)]
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Copy, Clone, Hash, ListVariants)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Event {
     /// Ready event, fired when the client is ready, but not if an error occurs
