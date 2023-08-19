@@ -46,9 +46,10 @@ impl Manager {
     pub fn start(&mut self, rx: Receiver<()>) -> std::thread::JoinHandle<()> {
         let mut manager_inner = self.clone();
         thread::spawn(move || {
+            // TODO: Refactor so that JSON values are consistent across errors
             if let Some(err) = send_and_receive_loop(&mut manager_inner, rx).err() {
                 let value = serde_json::json!({
-                    "error_type": "DiscordError",
+                    "error_type": "RPCLibraryError",
                     "error_message": err.to_string(),
                 });
 
