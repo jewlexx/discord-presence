@@ -1,4 +1,4 @@
-use crate::{models::Event, Result};
+use crate::models::Event;
 use parking_lot::RwLock;
 use serde_json::Value as JsonValue;
 use std::{collections::HashMap, sync::Arc};
@@ -40,7 +40,7 @@ impl<'a> HandlerRegistry<'a> {
         event_handler.push(Box::new(handler));
     }
 
-    pub fn handle(&mut self, event: Event, data: JsonValue) -> Result<()> {
+    pub fn handle(&mut self, event: Event, data: JsonValue) {
         let handlers = self.handlers.read();
         if let Some(handlers) = handlers.get(&event) {
             let context = Context::new(data);
@@ -49,8 +49,6 @@ impl<'a> HandlerRegistry<'a> {
                 handler(context.clone())
             }
         }
-
-        Ok(())
     }
 }
 
