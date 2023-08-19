@@ -214,7 +214,9 @@ impl Client {
     pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
         let (tx, rx) = crossbeam_channel::bounded::<crate::event_handler::Context>(1);
 
-        let handler = move |info| tx.send(info).unwrap();
+        let handler = move |info| {
+            dbg!(tx.send(info).err());
+        };
 
         self.event_handler_registry.register(event, handler);
 

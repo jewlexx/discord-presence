@@ -47,16 +47,7 @@ impl Manager {
         let mut manager_inner = self.clone();
         thread::spawn(move || {
             // TODO: Refactor so that JSON values are consistent across errors
-            if let Some(err) = send_and_receive_loop(&mut manager_inner, rx).err() {
-                let value = serde_json::json!({
-                    "error_type": "RPCLibraryError",
-                    "error_message": err.to_string(),
-                });
-
-                manager_inner
-                    .event_handler_registry
-                    .handle(Event::Error, value);
-            }
+            send_and_receive_loop(&mut manager_inner, rx)
         })
     }
 
@@ -99,7 +90,7 @@ impl Manager {
     }
 }
 
-fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) -> Result<()> {
+fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) {
     trace!("Starting sender loop");
 
     let mut inbound = manager.inbound.1.clone();
@@ -134,20 +125,25 @@ fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) -> Result<()> 
             }
             None => match manager.connect() {
                 Err(err) => {
+                    let value = serde_json::json!({
+                        "error_type": "RPCLibraryError",
+                        "error_message": err.to_string(),
+                    });
+
+                    manager.event_handler_registry.handle(Event::Error, value);
+
                     if !err.io_would_block() {
                         error!("Failed to connect: {:?}", err)
+                    } else {
+                        crate::STARTED.store(false, Ordering::Relaxed);
+
+                        break;
                     }
-
-                    crate::STARTED.store(false, Ordering::Relaxed);
-
-                    return Err(err);
                 }
                 _ => manager.handshake_completed = true,
             },
         }
     }
-
-    Ok(())
 }
 
 fn send_and_receive(

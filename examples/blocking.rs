@@ -1,6 +1,6 @@
 use discord_presence::{Client, Event};
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::TRACE)
         .init();
@@ -25,20 +25,22 @@ fn main() {
 
     let drpc_thread = drpc.start();
 
-    drpc.block_until_event(Event::Ready).unwrap();
+    drpc.block_until_event(Event::Ready)?;
 
     assert!(Client::is_ready());
 
     // Set the activity
-    drpc.set_activity(|act| act.state("rusting frfr"))
-        .expect("Failed to set activity");
+    drpc.set_activity(|act| act.state("rusting frfr"))?;
 
     ctrlc::set_handler(move || {
         println!("Exiting...");
         drpc.clear_activity().unwrap();
         std::process::exit(0);
-    })
-    .unwrap();
+    })?;
 
-    drpc_thread.join().unwrap();
+    if let Some(err) = drpc_thread.join().err() {
+        dbg!(err);
+    }
+
+    Ok(())
 }
