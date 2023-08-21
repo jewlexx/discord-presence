@@ -50,16 +50,22 @@ impl Message {
     /// # Errors
     /// - Failed to write to the buffer
     pub fn encode(&self) -> Result<Vec<u8>> {
+        use std::convert::TryFrom;
         let mut bytes: Vec<u8> = vec![];
 
+        let payload_length = u32::try_from(self.payload.len()).expect("32-bit payload length");
+
         bytes.write_u32::<LittleEndian>(self.opcode as u32)?;
-        bytes.write_u32::<LittleEndian>(self.payload.len() as u32)?;
+        bytes.write_u32::<LittleEndian>(payload_length)?;
         bytes.write_all(self.payload.as_bytes())?;
 
         Ok(bytes)
     }
 
     /// Decode message
+    ///
+    /// # Errors
+    /// - Failed to read from buffer
     pub fn decode(mut bytes: &[u8]) -> Result<Self> {
         let opcode =
             OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(DiscordError::Conversion)?;
