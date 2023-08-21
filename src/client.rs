@@ -66,6 +66,11 @@ impl ClientThread {
 
         Ok(())
     }
+
+    /// "Forgets" client thread, removing the variable, but keeping the client running indefinitely.
+    pub fn persist(self) {
+        std::mem::forget(self);
+    }
 }
 
 /// The Discord client
@@ -88,12 +93,13 @@ impl Client {
         }
     }
 
+    // TODO: Add examples
     /// Start the connection manager
     ///
     /// Only join the thread if there is no other task keeping the program alive.
     ///
     /// This must be called before all and any actions such as `set_activity`
-    #[must_use]
+    #[must_use = "the client will be immediately dropped if the handle is not kept"]
     pub fn start(&mut self) -> ClientThread {
         let (tx, rx) = crossbeam_channel::bounded::<()>(1);
 
