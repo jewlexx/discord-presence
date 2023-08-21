@@ -223,12 +223,18 @@ impl Client {
     /// drpc_thread.join().unwrap()
     /// ```
     ///
-    /// You can use [`std::mem::forget`] to disable the automatic unregister-on-drop:
+    /// You can use `.persist` or [`std::mem::forget`] to disable the automatic unregister-on-drop:
     ///
     /// ```no_run
     /// # use discord_presence::Client;
     /// # let mut drpc = Client::new(1003450375732482138);
     ///
+    /// {
+    ///     let ready = drpc.on_ready(|_ctx| {
+    ///         println!("READY!");
+    ///     }).persist();
+    /// }
+    /// // Or
     /// {
     ///     let ready = drpc.on_ready(|_ctx| {
     ///         println!("READY!");

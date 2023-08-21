@@ -31,6 +31,16 @@ pub struct EventCallbackHandle {
     handler: Weak<Handler>,
 }
 
+impl EventCallbackHandle {
+    /// Immediately drops the event handler, thus removing the handler from the registry.
+    pub fn remove(self) {}
+
+    /// "Forgets" event handler, removing the variable, but keeping the handler in the registry until the registry itself is dropped.
+    pub fn persist(self) {
+        std::mem::forget(self);
+    }
+}
+
 impl Drop for EventCallbackHandle {
     fn drop(&mut self) {
         // if the registry or this event handler has already been dropped, there's no reason to try and do it again
@@ -90,7 +100,8 @@ impl HandlerRegistry {
 
     /// Removes a handler from the registry, if it exists
     ///
-    /// Returns `true` if a change was made
+    /// # Errors
+    /// - Returns an error if no changes were made to the registry. This generally means that the handler has already been removed, and can thus generally be ignored.
     // TODO: Change return type to Result
     pub fn remove(
         self: &Arc<Self>,
