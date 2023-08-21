@@ -50,6 +50,9 @@ pub enum DiscordError {
     /// The send & receive loop ran into an error
     #[error("Event loop ran into an unknown error")]
     EventLoopError,
+    /// No changes were made to the event handler
+    #[error("No changes were made to the event handler. This can usually be ignored")]
+    NoChangesMade,
 }
 
 impl DiscordError {

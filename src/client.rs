@@ -260,7 +260,9 @@ impl Client {
     pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
         let (tx, rx) = crossbeam_channel::bounded::<crate::event_handler::Context>(1);
 
-        let handler = move |info| tx.send(info).unwrap();
+        let handler = move |info| {
+            dbg!(tx.send(info).err());
+        };
 
         // `handler` is automatically unregistered once this variable drops
         let _cb_handle = self.on_event(event, handler);

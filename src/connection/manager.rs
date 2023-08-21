@@ -44,9 +44,10 @@ impl Manager {
     }
 
     pub fn start(&mut self, rx: Receiver<()>) -> std::thread::JoinHandle<()> {
-        let manager_inner = self.clone();
+        let mut manager_inner = self.clone();
         thread::spawn(move || {
-            send_and_receive_loop(manager_inner, rx);
+            // TODO: Refactor so that JSON values are consistent across errors
+            send_and_receive_loop(&mut manager_inner, rx)
         })
     }
 
@@ -72,8 +73,8 @@ impl Manager {
         trace!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
+        // TODO: Ensure it works without clone
         self.event_handler_registry
-            .clone()
             .handle(Event::Ready, into_error!(payload.data)?);
         trace!("Handshake completed");
 
@@ -90,7 +91,7 @@ impl Manager {
     }
 }
 
-fn send_and_receive_loop(mut manager: Manager, rx: Receiver<()>) {
+fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) {
     trace!("Starting sender loop");
 
     let mut inbound = manager.inbound.1.clone();
@@ -125,13 +126,20 @@ fn send_and_receive_loop(mut manager: Manager, rx: Receiver<()>) {
             }
             None => match manager.connect() {
                 Err(err) => {
+                    let value = serde_json::json!({
+                        "error_type": "RPCLibraryError",
+                        "error_message": err.to_string(),
+                    });
+
+                    manager.event_handler_registry.handle(Event::Error, value);
+
                     if !err.io_would_block() {
                         error!("Failed to connect: {:?}", err)
+                    } else {
+                        crate::STARTED.store(false, Ordering::Relaxed);
+
+                        break;
                     }
-
-                    crate::STARTED.store(false, Ordering::Relaxed);
-
-                    break;
                 }
                 _ => manager.handshake_completed = true,
             },
@@ -164,9 +172,8 @@ fn send_and_receive(
             evt: Some(event), ..
         } => {
             trace!("Got event");
-            event_handler_registry
-                .clone()
-                .handle(*event, into_error!(payload.data)?);
+            // TODO: Ensure works without clone
+            event_handler_registry.handle(*event, into_error!(payload.data)?);
         }
         _ => {
             trace!("Got message");

@@ -35,9 +35,9 @@ impl Drop for EventCallbackHandle {
     fn drop(&mut self) {
         // if the registry or this event handler has already been dropped, there's no reason to try and do it again
         if let (Some(registry), Some(handler)) = (self.registry.upgrade(), self.handler.upgrade()) {
-            let success = registry.remove(self.event, &handler);
-            if !success {
-                println!("failed to drop");
+            let handler = registry.remove(self.event, &handler);
+            if handler.is_err() {
+                error!("Failed to remove event handler. This can usually be ignored.");
             }
         }
     }
@@ -72,37 +72,40 @@ impl HandlerRegistry {
         callback_handle
     }
 
-    pub fn handle(self: Arc<Self>, event: Event, data: JsonValue) {
-        thread::spawn(move || {
-            let handlers = self.handlers.read();
-            if let Some(handlers) = handlers.get(&event) {
-                let context = Context::new(data);
+    // TODO: Replace data type with stronger types
+    pub fn handle(&mut self, event: Event, data: JsonValue) {
+        // TODO: Wrap the following in a thread so it doesn't block the send & receive thread
+        let handlers = self.handlers.read();
+        if let Some(handlers) = handlers.get(&event) {
+            let context = Context::new(data);
 
-                for handler in handlers {
-                    let context = context.clone();
-                    handler(context);
-                }
+            for handler in handlers {
+                let context = context.clone();
+                handler(context);
             }
-        });
+        }
     }
 
     /// Removes a handler from the registry, if it exists
     ///
     /// Returns `true` if a change was made
-    pub fn remove(self: &Arc<Self>, event: Event, target: &Arc<Handler>) -> bool {
+    // TODO: Change return type to Result
+    pub fn remove(
+        self: &Arc<Self>,
+        event: Event,
+        target: &Arc<Handler>,
+    ) -> crate::Result<Arc<Handler>> {
         let mut handlers = self.handlers.write();
         if let Some(handlers) = handlers.get_mut(&event) {
-            #[allow(clippy::vtable_address_comparisons)]
             if let Some(index) = handlers
                 .iter()
                 .position(|handler| Arc::ptr_eq(handler, target))
             {
-                _ = handlers.remove(index);
-                return true;
+                return Ok(handlers.remove(index));
             }
         }
 
-        false
+        Err(crate::DiscordError::NoChangesMade)
     }
 }
 
