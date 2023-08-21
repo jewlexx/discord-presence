@@ -73,7 +73,7 @@ impl HandlerRegistry {
     }
 
     // TODO: Replace data type with stronger types
-    pub fn handle(&mut self, event: Event, data: JsonValue) {
+    pub fn handle(&self, event: Event, data: JsonValue) {
         // TODO: Wrap the following in a thread so it doesn't block the send & receive thread
         let handlers = self.handlers.read();
         if let Some(handlers) = handlers.get(&event) {
