@@ -24,6 +24,9 @@ jobs:
       - run: rustup toolchain install stable --profile minimal
       - name: Cache
         uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.os }}
+
       - name: Build
         run: cargo build --verbose
       - name: Run tests
