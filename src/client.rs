@@ -220,6 +220,19 @@ impl Client {
     ///     sleep(Duration::from_secs(3));
     /// }
     ///
+    /// // You can also manually remove the handler
+    ///
+    /// let never_ready = drpc.on_ready(|_ctx| {
+    ///     println!("I will never be ready!");
+    /// });
+    /// never_ready.remove();
+    ///
+    /// // Or via [`std::mem::drop`]
+    /// let never_ready = drpc.on_ready(|_ctx| {
+    ///     println!("I will never be ready!");
+    /// });
+    /// drop(never_ready);
+    ///
     /// drpc_thread.join().unwrap()
     /// ```
     ///
