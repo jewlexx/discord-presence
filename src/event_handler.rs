@@ -74,14 +74,16 @@ impl HandlerRegistry {
 
     // TODO: Replace data type with stronger types
     pub fn handle(&self, event: Event, data: JsonValue) {
-        // TODO: Wrap the following in a thread so it doesn't block the send & receive thread
         let handlers = self.handlers.read();
         if let Some(handlers) = handlers.get(&event) {
             let context = Context::new(data);
 
             for handler in handlers {
+                let handler = handler.clone();
                 let context = context.clone();
-                handler(context);
+                thread::spawn(move || {
+                    handler(context);
+                });
             }
         }
     }
