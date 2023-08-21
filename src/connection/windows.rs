@@ -3,11 +3,11 @@ use crate::Result;
 use named_pipe::PipeClient;
 use std::{path::PathBuf, time};
 
-pub struct WindowsConnection {
+pub struct Socket {
     socket: PipeClient,
 }
 
-impl Connection for WindowsConnection {
+impl Connection for Socket {
     type Socket = PipeClient;
 
     fn connect() -> Result<Self> {

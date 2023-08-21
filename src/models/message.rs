@@ -6,8 +6,8 @@ use serde::Serialize;
 use std::io::{Read, Write};
 
 /// Codes for payload types
-#[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, FromPrimitive)]
+#[repr(u32)]
 pub enum OpCode {
     /// Handshake payload
     Handshake,
@@ -32,6 +32,9 @@ pub struct Message {
 
 impl Message {
     /// Create a new `Message`
+    ///
+    /// # Errors
+    /// - Could not serialize the payload
     pub fn new<T>(opcode: OpCode, payload: T) -> Result<Self>
     where
         T: Serialize,
@@ -43,6 +46,9 @@ impl Message {
     }
 
     /// Encode message
+    ///
+    /// # Errors
+    /// - Failed to write to the buffer
     pub fn encode(&self) -> Result<Vec<u8>> {
         let mut bytes: Vec<u8> = vec![];
 

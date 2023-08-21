@@ -9,6 +9,7 @@ use crate::models::Message;
 
 /// Error types from Discord
 #[derive(Debug, thiserror::Error)]
+#[allow(clippy::module_name_repetitions)]
 pub enum DiscordError {
     #[error("Io Error")]
     /// Io Error
