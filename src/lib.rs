@@ -1,4 +1,10 @@
-#![warn(missing_docs, rust_2018_compatibility, rust_2018_idioms, clippy::all)]
+#![warn(
+    missing_docs,
+    rust_2018_compatibility,
+    rust_2018_idioms,
+    clippy::all,
+    clippy::pedantic
+)]
 #![forbid(unsafe_code)]
 
 //! A Rust library that allows the developer to interact with the Discord Presence API with ease

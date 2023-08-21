@@ -44,6 +44,7 @@ pub struct SendActivityJoinInviteArgs {
 pub type CloseActivityRequestArgs = SendActivityJoinInviteArgs;
 
 impl SendActivityJoinInviteArgs {
+    #[must_use]
     /// Create a new `SendActivityJoinInviteArgs`
     pub fn new(user_id: u64) -> Self {
         Self {

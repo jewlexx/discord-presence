@@ -3,9 +3,9 @@ name: Rust
 on:
   push:
     branches: [trunk]
-    
+
   pull_request:
-  
+
   workflow_dispatch:
 
 env:
@@ -13,18 +13,18 @@ env:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/checkout@v3
-    - name: Cache
-      uses: actions/cache@v3.3.1
-      with:
-        path: ./target
-        key: rust-build
-    - name: Build
-      run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+      - uses: actions/checkout@v3
+      - run: rustup toolchain install stable --profile minimal
+      - name: Cache
+        uses: Swatinem/rust-cache@v2
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose

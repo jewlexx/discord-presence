@@ -39,25 +39,37 @@ macro_rules! event_handler_function {
 }
 
 /// Wrapper around the [`JoinHandle`] returned by [`Client::start`]
+#[allow(clippy::module_name_repetitions)]
 pub struct ClientThread(JoinHandle<()>, Sender<()>);
 
 impl ClientThread {
-    /// Alias of [`JoinHandle::join`]
+    // Ignore missing error docs because it's an alias of `join`
+    #[allow(clippy::missing_errors_doc)]
+    /// Alias of [`JoinHandle::join()`]
     pub fn join(self) -> std::thread::Result<()> {
         self.0.join()
     }
 
+    // Ignore missing error docs because it's an alias of `is_finished`
+    #[allow(clippy::missing_errors_doc)]
+    #[must_use]
     /// Alias of [`JoinHandle::is_finished`]
     pub fn is_finished(&self) -> bool {
         self.0.is_finished()
     }
-
+    // Ignore missing error docs because it's an alias of `thread`
+    #[allow(clippy::missing_errors_doc)]
+    #[must_use]
     /// Alias of [`JoinHandle::thread`]
     pub fn thread(&self) -> &Thread {
         self.0.thread()
     }
 
     /// Attempt to stop the client's send and receive loop
+    ///
+    /// # Errors
+    /// - Failed to send stop message (maybe it has already stopped?)
+    /// - The event loop had its own error
     pub fn stop(self) -> Result<()> {
         // Attempt to send the message to stop the thread
         self.1.send(())?;
@@ -85,6 +97,7 @@ impl bevy::ecs::system::Resource for Client {}
 
 impl Client {
     /// Creates a new `Client`
+    #[must_use]
     pub fn new(client_id: u64) -> Self {
         let event_handler_registry = HandlerRegistry::new();
         Self {
@@ -151,6 +164,9 @@ impl Client {
     }
 
     /// Set the users current activity
+    ///
+    /// # Errors
+    /// - See [`DiscordError`] for more info
     pub fn set_activity<F>(&mut self, f: F) -> Result<Payload<Activity>>
     where
         F: FnOnce(Activity) -> Activity,
@@ -159,6 +175,9 @@ impl Client {
     }
 
     /// Clear the users current activity
+    ///
+    /// # Errors
+    /// - See [`DiscordError`] for more info
     pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
         self.execute(Command::SetActivity, SetActivityArgs::default(), None)
     }
@@ -167,6 +186,9 @@ impl Client {
     //       SEND_ACTIVITY_JOIN_INVITE and CLOSE_ACTIVITY_REQUEST are,
     //       they are not documented.
     /// Send an invite to a user to join a game
+    ///
+    /// # Errors
+    /// - See [`DiscordError`] for more info
     pub fn send_activity_join_invite(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::SendActivityJoinInvite,
@@ -176,6 +198,9 @@ impl Client {
     }
 
     /// Close request to join a game
+    ///
+    /// # Errors
+    /// - See [`DiscordError`] for more info
     pub fn close_activity_request(&mut self, user_id: u64) -> Result<Payload<Value>> {
         self.execute(
             Command::CloseActivityRequest,
@@ -185,6 +210,9 @@ impl Client {
     }
 
     /// Subscribe to a given event
+    ///
+    /// # Errors
+    /// - See [`DiscordError`] for more info
     pub fn subscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
     where
         F: FnOnce(SubscriptionArgs) -> SubscriptionArgs,
@@ -193,6 +221,9 @@ impl Client {
     }
 
     /// Unsubscribe from a given event
+    ///
+    /// # Errors
+    /// - See [`DiscordError`] for more info
     pub fn unsubscribe<F>(&mut self, evt: Event, f: F) -> Result<Payload<Subscription>>
     where
         F: FnOnce(SubscriptionArgs) -> SubscriptionArgs,
@@ -214,14 +245,18 @@ impl Client {
     ///
     /// NOTE: Please only use this for the ready event, or if you know what you are doing.
     ///
-    /// # Panics
+    /// # Errors
+    /// - Channel disconnected
     ///
-    /// Panics if the channel is disconnected for whatever reason.
+    /// # Panics
+    /// - Panics if the channel is disconnected for whatever reason.
     pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
         let (tx, rx) = crossbeam_channel::bounded::<crate::event_handler::Context>(1);
 
         let handler = move |info| {
-            dbg!(tx.send(info).err());
+            if let Err(e) = tx.send(info) {
+                error!("{e}");
+            }
         };
 
         self.event_handler_registry.register(event, handler);

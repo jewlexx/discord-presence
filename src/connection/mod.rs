@@ -7,9 +7,9 @@ pub use manager::Manager;
 cfg_if::cfg_if! {
     if #[cfg(unix)] {
         mod unix;
-        pub use unix::UnixConnection as SocketConnection;
+        pub use unix::Socket;
     } else if #[cfg(windows)] {
         mod windows;
-        pub use windows::WindowsConnection as SocketConnection;
+        pub use windows::Socket;
     }
 }

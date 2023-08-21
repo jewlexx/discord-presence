@@ -47,7 +47,7 @@ impl<'a> HandlerRegistry<'a> {
             let context = Context::new(data);
 
             for handler in handlers {
-                handler(context.clone())
+                handler(context.clone());
             }
         }
     }
