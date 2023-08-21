@@ -30,7 +30,6 @@ macro_rules! event_handler_function {
     (@gen $( [ $name:ident, $event:expr ] ), *) => {
         $(
             #[doc = concat!("Listens for the `", stringify!($event), "` event")]
-            #[must_use = "event listeners will be immediately dropped if the handle is not kept"]
             pub fn $name<F>(&self, handler: F) -> EventCallbackHandle
                 where F: Fn(EventContext) + 'static + Send + Sync
             {
@@ -259,7 +258,6 @@ impl Client {
     /// # let drpc_thread = drpc.start();
     /// # drpc_thread.join().unwrap()
     /// ```
-    #[must_use = "event listeners will be immediately dropped if the handle is not kept"]
     pub fn on_event<F>(&self, event: Event, handler: F) -> EventCallbackHandle
     where
         F: Fn(EventContext) + 'static + Send + Sync,

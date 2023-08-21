@@ -25,6 +25,7 @@ impl Context {
 
 type Handlers = RwLock<HashMap<Event, HandlerList>>;
 
+#[must_use = "event listeners will be immediately dropped if the handle is not kept"]
 pub struct EventCallbackHandle {
     event: Event,
     registry: Weak<HandlerRegistry>,
