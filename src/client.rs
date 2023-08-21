@@ -42,16 +42,23 @@ macro_rules! event_handler_function {
 pub struct ClientThread(JoinHandle<()>, Sender<()>);
 
 impl ClientThread {
-    /// Alias of [`JoinHandle::join`]
+    // Ignore missing error docs because it's an alias of `join`
+    #[allow(clippy::missing_errors_doc)]
+    /// Alias of [`JoinHandle::join()`]
     pub fn join(self) -> std::thread::Result<()> {
         self.0.join()
     }
 
+    // Ignore missing error docs because it's an alias of `is_finished`
+    #[allow(clippy::missing_errors_doc)]
+    #[must_use]
     /// Alias of [`JoinHandle::is_finished`]
     pub fn is_finished(&self) -> bool {
         self.0.is_finished()
     }
-
+    // Ignore missing error docs because it's an alias of `thread`
+    #[allow(clippy::missing_errors_doc)]
+    #[must_use]
     /// Alias of [`JoinHandle::thread`]
     pub fn thread(&self) -> &Thread {
         self.0.thread()
