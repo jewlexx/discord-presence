@@ -19,7 +19,6 @@ num-traits = "0.2"
 thiserror = "1.0"
 tracing = "0.1"
 parking_lot = "0.12"
-bevy = { version = ">=0.9", optional = true, default-features = false }
 cfg-if = "1.0.0"
 quork = { version = "0.4.0", default-features = false, features = ["traits", "macros"] }
 
