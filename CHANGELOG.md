@@ -14,6 +14,8 @@ I will add links where possible, including retroactively if possible.
 ### Breaking Changes
 
 - Send & Receive Loop now breaks for `ConnectionRefused` error kind, rather than `WouldBlock`
+- Removed client thread handle (now is kept internally on the Client struct)
+- Removed `STARTED` boolean. (Pretty much pointless as it is only different between when the client has been started, but is not yet ready)
 
 ### Fixed
 
