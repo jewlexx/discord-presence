@@ -32,8 +32,11 @@ fn main() {
     assert!(Client::is_ready());
 
     // Set the activity
-    drpc.set_activity(|act| act.state("rusting frfr"))
-        .expect("Failed to set activity");
+    drpc.set_activity(|act| {
+        act.state("rusting frfr")
+            .buttons(|b| b.label("Click Me!").url("https://google.com"))
+    })
+    .expect("Failed to set activity");
 
     ctrlc::set_handler(move || {
         println!("Exiting...");

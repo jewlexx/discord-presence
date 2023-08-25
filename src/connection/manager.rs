@@ -116,7 +116,7 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
                     Err(DiscordError::IoError(_) | DiscordError::ConnectionClosed) => {
                         manager.disconnect();
                     }
-                    Err(DiscordError::RecvTimeoutError(_)) => continue,
+                    Err(DiscordError::TimeoutError(_)) => continue,
                     Err(why) => trace!("discord error: {}", why),
                     _ => {}
                 }
