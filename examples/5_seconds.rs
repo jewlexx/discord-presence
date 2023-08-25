@@ -25,7 +25,7 @@ fn main() {
         println!("Spectate: {:?}", ctx.event);
     });
 
-    let drpc_thread = drpc.start();
+    drpc.start();
 
     drpc.block_until_event(Event::Ready).unwrap();
 
@@ -38,14 +38,14 @@ fn main() {
     })
     .expect("Failed to set activity");
 
-    ctrlc::set_handler(move || {
-        println!("Exiting...");
-        drpc.clear_activity().unwrap();
-        std::process::exit(0);
-    })
-    .unwrap();
+    // ctrlc::set_handler(move || {
+    //     println!("Exiting...");
+    //     drpc.clear_activity().unwrap();
+    //     std::process::exit(0);
+    // })
+    // .unwrap();
 
     thread::sleep(Duration::from_secs(5));
 
-    drpc_thread.join().unwrap();
+    drpc.block_on().unwrap();
 }

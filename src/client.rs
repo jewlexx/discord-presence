@@ -145,6 +145,27 @@ impl Client {
         }
     }
 
+    /// Block indefinitely until the client shuts down
+    ///
+    /// This is nearly the same as [`Client::shutdown()`],
+    /// except that it does not attempt to stop the internal thread,
+    /// and rather waits for it to finish, which could never happen.
+    ///
+    /// # Errors
+    /// - The internal connection thread ran into an error
+    /// - The client was not started, or has already been shutdown
+    pub fn block_on(self) -> Result<()> {
+        let Self { thread, .. } = self;
+
+        if let Some(thread) = thread {
+            thread.join().map_err(|_| DiscordError::ThreadError)?;
+
+            Ok(())
+        } else {
+            Err(DiscordError::NotStarted)
+        }
+    }
+
     /// Check if the client is ready
     pub fn is_ready() -> bool {
         crate::READY.load(Ordering::Acquire)

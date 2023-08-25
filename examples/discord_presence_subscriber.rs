@@ -28,5 +28,5 @@ fn main() {
         println!("Failed to set presence: {}", why);
     }
 
-    drpc_thread.join().unwrap()
+    drpc.block_on().unwrap();
 }

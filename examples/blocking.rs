@@ -23,7 +23,7 @@ fn main() -> anyhow::Result<()> {
         println!("Spectate: {:?}", ctx.event);
     });
 
-    let drpc_thread = drpc.start();
+    drpc.start();
 
     drpc.block_until_event(Event::Ready)?;
 
@@ -32,15 +32,14 @@ fn main() -> anyhow::Result<()> {
     // Set the activity
     drpc.set_activity(|act| act.state("rusting frfr"))?;
 
-    ctrlc::set_handler(move || {
-        println!("Exiting...");
-        drpc.clear_activity().unwrap();
-        std::process::exit(0);
-    })?;
+    // TODO: Implement "remote" shutdown
+    // ctrlc::set_handler(move || {
+    //     println!("Exiting...");
+    //     drpc.clear_activity().unwrap();
+    //     std::process::exit(0);
+    // })?;
 
-    if let Some(err) = drpc_thread.join().err() {
-        dbg!(err);
-    }
+    drpc.block_on()?;
 
     Ok(())
 }
