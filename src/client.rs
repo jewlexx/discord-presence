@@ -136,6 +136,7 @@ impl Client {
         let Self { thread, .. } = self;
 
         if let Some(thread) = thread {
+            thread.1.send(())?;
             thread.join().map_err(|_| DiscordError::ThreadError)?;
 
             Ok(())
