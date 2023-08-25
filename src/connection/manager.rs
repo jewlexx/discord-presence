@@ -133,8 +133,6 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
                     manager.event_handler_registry.handle(Event::Error, value);
 
                     if err.io_would_block() {
-                        crate::STARTED.store(false, Ordering::Relaxed);
-
                         break;
                     }
                     error!("Failed to connect: {:?}", err);

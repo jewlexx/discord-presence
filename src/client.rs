@@ -86,10 +86,10 @@ impl ClientThread {
 }
 
 /// The Discord client
-#[derive(Clone)]
 pub struct Client {
     connection_manager: ConnectionManager,
     event_handler_registry: HandlerRegistry<'static>,
+    thread: Option<ClientThread>,
 }
 
 #[cfg(feature = "bevy")]
@@ -103,6 +103,7 @@ impl Client {
         Self {
             connection_manager: ConnectionManager::new(client_id, event_handler_registry.clone()),
             event_handler_registry,
+            thread: None,
         }
     }
 
@@ -112,20 +113,35 @@ impl Client {
     /// Only join the thread if there is no other task keeping the program alive.
     ///
     /// This must be called before all and any actions such as `set_activity`
-    #[must_use = "the client will be immediately dropped if the handle is not kept"]
-    pub fn start(&mut self) -> ClientThread {
+    pub fn start(&mut self) {
         let (tx, rx) = crossbeam_channel::bounded::<()>(1);
 
         let thread = self.connection_manager.start(rx);
-
-        crate::STARTED.store(true, Ordering::Relaxed);
 
         self.on_ready(|_| {
             trace!("Discord client is ready!");
             crate::READY.store(true, Ordering::Relaxed);
         });
 
-        ClientThread(thread, tx)
+        self.thread = Some(ClientThread(thread, tx));
+    }
+
+    /// Shutdown the client and its thread
+    ///
+    /// # Errors
+    /// - The internal connection thread ran into an error
+    /// - The client was not started, or has already been shutdown
+    pub fn shutdown(self) -> Result<()> {
+        crate::READY.store(false, Ordering::Relaxed);
+        let Self { thread, .. } = self;
+
+        if let Some(thread) = thread {
+            thread.join().map_err(|_| DiscordError::ThreadError)?;
+
+            Ok(())
+        } else {
+            Err(DiscordError::NotStarted)
+        }
     }
 
     /// Check if the client is ready
@@ -133,17 +149,12 @@ impl Client {
         crate::READY.load(Ordering::Acquire)
     }
 
-    /// Check if the client has started
-    pub fn is_started() -> bool {
-        crate::STARTED.load(Ordering::Acquire)
-    }
-
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
     where
         A: Serialize + Send + Sync,
         E: Serialize + DeserializeOwned + Send + Sync,
     {
-        if !crate::STARTED.load(Ordering::Relaxed) || !crate::READY.load(Ordering::Relaxed) {
+        if !crate::READY.load(Ordering::Relaxed) {
             return Err(DiscordError::NotStarted);
         }
 
@@ -278,15 +289,6 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn test_is_started() {
-        assert!(!Client::is_started());
-
-        crate::STARTED.store(true, Ordering::Relaxed);
-
-        assert!(Client::is_started());
-    }
 
     #[test]
     fn test_is_ready() {

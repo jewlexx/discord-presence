@@ -32,6 +32,9 @@ pub enum DiscordError {
     #[error("Receiving timed out")]
     /// Receiving timed out
     RecvTimeoutError(#[from] RecvTimeoutError),
+    #[error("A thread ran into an error. See logs for more info.")]
+    /// A thread ran into an error
+    ThreadError,
     #[error("{0}")]
     /// Option unwrapped to None
     NoneError(String),
