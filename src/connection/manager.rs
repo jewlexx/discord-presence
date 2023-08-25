@@ -132,7 +132,7 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
 
                     manager.event_handler_registry.handle(Event::Error, value);
 
-                    if err.io_would_block() {
+                    if err.should_break() {
                         crate::STARTED.store(false, Ordering::Relaxed);
 
                         break;

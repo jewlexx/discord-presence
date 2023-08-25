@@ -9,6 +9,12 @@ I will add links where possible, including retroactively if possible.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
+## [0.6.0]
+
+### Breaking Changes
+
+- Send & Receive Loop now breaks for `ConnectionRefused` error kind, rather than `WouldBlock`
+
 ### Fixed
 
 - Added back list of events for Bevy crate
