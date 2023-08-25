@@ -1,8 +1,9 @@
-use crossbeam_channel::{RecvError, RecvTimeoutError, SendError};
+use crossbeam_channel::{RecvTimeoutError, SendError};
 use serde_json::Error as JsonError;
 use std::{
-    io::Error as IoError, result::Result as StdResult,
-    sync::mpsc::RecvTimeoutError as ChannelTimeout,
+    io::Error as IoError,
+    result::Result as StdResult,
+    sync::mpsc::{RecvError as ChannelRecv, RecvTimeoutError as ChannelTimeout},
 };
 
 use crate::models::Message;
@@ -22,16 +23,19 @@ pub enum DiscordError {
     CloseError(#[from] SendError<()>),
     #[error("Error Receiving message")]
     /// Error Receiving message
-    ReceiveError(#[from] RecvError),
+    ReceiveError(#[from] crossbeam_channel::RecvError),
+    #[error("Error Receiving message")]
+    /// Error Receiving message
+    MPSCReceiveError(#[from] ChannelRecv),
+    #[error("Error on Channel Timeout")]
+    /// Timeout Error
+    MPSCTimeout(#[from] ChannelTimeout),
+    #[error("Receiving timed out")]
+    /// Receiving timed out
+    TimeoutError(#[from] RecvTimeoutError),
     #[error("Error parsing Json")]
     /// Json Error
     JsonError(#[from] JsonError),
-    #[error("Error on Channel Timeout")]
-    /// Timeout Error
-    Timeout(#[from] ChannelTimeout),
-    #[error("Receiving timed out")]
-    /// Receiving timed out
-    RecvTimeoutError(#[from] RecvTimeoutError),
     #[error("{0}")]
     /// Option unwrapped to None
     NoneError(String),
