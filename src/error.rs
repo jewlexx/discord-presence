@@ -68,6 +68,15 @@ impl DiscordError {
             _ => false,
         }
     }
+
+    #[must_use]
+    /// Checks if the error should break the connection
+    pub fn should_break(&self) -> bool {
+        match self {
+            Self::IoError(ref err) => err.kind() == std::io::ErrorKind::ConnectionRefused,
+            _ => false,
+        }
+    }
 }
 
 /// Result type for Discord RPC error types
