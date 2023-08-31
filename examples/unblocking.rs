@@ -9,6 +9,8 @@ fn main() {
 
     client.start();
 
+    tracing::error!("Due to the way unblocking activity setting works, this example does not seem to work currently (at least on Windows).");
+
     client
         .set_activity(|a| {
             a.state("Rust")
