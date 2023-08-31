@@ -17,6 +17,11 @@ I will add links where possible, including retroactively if possible.
 - Removed client thread handle (now is kept internally on the Client struct)
 - Removed `STARTED` boolean. (Pretty much pointless as it is only different between when the client has been started, but is not yet ready)
 - Increase connection timeout on Windows to 16 seconds
+- `on_event` now returns an EventCallbackHandle, which, if dropped, removes the event handler
+
+### Added
+
+- Ability to remove event handlers [#40](https://github.com/jewlexx/discord-presence/issues/40)
 
 ### Fixed
 
