@@ -20,6 +20,12 @@ I will add links where possible, including retroactively if possible.
 
 ### Fixed
 
+- Ready event called every single connection in send & receive loop
+
+## [0.5.17](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.17) - 2023-08-16
+
+### Fixed
+
 - Added back list of events for Bevy crate
 
 ## [0.5.16](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.16) - 2023-08-16
