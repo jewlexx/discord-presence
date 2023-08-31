@@ -141,16 +141,8 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
 }
 
 fn send_and_receive(
-<<<<<<< HEAD
-    connection: &mut SocketConnection,
-    event_handler_registry: &Arc<HandlerRegistry>,
-||||||| 4e172c8
-    connection: &mut SocketConnection,
-    event_handler_registry: &mut HandlerRegistry<'_>,
-=======
     connection: &mut Socket,
-    event_handler_registry: &mut HandlerRegistry<'_>,
->>>>>>> v0.6
+    event_handler_registry: &Arc<HandlerRegistry>,
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
@@ -168,32 +160,6 @@ fn send_and_receive(
 
     trace!("Received payload");
 
-<<<<<<< HEAD
-    match &payload {
-        Payload {
-            evt: Some(event), ..
-        } => {
-            trace!("Got event");
-            // TODO: Ensure works without clone
-            event_handler_registry.handle(*event, into_error!(payload.data)?);
-        }
-        _ => {
-            trace!("Got message");
-            inbound.send(msg)?;
-        }
-||||||| 4e172c8
-    match &payload {
-        Payload {
-            evt: Some(event), ..
-        } => {
-            trace!("Got event");
-            event_handler_registry.handle(*event, into_error!(payload.data)?);
-        }
-        _ => {
-            trace!("Got message");
-            inbound.send(msg)?;
-        }
-=======
     if let Payload {
         evt: Some(event), ..
     } = &payload
@@ -203,7 +169,6 @@ fn send_and_receive(
     } else {
         trace!("Got message");
         inbound.send(msg)?;
->>>>>>> v0.6
     }
 
     Ok(())
