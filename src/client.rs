@@ -86,11 +86,12 @@ impl ClientThread {
     }
 }
 
+#[derive(Clone)]
 /// The Discord client
 pub struct Client {
     connection_manager: ConnectionManager,
     event_handler_registry: Arc<HandlerRegistry>,
-    thread: Option<ClientThread>,
+    thread: Option<Arc<ClientThread>>,
 }
 
 #[cfg(feature = "bevy")]
@@ -127,7 +128,7 @@ impl Client {
         });
 
         forget(ready);
-        self.thread = Some(ClientThread(thread, tx));
+        self.thread = Some(Arc::new(ClientThread(thread, tx)));
     }
 
     /// Shutdown the client and its thread
@@ -141,7 +142,11 @@ impl Client {
 
         if let Some(thread) = thread {
             thread.1.send(())?;
-            thread.join().map_err(|_| DiscordError::ThreadError)?;
+            // If into_inner succeeds, await the thread completing.
+            // Otherwise, the thread will be dropped and shut down anyway
+            if let Some(thread) = Arc::into_inner(thread) {
+                thread.join().map_err(|_| DiscordError::ThreadError)?;
+            }
 
             Ok(())
         } else {
@@ -162,7 +167,11 @@ impl Client {
         let Self { thread, .. } = self;
 
         if let Some(thread) = thread {
-            thread.join().map_err(|_| DiscordError::ThreadError)?;
+            // If into_inner succeeds, await the thread completing.
+            // Otherwise, the thread will be dropped and shut down anyway
+            if let Some(thread) = Arc::into_inner(thread) {
+                thread.join().map_err(|_| DiscordError::ThreadError)?;
+            }
 
             Ok(())
         } else {

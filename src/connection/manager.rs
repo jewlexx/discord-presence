@@ -69,9 +69,14 @@ impl Manager {
         trace!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
+
         // TODO: Ensure it works without clone
-        self.event_handler_registry
-            .handle(Event::Ready, into_error!(payload.data)?);
+        // Only handle the ready event if the client was not already ready
+        if !crate::READY.load(std::sync::atomic::Ordering::Relaxed) {
+            self.event_handler_registry
+                .handle(Event::Ready, into_error!(payload.data)?);
+        }
+
         trace!("Handshake completed");
 
         self.connection = Arc::new(Some(Mutex::new(new_connection)));

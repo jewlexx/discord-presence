@@ -11,6 +11,7 @@ fn main() {
 
     client.start();
 
+    tracing::error!("Due to the way unblocking activity setting works, this example does not seem to work currently (at least on Windows).");
     {
         let ready = client.on_ready({
             let client = client.clone();

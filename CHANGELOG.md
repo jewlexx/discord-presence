@@ -16,6 +16,13 @@ I will add links where possible, including retroactively if possible.
 - Send & Receive Loop now breaks for `ConnectionRefused` error kind, rather than `WouldBlock`
 - Removed client thread handle (now is kept internally on the Client struct)
 - Removed `STARTED` boolean. (Pretty much pointless as it is only different between when the client has been started, but is not yet ready)
+- Increase connection timeout on Windows to 16 seconds
+
+### Fixed
+
+- Ready event called every single connection in send & receive loop
+
+## [0.5.17](https://github.com/jewlexx/discord-presence/releases/tag/v0.5.17) - 2023-08-16
 
 ### Fixed
 
