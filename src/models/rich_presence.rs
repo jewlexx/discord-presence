@@ -171,6 +171,7 @@ mod tests {
                     .small_image("rusting")
                     .small_text("Rusting...")
             })
+            .append_buttons(|button| button.label("Click Me!"))
             .party(|p| p.id(String::from("party")).size((3, 6)))
             .secrets(|s| {
                 s.join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
