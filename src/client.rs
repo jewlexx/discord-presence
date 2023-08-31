@@ -121,8 +121,6 @@ impl Client {
 
         let thread = self.connection_manager.start(rx);
 
-        crate::STARTED.store(true, Ordering::Relaxed);
-
         let ready = self.on_ready(|_| {
             trace!("Discord client is ready!");
             crate::READY.store(true, Ordering::Relaxed);
