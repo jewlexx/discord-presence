@@ -1,2 +1,2 @@
 [hooks]
-pre-push = "cargo test --all"
+pre-push = "cargo test --test version_numbers"

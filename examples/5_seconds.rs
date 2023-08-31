@@ -29,24 +29,27 @@ fn main() {
     })
     .persist();
 
-    let drpc_thread = drpc.start();
+    drpc.start();
 
     drpc.block_until_event(Event::Ready).unwrap();
 
     assert!(Client::is_ready());
 
     // Set the activity
-    drpc.set_activity(|act| act.state("rusting frfr"))
-        .expect("Failed to set activity");
-
-    ctrlc::set_handler(move || {
-        println!("Exiting...");
-        drpc.clear_activity().unwrap();
-        std::process::exit(0);
+    drpc.set_activity(|act| {
+        act.state("rusting frfr")
+            .buttons(|b| b.label("Click Me!").url("https://google.com"))
     })
-    .unwrap();
+    .expect("Failed to set activity");
+
+    // ctrlc::set_handler(move || {
+    //     println!("Exiting...");
+    //     drpc.clear_activity().unwrap();
+    //     std::process::exit(0);
+    // })
+    // .unwrap();
 
     thread::sleep(Duration::from_secs(5));
 
-    drpc_thread.join().unwrap();
+    drpc.block_on().unwrap();
 }

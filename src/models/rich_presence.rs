@@ -44,6 +44,7 @@ pub struct SendActivityJoinInviteArgs {
 pub type CloseActivityRequestArgs = SendActivityJoinInviteArgs;
 
 impl SendActivityJoinInviteArgs {
+    #[must_use]
     /// Create a new `SendActivityJoinInviteArgs`
     pub fn new(user_id: u64) -> Self {
         Self {
@@ -72,6 +73,8 @@ builder! {Activity
     assets: ActivityAssets func,
     party: ActivityParty func,
     secrets: ActivitySecrets func,
+    // Currently just one button
+    buttons: ActivityButton func,
 }
 
 builder! {ActivityTimestamps
@@ -95,6 +98,15 @@ builder! {ActivitySecrets
     join: String,
     spectate: String,
     game: String alias = "match",
+}
+
+// pub type ActivityButtons = Vec<ActivityButton>;
+
+builder! {ActivityButton
+    // Text shown on the button (1-32 characters)
+    label: String,
+    // URL opened when clicking the button (1-512 characters)
+    url: String,
 }
 
 #[cfg(test)]

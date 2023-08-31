@@ -2,11 +2,11 @@ use super::base::Connection;
 use crate::Result;
 use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf, time};
 
-pub struct UnixConnection {
+pub struct Socket {
     socket: UnixStream,
 }
 
-impl Connection for UnixConnection {
+impl Connection for Socket {
     type Socket = UnixStream;
 
     fn connect() -> Result<Self> {
@@ -34,7 +34,7 @@ impl Connection for UnixConnection {
     }
 }
 
-impl Drop for UnixConnection {
+impl Drop for Socket {
     fn drop(&mut self) {
         if self.socket.shutdown(Shutdown::Both).is_err() {
             error!("Failed to properly shut down socket");

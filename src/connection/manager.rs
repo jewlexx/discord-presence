@@ -1,4 +1,4 @@
-use super::{Connection, SocketConnection};
+use super::{Connection, Socket};
 use crate::{
     error::{DiscordError, Result},
     event_handler::HandlerRegistry,
@@ -7,11 +7,7 @@ use crate::{
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
 use serde_json::Value as JsonValue;
-use std::{
-    io::ErrorKind,
-    sync::{atomic::Ordering, Arc},
-    thread, time,
-};
+use std::{io::ErrorKind, sync::Arc, thread, time};
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
@@ -19,7 +15,7 @@ type Rx = Receiver<Message>;
 // TODO: Refactor connection manager
 #[derive(Clone)]
 pub struct Manager {
-    connection: Arc<Option<Mutex<SocketConnection>>>,
+    connection: Arc<Option<Mutex<Socket>>>,
     client_id: u64,
     outbound: (Rx, Tx),
     inbound: (Rx, Tx),
@@ -47,7 +43,7 @@ impl Manager {
         let mut manager_inner = self.clone();
         thread::spawn(move || {
             // TODO: Refactor so that JSON values are consistent across errors
-            send_and_receive_loop(&mut manager_inner, rx)
+            send_and_receive_loop(&mut manager_inner, &rx);
         })
     }
 
@@ -68,7 +64,7 @@ impl Manager {
 
         trace!("Connecting");
 
-        let mut new_connection = SocketConnection::connect()?;
+        let mut new_connection = Socket::connect()?;
 
         trace!("Performing handshake");
         let msg = new_connection.handshake(self.client_id)?;
@@ -91,7 +87,7 @@ impl Manager {
     }
 }
 
-fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) {
+fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
     trace!("Starting sender loop");
 
     let mut inbound = manager.inbound.1.clone();
@@ -114,10 +110,10 @@ fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) {
                     &outbound,
                 ) {
                     Err(DiscordError::IoError(ref err)) if err.kind() == ErrorKind::WouldBlock => {}
-                    Err(DiscordError::IoError(_)) | Err(DiscordError::ConnectionClosed) => {
+                    Err(DiscordError::IoError(_) | DiscordError::ConnectionClosed) => {
                         manager.disconnect();
                     }
-                    Err(DiscordError::RecvTimeoutError(_)) => continue,
+                    Err(DiscordError::TimeoutError(_)) => continue,
                     Err(why) => trace!("discord error: {}", why),
                     _ => {}
                 }
@@ -133,13 +129,10 @@ fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) {
 
                     manager.event_handler_registry.handle(Event::Error, value);
 
-                    if !err.io_would_block() {
-                        error!("Failed to connect: {:?}", err)
-                    } else {
-                        crate::STARTED.store(false, Ordering::Relaxed);
-
+                    if err.should_break() {
                         break;
                     }
+                    error!("Failed to connect: {:?}", err);
                 }
                 _ => manager.handshake_completed = true,
             },
@@ -148,8 +141,16 @@ fn send_and_receive_loop(manager: &mut Manager, rx: Receiver<()>) {
 }
 
 fn send_and_receive(
+<<<<<<< HEAD
     connection: &mut SocketConnection,
     event_handler_registry: &Arc<HandlerRegistry>,
+||||||| 4e172c8
+    connection: &mut SocketConnection,
+    event_handler_registry: &mut HandlerRegistry<'_>,
+=======
+    connection: &mut Socket,
+    event_handler_registry: &mut HandlerRegistry<'_>,
+>>>>>>> v0.6
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
@@ -167,6 +168,7 @@ fn send_and_receive(
 
     trace!("Received payload");
 
+<<<<<<< HEAD
     match &payload {
         Payload {
             evt: Some(event), ..
@@ -179,6 +181,29 @@ fn send_and_receive(
             trace!("Got message");
             inbound.send(msg)?;
         }
+||||||| 4e172c8
+    match &payload {
+        Payload {
+            evt: Some(event), ..
+        } => {
+            trace!("Got event");
+            event_handler_registry.handle(*event, into_error!(payload.data)?);
+        }
+        _ => {
+            trace!("Got message");
+            inbound.send(msg)?;
+        }
+=======
+    if let Payload {
+        evt: Some(event), ..
+    } = &payload
+    {
+        trace!("Got event");
+        event_handler_registry.handle(*event, into_error!(payload.data)?);
+    } else {
+        trace!("Got message");
+        inbound.send(msg)?;
+>>>>>>> v0.6
     }
 
     Ok(())

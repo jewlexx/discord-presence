@@ -6,8 +6,8 @@ use serde::Serialize;
 use std::io::{Read, Write};
 
 /// Codes for payload types
-#[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, FromPrimitive)]
+#[repr(u32)]
 pub enum OpCode {
     /// Handshake payload
     Handshake,
@@ -32,6 +32,9 @@ pub struct Message {
 
 impl Message {
     /// Create a new `Message`
+    ///
+    /// # Errors
+    /// - Could not serialize the payload
     pub fn new<T>(opcode: OpCode, payload: T) -> Result<Self>
     where
         T: Serialize,
@@ -43,17 +46,26 @@ impl Message {
     }
 
     /// Encode message
+    ///
+    /// # Errors
+    /// - Failed to write to the buffer
     pub fn encode(&self) -> Result<Vec<u8>> {
+        use std::convert::TryFrom;
         let mut bytes: Vec<u8> = vec![];
 
+        let payload_length = u32::try_from(self.payload.len()).expect("32-bit payload length");
+
         bytes.write_u32::<LittleEndian>(self.opcode as u32)?;
-        bytes.write_u32::<LittleEndian>(self.payload.len() as u32)?;
+        bytes.write_u32::<LittleEndian>(payload_length)?;
         bytes.write_all(self.payload.as_bytes())?;
 
         Ok(bytes)
     }
 
     /// Decode message
+    ///
+    /// # Errors
+    /// - Failed to read from buffer
     pub fn decode(mut bytes: &[u8]) -> Result<Self> {
         let opcode =
             OpCode::from_u32(bytes.read_u32::<LittleEndian>()?).ok_or(DiscordError::Conversion)?;

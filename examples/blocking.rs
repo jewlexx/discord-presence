@@ -7,7 +7,23 @@ fn main() -> anyhow::Result<()> {
 
     let mut drpc = Client::new(1003450375732482138);
 
-    let drpc_thread = drpc.start();
+    drpc.on_ready(|_ctx| {
+        println!("ready?");
+    });
+
+    drpc.on_activity_join_request(|ctx| {
+        println!("Join request: {:?}", ctx.event);
+    });
+
+    drpc.on_activity_join(|ctx| {
+        println!("Joined: {:?}", ctx.event);
+    });
+
+    drpc.on_activity_spectate(|ctx| {
+        println!("Spectate: {:?}", ctx.event);
+    });
+
+    drpc.start();
 
     drpc.block_until_event(Event::Ready)?;
 
@@ -16,15 +32,14 @@ fn main() -> anyhow::Result<()> {
     // Set the activity
     drpc.set_activity(|act| act.state("rusting frfr"))?;
 
-    ctrlc::set_handler(move || {
-        println!("Exiting...");
-        drpc.clear_activity().unwrap();
-        std::process::exit(0);
-    })?;
+    // TODO: Implement "remote" shutdown
+    // ctrlc::set_handler(move || {
+    //     println!("Exiting...");
+    //     drpc.clear_activity().unwrap();
+    //     std::process::exit(0);
+    // })?;
 
-    if let Some(err) = drpc_thread.join().err() {
-        dbg!(err);
-    }
+    drpc.block_on()?;
 
     Ok(())
 }

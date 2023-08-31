@@ -23,7 +23,18 @@ fn main() {
         println!("Spectate: {:?}", ctx.event);
     });
 
-    let drpc_thread = drpc.start();
+    drpc.start();
 
-    drpc_thread.join().unwrap()
+    if let Err(why) = drpc.set_activity(|a| {
+        a.state("Running examples").assets(|ass| {
+            ass.large_image("ferris_wat")
+                .large_text("wat.")
+                .small_image("rusting")
+                .small_text("rusting...")
+        })
+    }) {
+        println!("Failed to set presence: {}", why);
+    }
+
+    drpc.block_on().unwrap();
 }

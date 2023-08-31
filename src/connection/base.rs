@@ -40,7 +40,7 @@ pub trait Connection: Sized {
 
     /// The full socket path.
     fn socket_path(n: u8) -> PathBuf {
-        let socket_path = format!("discord-ipc-{}", n);
+        let socket_path = format!("discord-ipc-{n}");
         let base_path = Self::ipc_path().join(socket_path.clone());
 
         if base_path.exists() {
