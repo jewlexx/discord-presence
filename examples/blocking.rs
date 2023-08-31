@@ -32,7 +32,7 @@ fn main() -> anyhow::Result<()> {
     // Set the activity
     drpc.set_activity(|act| {
         act.state("rusting frfr")
-            .append_buttons(|button| button.label("Google It").url("https://google.com/"))
+            .append_buttons(|button| button.label("Click Me!").url("https://google.com/"))
     })
     .unwrap();
 
