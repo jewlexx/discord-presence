@@ -34,7 +34,7 @@ fn main() {
     // Set the activity
     drpc.set_activity(|act| {
         act.state("rusting frfr")
-            .buttons(|b| b.label("Click Me!").url("https://google.com"))
+            .append_buttons(|b| b.label("Click Me!").url("https://google.com"))
     })
     .expect("Failed to set activity");
 

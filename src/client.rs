@@ -188,7 +188,7 @@ impl Client {
         );
         self.connection_manager.send(message?)?;
         let Message { payload, .. } = self.connection_manager.recv()?;
-        let response: Payload<E> = serde_json::from_str(&payload)?;
+        let response: Payload<E> = serde_json::from_str(&dbg!(payload))?;
 
         match response.evt {
             Some(Event::Error) => Err(DiscordError::SubscriptionFailed),
