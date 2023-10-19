@@ -20,7 +20,7 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - run: rustup toolchain install stable --profile minimal
       - name: Cache
         uses: Swatinem/rust-cache@v2
