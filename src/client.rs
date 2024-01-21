@@ -1,5 +1,5 @@
 use std::{
-    sync::atomic::Ordering,
+    sync::{atomic::Ordering, Arc},
     thread::{JoinHandle, Thread},
 };
 
@@ -85,11 +85,12 @@ impl ClientThread {
     }
 }
 
+#[derive(Clone)]
 /// The Discord client
 pub struct Client {
     connection_manager: ConnectionManager,
     event_handler_registry: HandlerRegistry<'static>,
-    thread: Option<ClientThread>,
+    thread: Option<Arc<ClientThread>>,
 }
 
 #[cfg(feature = "bevy")]
@@ -123,7 +124,7 @@ impl Client {
             crate::READY.store(true, Ordering::Relaxed);
         });
 
-        self.thread = Some(ClientThread(thread, tx));
+        self.thread = Some(Arc::new(ClientThread(thread, tx)));
     }
 
     /// Shutdown the client and its thread
@@ -131,18 +132,13 @@ impl Client {
     /// # Errors
     /// - The internal connection thread ran into an error
     /// - The client was not started, or has already been shutdown
-    pub fn shutdown(self) -> Result<()> {
+    pub fn shutdown(mut self) -> Result<()> {
         crate::READY.store(false, Ordering::Relaxed);
-        let Self { thread, .. } = self;
 
-        if let Some(thread) = thread {
-            thread.1.send(())?;
-            thread.join().map_err(|_| DiscordError::ThreadError)?;
+        let thread = self.unwrap_thread()?;
+        thread.1.send(())?;
 
-            Ok(())
-        } else {
-            Err(DiscordError::NotStarted)
-        }
+        self.block_on()
     }
 
     /// Block indefinitely until the client shuts down
@@ -154,13 +150,17 @@ impl Client {
     /// # Errors
     /// - The internal connection thread ran into an error
     /// - The client was not started, or has already been shutdown
-    pub fn block_on(self) -> Result<()> {
-        let Self { thread, .. } = self;
+    pub fn block_on(mut self) -> Result<()> {
+        let thread = self.unwrap_thread()?;
 
-        if let Some(thread) = thread {
-            thread.join().map_err(|_| DiscordError::ThreadError)?;
+        thread.join().map_err(|_| DiscordError::ThreadError)
+    }
 
-            Ok(())
+    fn unwrap_thread(&mut self) -> Result<ClientThread> {
+        if let Some(thread) = self.thread.take() {
+            let thread = Arc::try_unwrap(thread).map_err(|_| DiscordError::ThreadInUse)?;
+
+            Ok(thread)
         } else {
             Err(DiscordError::NotStarted)
         }

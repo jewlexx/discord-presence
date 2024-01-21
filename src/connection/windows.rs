@@ -13,8 +13,9 @@ impl Connection for Socket {
     fn connect() -> Result<Self> {
         let connection_name = Self::socket_path(0);
         let mut socket = PipeClient::connect(connection_name)?;
-        socket.set_write_timeout(Some(time::Duration::from_secs(1)));
-        socket.set_read_timeout(Some(time::Duration::from_secs(1)));
+        // Discord rate limit timeout is 15 seconds, so 16 should account for that
+        socket.set_write_timeout(Some(time::Duration::from_secs(16)));
+        socket.set_read_timeout(Some(time::Duration::from_secs(16)));
         Ok(Self { socket })
     }
 

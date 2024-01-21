@@ -57,6 +57,9 @@ pub enum DiscordError {
     #[error("Event loop ran into an unknown error")]
     /// The send & receive loop ran into an error
     EventLoopError,
+    #[error("Could not safely shut down client. Thread is in use.")]
+    /// RPC thread is in use
+    ThreadInUse,
 }
 
 impl DiscordError {
