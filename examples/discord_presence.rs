@@ -12,7 +12,7 @@ fn main() {
     });
 
     drpc.on_error(|ctx| {
-        eprintln!("An error occured, {}", ctx.event);
+        eprintln!("An error occured, {:?}", ctx.event);
     });
 
     drpc.start();

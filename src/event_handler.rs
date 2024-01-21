@@ -1,7 +1,8 @@
-use crate::models::Event;
-use parking_lot::RwLock;
-use serde_json::Value as JsonValue;
 use std::{collections::HashMap, sync::Arc};
+
+use parking_lot::RwLock;
+
+use crate::models::{Event, EventData};
 
 type Handler<'a> = Box<dyn Fn(Context) + 'a + Send + Sync>;
 
@@ -10,11 +11,11 @@ type HandlerList<'a> = Vec<Handler<'a>>;
 #[derive(Debug, Clone)]
 pub struct Context {
     // TODO: implement event data structures
-    pub event: JsonValue,
+    pub event: EventData,
 }
 
 impl Context {
-    pub fn new(event: JsonValue) -> Self {
+    pub fn new(event: EventData) -> Self {
         Self { event }
     }
 }
@@ -41,7 +42,7 @@ impl<'a> HandlerRegistry<'a> {
     }
 
     // TODO: Replace data type with stronger types
-    pub fn handle(&mut self, event: Event, data: JsonValue) {
+    pub fn handle(&mut self, event: Event, data: EventData) {
         let handlers = self.handlers.read();
         if let Some(handlers) = handlers.get(&event) {
             let context = Context::new(data);

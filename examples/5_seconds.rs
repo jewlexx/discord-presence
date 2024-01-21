@@ -39,12 +39,16 @@ fn main() {
     })
     .expect("Failed to set activity");
 
-    // ctrlc::set_handler(move || {
-    //     println!("Exiting...");
-    //     drpc.clear_activity().unwrap();
-    //     std::process::exit(0);
-    // })
-    // .unwrap();
+    {
+        let mut drpc = drpc.clone();
+
+        ctrlc::set_handler(move || {
+            println!("Exiting...");
+            drpc.clear_activity().unwrap();
+            std::process::exit(0);
+        })
+        .unwrap();
+    }
 
     thread::sleep(Duration::from_secs(5));
 
