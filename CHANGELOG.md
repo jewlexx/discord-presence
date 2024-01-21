@@ -18,6 +18,10 @@ I will add links where possible, including retroactively if possible.
 - Removed `STARTED` boolean. (Pretty much pointless as it is only different between when the client has been started, but is not yet ready)
 - Increase connection timeout on Windows to 16 seconds
 
+### Added
+
+- Support buttons [#38](https://github.com/jewlexx/discord-presence/issues/38)
+
 ### Fixed
 
 - Ready event called every single connection in send & receive loop
