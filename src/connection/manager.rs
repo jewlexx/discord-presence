@@ -2,7 +2,7 @@ use super::{Connection, Socket};
 use crate::{
     error::{DiscordError, Result},
     event_handler::HandlerRegistry,
-    models::{payload::Payload, Event, Message},
+    models::{payload::Payload, ErrorEvent, Event, Message},
 };
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
@@ -72,8 +72,10 @@ impl Manager {
 
         // Only handle the ready event if the client was not already ready
         if !crate::READY.load(std::sync::atomic::Ordering::Relaxed) {
-            self.event_handler_registry
-                .handle(Event::Ready, into_error!(payload.data)?);
+            self.event_handler_registry.handle(
+                Event::Ready,
+                Event::Ready.parse_data(into_error!(payload.data)?),
+            );
         }
 
         trace!("Handshake completed");
@@ -126,12 +128,13 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
             }
             None => match manager.connect() {
                 Err(err) => {
-                    let value = serde_json::json!({
-                        "error_type": "RPCLibraryError",
-                        "error_message": err.to_string(),
-                    });
-
-                    manager.event_handler_registry.handle(Event::Error, value);
+                    manager.event_handler_registry.handle(
+                        Event::Error,
+                        crate::models::EventData::Error(ErrorEvent {
+                            code: None,
+                            message: Some(err.to_string()),
+                        }),
+                    );
 
                     if err.should_break() {
                         break;
@@ -169,7 +172,8 @@ fn send_and_receive(
     } = &payload
     {
         trace!("Got event");
-        event_handler_registry.handle(*event, into_error!(payload.data)?);
+        let event_data = event.parse_data(into_error!(payload.data.clone())?);
+        event_handler_registry.handle(*event, event_data);
     } else {
         trace!("Got message");
         inbound.send(msg)?;
