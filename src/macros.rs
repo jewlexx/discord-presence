@@ -1,9 +1,9 @@
 macro_rules! builder_func_doc {
     [ $type:tt ] => {
         concat!(
-            "Instantiates the current struct with the given ",
+            "Instantiates the current struct with the given [`",
             stringify!($type),
-            " value."
+            "`] value."
         )
     };
 }
@@ -38,6 +38,30 @@ macro_rules! builder_func {
     };
 }
 
+macro_rules! builder_array_doc {
+    [ $type:tt ] => {
+        concat!(
+            "Appends a new [`",
+            stringify!($type),
+            "`] to the current struct with the given value."
+        )
+    }
+}
+
+macro_rules! builder_array {
+    [ $name:ident, $type:tt array ] => {
+        paste::paste! {
+            #[doc = builder_array_doc!($type)]
+            #[must_use]
+            pub fn [<append_ $name>]<F>(mut self, func: F) -> Self
+            where F: FnOnce($type) -> $type
+            {
+                self.$name.push(func($type::default())); self
+            }
+        }
+    };
+}
+
 macro_rules! into_error {
     [ $opt:expr, $msg:expr ] => {
         match $opt {
@@ -67,6 +91,20 @@ macro_rules! builder {
         builder![ @st ( $name $field: $type, $($rest)* ) -> ( $($out)* ) ];
     };
 
+    // TODO: Make this more applicable for other types than just buttons
+    // Currently the implementation here only works for buttons, thanks to the deserialize_with attribute
+    [ @st ( $name:ident $field:ident: $type:ty as array, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
+        builder![ @st
+            ( $name $($rest)* ) -> (
+                $($out)*
+                #[doc = concat!("Optional ", stringify!($field), " field")]
+                #[serde(skip_serializing_if = "Vec::is_empty", deserialize_with = "serialize_activity_button")]
+                pub $field: Vec<$type>,
+            )
+        ];
+    };
+
+
     [ @st ( $name:ident $field:ident: $type:ty, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
         builder![ @st
             ( $name $($rest)* ) -> (
@@ -86,6 +124,10 @@ macro_rules! builder {
 
     [ @im ( $name:ident $field:ident: $type:tt func, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
         builder![ @im ( $name $($rest)* ) -> ( builder_func![$field, $type func]; $($out)* ) ];
+    };
+
+    [ @im ( $name:ident $field:ident: $type:tt as array, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {
+        builder![ @im ( $name $($rest)* ) -> ( builder_array![$field, $type array]; $($out)* ) ];
     };
 
     [ @im ( $name:ident $field:ident: $type:tt alias = $modifier:tt, $($rest:tt)* ) -> ( $($out:tt)* ) ] => {

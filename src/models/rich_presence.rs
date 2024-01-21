@@ -1,6 +1,9 @@
+use std::default::Default;
+
+use serde::Deserializer;
+
 use super::shared::PartialUser;
 use crate::utils;
-use std::default::Default;
 
 /// Args to set Discord activity
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -73,8 +76,7 @@ builder! {Activity
     assets: ActivityAssets func,
     party: ActivityParty func,
     secrets: ActivitySecrets func,
-    // Currently just one button
-    buttons: ActivityButton func,
+    buttons: ActivityButton as array,
 }
 
 builder! {ActivityTimestamps
@@ -101,6 +103,45 @@ builder! {ActivitySecrets
 }
 
 // pub type ActivityButtons = Vec<ActivityButton>;
+
+// A probably overcomplicated way to convert the array of strings returned by Discord, into buttons
+fn serialize_activity_button<'de, D>(data: D) -> Result<Vec<ActivityButton>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    use serde::de;
+    use std::fmt;
+
+    struct JsonStringVisitor;
+
+    impl<'de> de::Visitor<'de> for JsonStringVisitor {
+        type Value = Vec<ActivityButton>;
+
+        fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+            formatter.write_str("a string containing the label for the button")
+        }
+
+        fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
+        where
+            A: de::SeqAccess<'de>,
+        {
+            let mut buttons = vec![];
+
+            while let Ok(Some(label)) = seq.next_element::<String>() {
+                let button = ActivityButton {
+                    label: Some(label.clone()),
+                    url: None,
+                };
+
+                buttons.push(button);
+            }
+
+            Ok(buttons)
+        }
+    }
+
+    data.deserialize_any(JsonStringVisitor)
+}
 
 builder! {ActivityButton
     // Text shown on the button (1-32 characters)
@@ -130,6 +171,7 @@ mod tests {
                     .small_image("rusting")
                     .small_text("Rusting...")
             })
+            .append_buttons(|button| button.label("Click Me!"))
             .party(|p| p.id(String::from("party")).size((3, 6)))
             .secrets(|s| {
                 s.join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
