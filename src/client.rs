@@ -277,7 +277,7 @@ impl Client {
     ///     println!("READY!");
     /// });
     ///
-    /// let drpc_thread = drpc.start();
+    /// drpc.start();
     ///
     /// {
     ///     let _ready_first_3_seconds = drpc.on_ready(|_ctx| {
@@ -299,7 +299,7 @@ impl Client {
     /// });
     /// drop(never_ready);
     ///
-    /// drpc_thread.join().unwrap()
+    /// drpc.block_on().unwrap();
     /// ```
     ///
     /// You can use `.persist` or [`std::mem::forget`] to disable the automatic unregister-on-drop:
@@ -322,8 +322,8 @@ impl Client {
     /// }
     /// // the event listener is still registered
     ///
-    /// # let drpc_thread = drpc.start();
-    /// # drpc_thread.join().unwrap()
+    /// # drpc.start();
+    /// # drpc.block_on().unwrap();
     /// ```
     pub fn on_event<F>(&self, event: Event, handler: F) -> EventCallbackHandle
     where
