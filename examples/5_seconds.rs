@@ -11,19 +11,23 @@ fn main() {
 
     drpc.on_ready(|_ctx| {
         println!("ready?");
-    });
+    })
+    .persist();
 
     drpc.on_activity_join_request(|ctx| {
         println!("Join request: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.on_activity_join(|ctx| {
         println!("Joined: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.on_activity_spectate(|ctx| {
         println!("Spectate: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.start();
 
@@ -34,7 +38,8 @@ fn main() {
     // Set the activity
     drpc.set_activity(|act| {
         act.state("rusting frfr")
-            .buttons(|b| b.label("Click Me!").url("https://google.com"))
+            .append_buttons(|b| b.label("Go to Google...").url("https://google.com"))
+            .append_buttons(|b| b.label("Go to DuckDuckGo...").url("https://duckduckgo.com"))
     })
     .expect("Failed to set activity");
 

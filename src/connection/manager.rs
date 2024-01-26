@@ -2,12 +2,16 @@ use super::{Connection, Socket};
 use crate::{
     error::{DiscordError, Result},
     event_handler::HandlerRegistry,
-    models::{payload::Payload, Event, Message},
+    models::{payload::Payload, ErrorEvent, Event, Message},
 };
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
 use serde_json::Value as JsonValue;
-use std::{io::ErrorKind, sync::Arc, thread, time};
+use std::{
+    io::ErrorKind,
+    sync::{atomic::Ordering, Arc},
+    thread, time,
+};
 
 type Tx = Sender<Message>;
 type Rx = Receiver<Message>;
@@ -20,11 +24,11 @@ pub struct Manager {
     outbound: (Rx, Tx),
     inbound: (Rx, Tx),
     handshake_completed: bool,
-    event_handler_registry: HandlerRegistry<'static>,
+    event_handler_registry: Arc<HandlerRegistry>,
 }
 
 impl Manager {
-    pub fn new(client_id: u64, event_handler_registry: HandlerRegistry<'static>) -> Self {
+    pub fn new(client_id: u64, event_handler_registry: Arc<HandlerRegistry>) -> Self {
         let connection = Arc::new(None);
         let (sender_o, receiver_o) = unbounded();
         let (sender_i, receiver_i) = unbounded();
@@ -70,10 +74,16 @@ impl Manager {
         let msg = new_connection.handshake(self.client_id)?;
         let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
 
+        // TODO: Ensure it works without clone
         // Only handle the ready event if the client was not already ready
         if !crate::READY.load(std::sync::atomic::Ordering::Relaxed) {
-            self.event_handler_registry
-                .handle(Event::Ready, into_error!(payload.data)?);
+            trace!("Discord client is ready!");
+            crate::READY.store(true, Ordering::Relaxed);
+
+            self.event_handler_registry.handle(
+                Event::Ready,
+                Event::Ready.parse_data(into_error!(payload.data)?),
+            );
         }
 
         trace!("Handshake completed");
@@ -109,7 +119,7 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
                 let mut connection = conn.lock();
                 match send_and_receive(
                     &mut connection,
-                    &mut manager.event_handler_registry,
+                    &manager.event_handler_registry,
                     &mut inbound,
                     &outbound,
                 ) {
@@ -126,12 +136,13 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
             }
             None => match manager.connect() {
                 Err(err) => {
-                    let value = serde_json::json!({
-                        "error_type": "RPCLibraryError",
-                        "error_message": err.to_string(),
-                    });
-
-                    manager.event_handler_registry.handle(Event::Error, value);
+                    manager.event_handler_registry.handle(
+                        Event::Error,
+                        crate::models::EventData::Error(ErrorEvent {
+                            code: None,
+                            message: Some(err.to_string()),
+                        }),
+                    );
 
                     if err.should_break() {
                         break;
@@ -146,7 +157,7 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
 
 fn send_and_receive(
     connection: &mut Socket,
-    event_handler_registry: &mut HandlerRegistry<'_>,
+    event_handler_registry: &Arc<HandlerRegistry>,
     inbound: &mut Tx,
     outbound: &Rx,
 ) -> Result<()> {
@@ -169,7 +180,8 @@ fn send_and_receive(
     } = &payload
     {
         trace!("Got event");
-        event_handler_registry.handle(*event, into_error!(payload.data)?);
+        let event_data = event.parse_data(into_error!(payload.data.clone())?);
+        event_handler_registry.handle(*event, event_data);
     } else {
         trace!("Got message");
         inbound.send(msg)?;

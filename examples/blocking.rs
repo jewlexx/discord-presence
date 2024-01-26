@@ -9,19 +9,23 @@ fn main() -> anyhow::Result<()> {
 
     drpc.on_ready(|_ctx| {
         println!("ready?");
-    });
+    })
+    .persist();
 
     drpc.on_activity_join_request(|ctx| {
         println!("Join request: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.on_activity_join(|ctx| {
         println!("Joined: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.on_activity_spectate(|ctx| {
         println!("Spectate: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.start();
 
@@ -30,7 +34,11 @@ fn main() -> anyhow::Result<()> {
     assert!(Client::is_ready());
 
     // Set the activity
-    drpc.set_activity(|act| act.state("rusting frfr"))?;
+    drpc.set_activity(|act| {
+        act.state("rusting frfr")
+            .append_buttons(|button| button.label("Click Me!").url("https://google.com/"))
+    })
+    .unwrap();
 
     // TODO: Implement "remote" shutdown
     // ctrlc::set_handler(move || {

@@ -49,6 +49,9 @@ impl Message {
     ///
     /// # Errors
     /// - Failed to write to the buffer
+    ///
+    /// # Panics
+    /// - The payload length is not a 32 bit number
     pub fn encode(&self) -> Result<Vec<u8>> {
         use std::convert::TryFrom;
         let mut bytes: Vec<u8> = vec![];

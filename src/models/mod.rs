@@ -49,11 +49,57 @@ pub enum Event {
     ActivityJoinRequest,
 }
 
+impl Event {
+    #[must_use]
+    /// Parse event data from a [`JsonValue`]
+    pub fn parse_data(self, data: JsonValue) -> EventData {
+        match self {
+            Event::Ready => serde_json::from_value(data.clone())
+                .map(EventData::Ready)
+                .unwrap_or(EventData::Unknown(data)),
+
+            Event::Error => serde_json::from_value(data.clone())
+                .map(EventData::Error)
+                .unwrap_or(EventData::Unknown(data)),
+
+            Event::ActivityJoin => serde_json::from_value(data.clone())
+                .map(EventData::ActivityJoin)
+                .unwrap_or(EventData::Unknown(data)),
+
+            Event::ActivitySpectate => serde_json::from_value(data.clone())
+                .map(EventData::ActivitySpectate)
+                .unwrap_or(EventData::Unknown(data)),
+
+            Event::ActivityJoinRequest => serde_json::from_value(data.clone())
+                .map(EventData::ActivityJoinRequest)
+                .unwrap_or(EventData::Unknown(data)),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, Deserialize, Serialize, Clone)]
+/// Internal data for the [`Event`] enum
+pub enum EventData {
+    /// Ready event data
+    Ready(ReadyEvent),
+    /// Error event data
+    Error(ErrorEvent),
+    /// ActivityJoin event data
+    ActivityJoin(ActivityJoinEvent),
+    /// ActivitySpectate event data
+    ActivitySpectate(ActivitySpectateEvent),
+    /// ActivityJoinRequest event data
+    ActivityJoinRequest(ActivityJoinRequestEvent),
+    /// Unknown event data
+    Unknown(JsonValue),
+}
+
 pub use commands::*;
 pub use events::*;
 pub use message::{Message, OpCode};
 
 pub use rich_presence::*;
+use serde_json::Value as JsonValue;
 
 /// Prelude for all Discord RPC types
 pub mod prelude {

@@ -9,11 +9,13 @@ fn main() {
 
     drpc.on_ready(|_ctx| {
         println!("READY!");
-    });
+    })
+    .persist();
 
     drpc.on_error(|ctx| {
-        eprintln!("An error occured, {}", ctx.event);
-    });
+        eprintln!("An error occured, {:?}", ctx.event);
+    })
+    .persist();
 
     drpc.start();
 
@@ -28,12 +30,14 @@ fn main() {
                 println!("Failed to clear presence: {}", why);
             }
         } else if let Err(why) = drpc.set_activity(|a| {
-            a.state("Running examples").assets(|ass| {
-                ass.large_image("ferris_wat")
-                    .large_text("wat.")
-                    .small_image("rusting")
-                    .small_text("rusting...")
-            })
+            a.state("Running examples")
+                .assets(|ass| {
+                    ass.large_image("ferris_wat")
+                        .large_text("wat.")
+                        .small_image("rusting")
+                        .small_text("rusting...")
+                })
+                .append_buttons(|button| button.label("Click Me!").url("https://google.com/"))
         }) {
             println!("Failed to set presence: {}", why);
         }
