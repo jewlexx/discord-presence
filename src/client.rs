@@ -1,5 +1,4 @@
 use std::{
-    mem::forget,
     sync::{atomic::Ordering, Arc},
     thread::{JoinHandle, Thread},
 };
@@ -122,12 +121,6 @@ impl Client {
 
         let thread = self.connection_manager.start(rx);
 
-        let ready = self.on_ready(|_| {
-            trace!("Discord client is ready!");
-            crate::READY.store(true, Ordering::Relaxed);
-        });
-
-        forget(ready);
         self.thread = Some(Arc::new(ClientThread(thread, tx)));
     }
 
@@ -176,7 +169,7 @@ impl Client {
 
     /// Check if the client is ready
     pub fn is_ready() -> bool {
-        crate::READY.load(Ordering::Acquire)
+        crate::READY.load(Ordering::Relaxed)
     }
 
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
@@ -354,15 +347,18 @@ impl Client {
         let (tx, rx) = crossbeam_channel::unbounded::<crate::event_handler::Context>();
 
         let handler = move |info| {
+            // dbg!("Blocked until at ", std::time::SystemTime::now());
             if let Err(e) = tx.send(info) {
                 error!("{e}");
             }
         };
 
         // `handler` is automatically unregistered once this variable drops
-        let _cb_handle = self.on_event(event, handler);
+        let cb_handle = self.on_event(event, handler);
 
         let response = rx.recv()?;
+
+        drop(cb_handle);
 
         Ok(response)
     }

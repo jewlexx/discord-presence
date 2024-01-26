@@ -2,7 +2,6 @@ use std::{collections::HashMap, sync::Arc};
 use std::{sync::Weak, thread};
 
 use parking_lot::RwLock;
-use serde_json::Value as JsonValue;
 
 use crate::models::{Event, EventData};
 
@@ -24,7 +23,7 @@ impl Context {
 
 type Handlers = RwLock<HashMap<Event, HandlerList>>;
 
-#[must_use = "event listeners will be immediately dropped if the handle is not kept"]
+#[must_use = "event listeners will be immediately dropped if the handle is not kept. Use `.persist` to stop them from being removed."]
 pub struct EventCallbackHandle {
     event: Event,
     registry: Weak<HandlerRegistry>,
@@ -33,7 +32,9 @@ pub struct EventCallbackHandle {
 
 impl EventCallbackHandle {
     /// Immediately drops the event handler, thus removing the handler from the registry.
-    pub fn remove(self) {}
+    pub fn remove(self) {
+        drop(self);
+    }
 
     /// "Forgets" event handler, removing the variable, but keeping the handler in the registry until the registry itself is dropped.
     pub fn persist(self) {
@@ -167,9 +168,9 @@ mod tests {
         let registry = Arc::new(HandlerRegistry::new());
 
         {
-            let _ready = registry.register(Event::Ready, |_| unimplemented!());
+            let ready = registry.register(Event::Ready, |_| unimplemented!());
             // skip the Drop impl by running std::mem::forget
-            forget(_ready);
+            forget(ready);
         }
         // _ready2 is not automatically removed
 
