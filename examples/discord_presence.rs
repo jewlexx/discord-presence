@@ -9,11 +9,13 @@ fn main() {
 
     drpc.on_ready(|_ctx| {
         println!("READY!");
-    });
+    })
+    .persist();
 
     drpc.on_error(|ctx| {
         eprintln!("An error occured, {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.start();
 

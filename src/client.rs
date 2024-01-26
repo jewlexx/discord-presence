@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     connection::Manager as ConnectionManager,
-    event_handler::{Context as EventContext, HandlerRegistry},
+    event_handler::{Context as EventContext, EventCallbackHandle, HandlerRegistry},
     models::{
         commands::{Subscription, SubscriptionArgs},
         message::Message,
@@ -29,10 +29,10 @@ macro_rules! event_handler_function {
     (@gen $( [ $name:ident, $event:expr ] ), *) => {
         $(
             #[doc = concat!("Listens for the `", stringify!($event), "` event")]
-            pub fn $name<F>(&mut self, handler: F)
+            pub fn $name<F>(&self, handler: F) -> EventCallbackHandle
                 where F: Fn(EventContext) + 'static + Send + Sync
             {
-                self.on_event($event, handler);
+                self.on_event($event, handler)
             }
         )*
     }
@@ -89,7 +89,7 @@ impl ClientThread {
 /// The Discord client
 pub struct Client {
     connection_manager: ConnectionManager,
-    event_handler_registry: HandlerRegistry<'static>,
+    event_handler_registry: Arc<HandlerRegistry>,
     thread: Option<Arc<ClientThread>>,
 }
 
@@ -100,9 +100,11 @@ impl Client {
     /// Creates a new `Client`
     #[must_use]
     pub fn new(client_id: u64) -> Self {
-        let event_handler_registry = HandlerRegistry::new();
+        let event_handler_registry = Arc::new(HandlerRegistry::new());
+        let connection_manager = ConnectionManager::new(client_id, event_handler_registry.clone());
+
         Self {
-            connection_manager: ConnectionManager::new(client_id, event_handler_registry.clone()),
+            connection_manager,
             event_handler_registry,
             thread: None,
         }
@@ -118,11 +120,6 @@ impl Client {
         let (tx, rx) = crossbeam_channel::bounded::<()>(1);
 
         let thread = self.connection_manager.start(rx);
-
-        self.on_ready(|_| {
-            trace!("Discord client is ready!");
-            crate::READY.store(true, Ordering::Relaxed);
-        });
 
         self.thread = Some(Arc::new(ClientThread(thread, tx)));
     }
@@ -153,7 +150,11 @@ impl Client {
     pub fn block_on(mut self) -> Result<()> {
         let thread = self.unwrap_thread()?;
 
-        thread.join().map_err(|_| DiscordError::ThreadError)
+        // If into_inner succeeds, await the thread completing.
+        // Otherwise, the thread will be dropped and shut down anyway
+        thread.join().map_err(|_| DiscordError::ThreadError)?;
+
+        Ok(())
     }
 
     fn unwrap_thread(&mut self) -> Result<ClientThread> {
@@ -168,7 +169,7 @@ impl Client {
 
     /// Check if the client is ready
     pub fn is_ready() -> bool {
-        crate::READY.load(Ordering::Acquire)
+        crate::READY.load(Ordering::Relaxed)
     }
 
     fn execute<A, E>(&mut self, cmd: Command, args: A, evt: Option<Event>) -> Result<Payload<E>>
@@ -264,12 +265,71 @@ impl Client {
         self.execute(Command::Unsubscribe, f(SubscriptionArgs::new()), Some(evt))
     }
 
-    /// Register a handler for a given event
-    pub fn on_event<F>(&mut self, event: Event, handler: F)
+    /// Listens for a given event, and returns a handle that unregisters the listener when it is dropped.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// # use std::{thread::sleep, time::Duration};
+    /// # use discord_presence::Client;
+    /// let mut drpc = Client::new(1003450375732482138);
+    /// let _ready = drpc.on_ready(|_ctx| {
+    ///     println!("READY!");
+    /// });
+    ///
+    /// drpc.start();
+    ///
+    /// {
+    ///     let _ready_first_3_seconds = drpc.on_ready(|_ctx| {
+    ///         println!("READY, IN THE FIRST 3 SECONDS!");
+    ///     });
+    ///     sleep(Duration::from_secs(3));
+    /// }
+    ///
+    /// // You can also manually remove the handler
+    ///
+    /// let never_ready = drpc.on_ready(|_ctx| {
+    ///     println!("I will never be ready!");
+    /// });
+    /// never_ready.remove();
+    ///
+    /// // Or via [`std::mem::drop`]
+    /// let never_ready = drpc.on_ready(|_ctx| {
+    ///     println!("I will never be ready!");
+    /// });
+    /// drop(never_ready);
+    ///
+    /// drpc.block_on().unwrap();
+    /// ```
+    ///
+    /// You can use `.persist` or [`std::mem::forget`] to disable the automatic unregister-on-drop:
+    ///
+    /// ```no_run
+    /// # use discord_presence::Client;
+    /// # let mut drpc = Client::new(1003450375732482138);
+    ///
+    /// {
+    ///     let ready = drpc.on_ready(|_ctx| {
+    ///         println!("READY!");
+    ///     }).persist();
+    /// }
+    /// // Or
+    /// {
+    ///     let ready = drpc.on_ready(|_ctx| {
+    ///         println!("READY!");
+    ///     });
+    ///     std::mem::forget(ready);
+    /// }
+    /// // the event listener is still registered
+    ///
+    /// # drpc.start();
+    /// # drpc.block_on().unwrap();
+    /// ```
+    pub fn on_event<F>(&self, event: Event, handler: F) -> EventCallbackHandle
     where
         F: Fn(EventContext) + 'static + Send + Sync,
     {
-        self.event_handler_registry.register(event, handler);
+        self.event_handler_registry.register(event, handler)
     }
 
     /// Block the current thread until the event is fired
@@ -287,14 +347,18 @@ impl Client {
         let (tx, rx) = crossbeam_channel::unbounded::<crate::event_handler::Context>();
 
         let handler = move |info| {
+            // dbg!("Blocked until at ", std::time::SystemTime::now());
             if let Err(e) = tx.send(info) {
                 error!("{e}");
             }
         };
 
-        self.event_handler_registry.register(event, handler);
+        // `handler` is automatically unregistered once this variable drops
+        let cb_handle = self.on_event(event, handler);
 
         let response = rx.recv()?;
+
+        drop(cb_handle);
 
         Ok(response)
     }

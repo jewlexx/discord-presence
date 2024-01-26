@@ -9,19 +9,23 @@ fn main() -> anyhow::Result<()> {
 
     drpc.on_ready(|_ctx| {
         println!("ready?");
-    });
+    })
+    .persist();
 
     drpc.on_activity_join_request(|ctx| {
         println!("Join request: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.on_activity_join(|ctx| {
         println!("Joined: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.on_activity_spectate(|ctx| {
         println!("Spectate: {:?}", ctx.event);
-    });
+    })
+    .persist();
 
     drpc.start();
 
