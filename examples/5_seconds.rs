@@ -38,16 +38,21 @@ fn main() {
     // Set the activity
     drpc.set_activity(|act| {
         act.state("rusting frfr")
-            .buttons(|b| b.label("Click Me!").url("https://google.com"))
+            .append_buttons(|b| b.label("Go to Google...").url("https://google.com"))
+            .append_buttons(|b| b.label("Go to DuckDuckGo...").url("https://duckduckgo.com"))
     })
     .expect("Failed to set activity");
 
-    // ctrlc::set_handler(move || {
-    //     println!("Exiting...");
-    //     drpc.clear_activity().unwrap();
-    //     std::process::exit(0);
-    // })
-    // .unwrap();
+    {
+        let mut drpc = drpc.clone();
+
+        ctrlc::set_handler(move || {
+            println!("Exiting...");
+            drpc.clear_activity().unwrap();
+            std::process::exit(0);
+        })
+        .unwrap();
+    }
 
     thread::sleep(Duration::from_secs(5));
 

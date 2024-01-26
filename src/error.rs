@@ -60,6 +60,9 @@ pub enum DiscordError {
     /// No changes were made to the event handler
     #[error("No changes were made to the event handler. This can usually be ignored")]
     NoChangesMade,
+    #[error("Could not safely shut down client. Thread is in use.")]
+    /// RPC thread is in use
+    ThreadInUse,
 }
 
 impl DiscordError {

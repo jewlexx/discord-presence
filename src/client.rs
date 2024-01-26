@@ -136,22 +136,13 @@ impl Client {
     /// # Errors
     /// - The internal connection thread ran into an error
     /// - The client was not started, or has already been shutdown
-    pub fn shutdown(self) -> Result<()> {
+    pub fn shutdown(mut self) -> Result<()> {
         crate::READY.store(false, Ordering::Relaxed);
-        let Self { thread, .. } = self;
 
-        if let Some(thread) = thread {
-            thread.1.send(())?;
-            // If into_inner succeeds, await the thread completing.
-            // Otherwise, the thread will be dropped and shut down anyway
-            if let Some(thread) = Arc::into_inner(thread) {
-                thread.join().map_err(|_| DiscordError::ThreadError)?;
-            }
+        let thread = self.unwrap_thread()?;
+        thread.1.send(())?;
 
-            Ok(())
-        } else {
-            Err(DiscordError::NotStarted)
-        }
+        self.block_on()
     }
 
     /// Block indefinitely until the client shuts down
@@ -163,17 +154,21 @@ impl Client {
     /// # Errors
     /// - The internal connection thread ran into an error
     /// - The client was not started, or has already been shutdown
-    pub fn block_on(self) -> Result<()> {
-        let Self { thread, .. } = self;
+    pub fn block_on(mut self) -> Result<()> {
+        let thread = self.unwrap_thread()?;
 
-        if let Some(thread) = thread {
-            // If into_inner succeeds, await the thread completing.
-            // Otherwise, the thread will be dropped and shut down anyway
-            if let Some(thread) = Arc::into_inner(thread) {
-                thread.join().map_err(|_| DiscordError::ThreadError)?;
-            }
+        // If into_inner succeeds, await the thread completing.
+        // Otherwise, the thread will be dropped and shut down anyway
+        thread.join().map_err(|_| DiscordError::ThreadError)?;
 
-            Ok(())
+        Ok(())
+    }
+
+    fn unwrap_thread(&mut self) -> Result<ClientThread> {
+        if let Some(thread) = self.thread.take() {
+            let thread = Arc::try_unwrap(thread).map_err(|_| DiscordError::ThreadInUse)?;
+
+            Ok(thread)
         } else {
             Err(DiscordError::NotStarted)
         }
@@ -201,7 +196,7 @@ impl Client {
         );
         self.connection_manager.send(message?)?;
         let Message { payload, .. } = self.connection_manager.recv()?;
-        let response: Payload<E> = serde_json::from_str(&payload)?;
+        let response: Payload<E> = serde_json::from_str(&dbg!(payload))?;
 
         match response.evt {
             Some(Event::Error) => Err(DiscordError::SubscriptionFailed),

@@ -23,6 +23,10 @@ I will add links where possible, including retroactively if possible.
 
 - Ability to remove event handlers [#40](https://github.com/jewlexx/discord-presence/issues/40)
 
+### Added
+
+- Support buttons [#38](https://github.com/jewlexx/discord-presence/issues/38)
+
 ### Fixed
 
 - Ready event called every single connection in send & receive loop

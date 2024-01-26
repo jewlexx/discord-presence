@@ -37,7 +37,7 @@ fn main() {
     // an alternative is to store the handle until you're ready to unregister the
     // listener
     let _error = client.on_error(|ctx| {
-        eprintln!("An error occured, {}", ctx.event);
+        eprintln!("An error occured, {:?}", ctx.event);
     });
 
     tracing::trace!("Made it to the final line");
