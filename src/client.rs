@@ -117,6 +117,7 @@ impl Client {
     ///
     /// This must be called before all and any actions such as `set_activity`
     pub fn start(&mut self) {
+        // Shutdown notify channel
         let (tx, rx) = crossbeam_channel::bounded::<()>(1);
 
         let thread = self.connection_manager.start(rx);
@@ -129,13 +130,16 @@ impl Client {
     /// # Errors
     /// - The internal connection thread ran into an error
     /// - The client was not started, or has already been shutdown
-    pub fn shutdown(mut self) -> Result<()> {
-        crate::READY.store(false, Ordering::Relaxed);
+    pub fn shutdown(self) -> Result<()> {
+        if let Some(thread) = self.thread.as_ref() {
+            thread.1.send(())?;
 
-        let thread = self.unwrap_thread()?;
-        thread.1.send(())?;
+            crate::READY.store(false, Ordering::Relaxed);
 
-        self.block_on()
+            self.block_on()
+        } else {
+            Err(DiscordError::NotStarted)
+        }
     }
 
     /// Block indefinitely until the client shuts down
@@ -167,6 +171,7 @@ impl Client {
         }
     }
 
+    #[must_use]
     /// Check if the client is ready
     pub fn is_ready() -> bool {
         crate::READY.load(Ordering::Relaxed)
@@ -344,6 +349,7 @@ impl Client {
     /// # Panics
     /// - Panics if the channel is disconnected for whatever reason.
     pub fn block_until_event(&mut self, event: Event) -> Result<crate::event_handler::Context> {
+        // TODO: Use bounded channel
         let (tx, rx) = crossbeam_channel::unbounded::<crate::event_handler::Context>();
 
         let handler = move |info| {
