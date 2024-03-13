@@ -1,4 +1,4 @@
-use discord_presence::Client;
+use discord_presence::{models::EventData, Client};
 
 fn main() {
     tracing_subscriber::fmt()
@@ -8,6 +8,11 @@ fn main() {
     let mut drpc = Client::new(1003450375732482138);
 
     drpc.on_ready(|_ctx| {
+        let EventData::Ready(event) = _ctx.event else {
+            return;
+        };
+
+        event.user.unwrap();
         println!("READY!");
     })
     .persist();

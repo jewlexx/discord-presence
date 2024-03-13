@@ -8,7 +8,6 @@ pub mod message;
 pub mod payload;
 /// The rich presence module
 pub mod rich_presence;
-mod shared;
 
 use quork::traits::list::ListVariants;
 
