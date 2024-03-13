@@ -131,8 +131,6 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
                     Err(why) => trace!("discord error: {}", why),
                     _ => {}
                 }
-
-                thread::sleep(time::Duration::from_millis(500));
             }
             None => match manager.connect() {
                 Err(err) => {
@@ -152,6 +150,8 @@ fn send_and_receive_loop(manager: &mut Manager, rx: &Receiver<()>) {
                 _ => manager.handshake_completed = true,
             },
         }
+
+        thread::sleep(time::Duration::from_millis(500));
     }
 }
 
