@@ -117,6 +117,7 @@ impl Client {
     ///
     /// This must be called before all and any actions such as `set_activity`
     pub fn start(&mut self) {
+        // Shutdown notify channel
         let (tx, rx) = crossbeam_channel::bounded::<()>(1);
 
         let thread = self.connection_manager.start(rx);
