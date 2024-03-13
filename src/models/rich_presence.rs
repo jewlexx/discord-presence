@@ -2,7 +2,7 @@ use std::default::Default;
 
 use serde::Deserializer;
 
-use super::shared::PartialUser;
+use super::events::PartialUser;
 use crate::utils;
 
 /// Args to set Discord activity

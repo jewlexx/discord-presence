@@ -1,5 +1,3 @@
-use super::shared::PartialUser;
-
 builder! {ReadyEvent
     v:      u32,
     config: RpcServerConfiguration,
@@ -15,4 +13,11 @@ builder! {RpcServerConfiguration
     cdn_host: String,
     api_endpoint: String,
     environment: String,
+}
+
+builder! {PartialUser
+    id:            String,
+    username:      String,
+    discriminator: String,
+    avatar:        String,
 }
