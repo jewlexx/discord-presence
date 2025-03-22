@@ -26,4 +26,15 @@ impl Connection for Socket {
     fn socket(&mut self) -> &mut Self::Socket {
         &mut self.socket
     }
+
+    fn try_read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        if self.socket().metadata()?.len() == 0 {
+            return Err(DiscordError::IoError(Error::new(
+                ErrorKind::WouldBlock,
+                "No data available",
+            )));
+        }
+
+        Ok(self.socket().read(buf)?)
+    }
 }

@@ -104,7 +104,7 @@ pub trait Connection: Sized {
         buf.resize(std::mem::size_of::<FrameHeader>(), 0);
 
         trace!("Reading header");
-        let n = self.socket().read(&mut buf)?;
+        let n = self.try_read(&mut buf)?;
         trace!("Received {} bytes for header", n);
 
         if n == 0 {
@@ -122,7 +122,7 @@ pub trait Connection: Sized {
         message_buf.resize(header.message_length(), 0);
 
         trace!("Reading payload");
-        let n = self.socket().read(&mut message_buf)?;
+        let n = self.try_read(&mut message_buf)?;
         trace!("Received {} bytes for payload", n);
 
         if n == 0 {
@@ -137,5 +137,9 @@ pub trait Connection: Sized {
             opcode: header.opcode(),
             payload,
         })
+    }
+
+    fn try_read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        Ok(self.socket().read(buf)?)
     }
 }
