@@ -1,21 +1,25 @@
-use std::path::PathBuf;
-
-use named_pipe::PipeClient;
+use std::{
+    fs::{File, OpenOptions},
+    io::{ErrorKind, Read},
+    os::windows::fs::OpenOptionsExt,
+    path::PathBuf,
+};
 
 use super::base::Connection;
-use crate::Result;
+use crate::{DiscordError, Result};
 
 pub struct Socket {
-    socket: PipeClient,
+    socket: File,
 }
 
 impl Connection for Socket {
-    type Socket = PipeClient;
+    type Socket = File;
 
     fn connect() -> Result<Self> {
-        let mut socket = PipeClient::connect(Self::socket_path(0))?;
-        socket.set_read_timeout(Some(Self::READ_WRITE_TIMEOUT));
-        socket.set_write_timeout(Some(Self::READ_WRITE_TIMEOUT));
+        let path = Self::socket_path(0);
+
+        let socket = OpenOptions::new().access_mode(0x3).open(&path)?;
+
         Ok(Self { socket })
     }
 
@@ -25,5 +29,16 @@ impl Connection for Socket {
 
     fn socket(&mut self) -> &mut Self::Socket {
         &mut self.socket
+    }
+
+    fn try_read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        if self.socket().metadata()?.len() == 0 {
+            return Err(DiscordError::IoError(std::io::Error::new(
+                ErrorKind::WouldBlock,
+                "No data available",
+            )));
+        }
+
+        Ok(self.socket().read(buf)?)
     }
 }
