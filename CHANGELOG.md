@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+## [1.5.1](https://github.com/jewlexx/discord-presence/releases/tag/v1.5.1)
+
+### Fixed
+
+- Client would disconnect from pipe when trying to update presence incrementally
+
 ## [1.5.0](https://github.com/jewlexx/discord-presence/releases/tag/v1.5.0)
 
 ### Added
