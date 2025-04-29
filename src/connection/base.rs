@@ -15,16 +15,15 @@ use std::{
 };
 
 /// Wait for a non-blocking connection until it's complete.
-macro_rules! try_until_done {
-    [ $e:expr ] => {
-        loop {
-            match $e {
-                Ok(v) => break v,
-                Err(why) => if !why.io_would_block() { return Err(why); },
-            }
-
-            thread::sleep(time::Duration::from_millis(500));
+fn try_until_done<T>(result: Result<T>) -> Result<T> {
+    loop {
+        match result {
+            Ok(v) => return Ok(v),
+            Err(why) if !why.io_would_block() => return Err(why),
+            _ => {}
         }
+
+        thread::sleep(time::Duration::from_micros(500));
     }
 }
 
@@ -103,8 +102,8 @@ pub trait Connection: Sized {
         }];
 
         let msg = Message::new(OpCode::Handshake, hs)?;
-        try_until_done!(self.send(&msg));
-        let msg = try_until_done!(self.recv());
+        try_until_done(self.send(&msg))?;
+        let msg = try_until_done(self.recv())?;
 
         Ok(msg)
     }
@@ -113,8 +112,8 @@ pub trait Connection: Sized {
     /// Will block until complete.
     fn ping(&mut self) -> Result<OpCode> {
         let message = Message::new(OpCode::Ping, json![{}])?;
-        try_until_done!(self.send(&message));
-        let response = try_until_done!(self.recv());
+        try_until_done(self.send(&message))?;
+        let response = try_until_done(self.recv())?;
         Ok(response.opcode)
     }
 
