@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+## [1.6.0](https://github.com/jewlexx/discord-presence/releases/tag/v1.6.0)
+
 ### Added
 
 - Support for snap installation of Discord
