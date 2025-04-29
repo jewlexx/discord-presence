@@ -1,6 +1,6 @@
 use super::base::Connection;
 use crate::Result;
-use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf, time};
+use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf};
 
 pub struct Socket {
     socket: UnixStream,
@@ -13,8 +13,8 @@ impl Connection for Socket {
         let connection_name = Self::socket_path(0);
         let socket = UnixStream::connect(connection_name)?;
         socket.set_nonblocking(true)?;
-        socket.set_read_timeout(Some(Self::READ_WRITE_TIMEOUT));
-        socket.set_write_timeout(Some(Self::READ_WRITE_TIMEOUT));
+        socket.set_read_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
+        socket.set_write_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
         Ok(Self { socket })
     }
 
