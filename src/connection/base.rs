@@ -4,11 +4,12 @@ use crate::{
     utils,
 };
 use bytes::BytesMut;
+use quork::prelude::ListVariants;
 use serde_json::json;
 use std::{
     io::{Read, Write},
     marker::Sized,
-    path::PathBuf,
+    path::{Path, PathBuf},
     thread,
     time::{self, Duration},
 };
@@ -24,6 +25,47 @@ macro_rules! try_until_done {
 
             thread::sleep(time::Duration::from_millis(500));
         }
+    }
+}
+
+#[derive(Debug, Copy, Clone, ListVariants)]
+enum SocketLocation {
+    Root,
+    Flatpak,
+    Snap,
+    SnapCanary,
+}
+
+impl SocketLocation {
+    pub fn append_path(self, ipc_path: impl AsRef<Path>) -> PathBuf {
+        match self {
+            SocketLocation::Root => ipc_path.as_ref().to_owned(),
+            SocketLocation::Flatpak => ipc_path.as_ref().join("app").join("com.discordapp.Discord"),
+            SocketLocation::Snap => ipc_path.as_ref().join("snap.discord"),
+            SocketLocation::SnapCanary => ipc_path.as_ref().join("snap.discord-canary"),
+        }
+    }
+
+    pub fn test_paths(
+        ipc_path: impl AsRef<Path>,
+        socket_path: impl AsRef<Path>,
+    ) -> Option<PathBuf> {
+        if cfg!(windows) {
+            let path = Self::Root.append_path(ipc_path).join(socket_path);
+            return path.exists().then_some(path);
+        } else {
+            for location in Self::VARIANTS {
+                let path = location
+                    .append_path(ipc_path.as_ref())
+                    .join(socket_path.as_ref());
+
+                if path.exists() {
+                    return Some(path);
+                }
+            }
+        }
+
+        None
     }
 }
 
@@ -46,17 +88,9 @@ pub trait Connection: Sized {
     /// The full socket path.
     fn socket_path(n: u8) -> PathBuf {
         let socket_path = format!("discord-ipc-{n}");
-        let base_path = Self::ipc_path().join(socket_path.clone());
+        let ipc_path = Self::ipc_path();
 
-        if base_path.exists() {
-            base_path
-        } else {
-            // This fixes issues with Unix implementations
-            Self::ipc_path()
-                .join("app")
-                .join("com.discordapp.Discord")
-                .join(socket_path)
-        }
+        SocketLocation::test_paths(&ipc_path, &socket_path).unwrap_or(ipc_path.join(socket_path))
     }
 
     /// Perform a handshake on this socket connection.
