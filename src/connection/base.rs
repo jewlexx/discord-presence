@@ -138,7 +138,7 @@ pub trait Connection: Sized {
 
         trace!("Reading header");
         let n = self.try_read(&mut buf)?;
-        trace!("Received {} bytes for header", n);
+        trace!("Received {n} bytes for header");
 
         if n == 0 {
             return Err(DiscordError::ConnectionClosed);
