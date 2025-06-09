@@ -5,8 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-use super::base::Connection;
-use crate::{DiscordError, Result};
+use crate::{connection::base::Connection, DiscordError, Result};
 
 pub struct Socket {
     socket: File,
