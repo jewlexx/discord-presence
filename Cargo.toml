@@ -12,6 +12,7 @@ version = "1.6.0"
 
 [features]
 activity_type = ["dep:serde_repr"]
+unstable_name = []
 
 [package.metadata.docs.rs]
 all-features = true

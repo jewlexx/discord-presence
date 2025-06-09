@@ -94,6 +94,7 @@ builder! {ActivityJoinRequestEvent
 }
 
 builder! {Activity
+    name: String => if feature = "unstable_name",
     state: String,
     details: String,
     instance: bool,
