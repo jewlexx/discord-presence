@@ -27,7 +27,7 @@ impl SocketId {
     }
 
     pub const fn blank() -> Self {
-        Self(0)
+        Self::without_location(Self::UNKNOWN_NUMBER)
     }
 
     pub fn get_location(self) -> Option<SocketLocation> {
