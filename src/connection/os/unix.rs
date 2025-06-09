@@ -1,6 +1,9 @@
 use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf};
 
-use crate::{connection::base::Connection, Result};
+use crate::{
+    connection::{base::Connection, location::SocketId},
+    Result,
+};
 
 pub struct Socket {
     socket: UnixStream,
@@ -9,8 +12,8 @@ pub struct Socket {
 impl Connection for Socket {
     type Socket = UnixStream;
 
-    fn connect() -> Result<Self> {
-        let connection_name = Self::socket_path(0);
+    fn connect_with_id(id: SocketId) -> Result<Self> {
+        let connection_name = Self::socket_path(id);
         let socket = UnixStream::connect(connection_name)?;
         socket.set_read_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
         socket.set_write_timeout(Some(Self::READ_WRITE_TIMEOUT))?;

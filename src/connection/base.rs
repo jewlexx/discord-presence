@@ -10,7 +10,7 @@ use bytes::BytesMut;
 use serde_json::json;
 
 use crate::{
-    connection::location::SocketLocation,
+    connection::location::SocketId,
     error::{DiscordError, Result},
     models::message::{FrameHeader, Message, OpCode, MAX_RPC_FRAME_SIZE},
     utils,
@@ -43,14 +43,18 @@ pub trait Connection: Sized {
     fn ipc_path() -> PathBuf;
 
     /// Establish a new connection to the server.
-    fn connect() -> Result<Self>;
+    fn connect() -> Result<Self> {
+        Self::connect_with_id(SocketId::blank())
+    }
+
+    fn connect_with_id(id: SocketId) -> Result<Self>;
 
     /// The full socket path.
-    fn socket_path(n: u8) -> PathBuf {
-        let socket_path = format!("discord-ipc-{n}");
-        let ipc_path = Self::ipc_path();
+    fn socket_path(id: SocketId) -> PathBuf {
+        let ipc_root = Self::ipc_path();
 
-        SocketLocation::find_path(&ipc_path, &socket_path).unwrap_or(ipc_path.join(socket_path))
+        id.resolve_path(&ipc_root)
+            .unwrap_or_else(|| ipc_root.join(format!("discord-ipc-{}", id.get_number())))
     }
 
     /// Perform a handshake on this socket connection.

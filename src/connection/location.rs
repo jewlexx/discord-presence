@@ -30,11 +30,7 @@ impl SocketId {
         Self(0)
     }
 
-    pub fn get_location(self) -> SocketLocation {
-        unsafe { self.try_get_location().unwrap_unchecked() }
-    }
-
-    pub fn try_get_location(self) -> Option<SocketLocation> {
+    pub fn get_location(self) -> Option<SocketLocation> {
         SocketLocation::from_u8(self.0 & 0b1111_0000)
     }
 
@@ -43,7 +39,7 @@ impl SocketId {
     }
 
     pub fn validate(self) -> bool {
-        self.get_number() < 10 && self.try_get_location().is_some()
+        self.get_number() < 10 && self.get_location().is_some()
     }
 
     pub fn resolve_path(self, ipc_root: impl AsRef<Path>) -> Option<PathBuf> {
@@ -52,7 +48,7 @@ impl SocketId {
 
             let i = id.get_number();
             let socket_path = format!("discord-ipc-{i}");
-            if let Some(location) = id.try_get_location() {
+            if let Some(location) = id.get_location() {
                 let path = location.append_to_root(ipc_root).join(socket_path);
                 let path_opt = path.exists().then_some(path);
 
@@ -67,7 +63,7 @@ impl SocketId {
         }
 
         if self.get_number() == Self::UNKNOWN_NUMBER {
-            let loc_bytes = self.try_get_location().map_or(0, |loc| loc as u8);
+            let loc_bytes = self.get_location().map_or(0, |loc| loc as u8);
             for i in 0..10 {
                 let id = Self::new_bytes(i, loc_bytes);
                 if let Some(path) = find_path_unchecked(id, &ipc_root) {
