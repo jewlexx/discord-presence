@@ -199,7 +199,7 @@ impl Client {
             return Err(DiscordError::NotStarted);
         }
 
-        trace!("Executing command: {:?}", cmd);
+        trace!("Executing command: {cmd:?}");
 
         let message = Message::new(
             OpCode::Frame,
@@ -207,7 +207,7 @@ impl Client {
         );
         self.connection_manager.send(message?)?;
         let Message { payload, .. } = self.connection_manager.recv()?;
-        trace!("Received response payload: {}", payload);
+        trace!("Received response payload: {payload}");
         let response: Payload<E> = serde_json::from_str(&payload)?;
         trace!("Parsed response payload.");
 

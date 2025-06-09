@@ -85,14 +85,14 @@ pub trait Connection: Sized {
     /// Send a message to the server.
     fn send(&mut self, message: &Message) -> Result<()> {
         match message.encode() {
-            Err(why) => error!("{:?}", why),
+            Err(why) => error!("{why:?}"),
             Ok(bytes) => {
                 assert!(bytes.len() <= MAX_RPC_FRAME_SIZE);
                 self.socket().write_all(&bytes)?;
             }
         }
 
-        trace!("-> {:?}", message);
+        trace!("-> {message:?}");
         Ok(())
     }
 
@@ -122,7 +122,7 @@ pub trait Connection: Sized {
 
         trace!("Reading payload");
         let n = self.try_read(&mut message_buf)?;
-        trace!("Received {} bytes for payload", n);
+        trace!("Received {n} bytes for payload");
 
         if n == 0 {
             return Err(DiscordError::NoMessage);
