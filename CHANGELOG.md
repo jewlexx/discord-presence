@@ -9,7 +9,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 
-- Make specific OS implementations public
 - Added socket ids for uniquely identifying socket locations
 - Added `connect_with_id` for connecting to specific socket path
 

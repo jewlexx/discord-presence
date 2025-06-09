@@ -23,6 +23,7 @@ extern crate log;
 mod macros;
 /// A client for the Discord Presence API
 pub mod client;
+/// Connection handling for the Discord Presence API
 pub mod connection;
 /// Errors that can occur when interacting with the Discord Presence API
 pub mod error;

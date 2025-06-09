@@ -5,6 +5,7 @@ use crate::{
     Result,
 };
 
+/// Socket connection for Unix-based systems.
 pub struct Socket {
     socket: UnixStream,
 }

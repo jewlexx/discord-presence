@@ -3,9 +3,9 @@ mod manager;
 
 pub mod location;
 
-pub use base::Connection;
-pub use manager::Manager;
+use base::Connection;
+pub(crate) use manager::Manager;
 
-pub mod os;
+mod os;
 
 pub use os::Socket;

@@ -20,6 +20,7 @@ type Rx = Receiver<Message>;
 
 // TODO: Refactor connection manager
 #[derive(Clone)]
+/// The connection manager for the Discord client.
 pub struct Manager {
     connection: Arc<Option<Mutex<Socket>>>,
     client_id: u64,
@@ -54,6 +55,7 @@ impl Manager {
         }
     }
 
+    /// Start the connection manager
     pub fn start(&mut self, rx: Receiver<()>) -> std::thread::JoinHandle<()> {
         let mut manager_inner = self.clone();
         let error_sleep = self.error_sleep;
@@ -64,12 +66,14 @@ impl Manager {
         })
     }
 
+    /// Send a message to the Discord client.
     pub fn send(&self, message: Message) -> Result<()> {
         self.outbound.1.send(message)?;
 
         Ok(())
     }
 
+    /// Receive a message from the Discord client.
     pub fn recv(&self) -> Result<Message> {
         self.inbound.0.recv().map_err(DiscordError::from)
     }
