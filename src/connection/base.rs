@@ -50,7 +50,7 @@ pub trait Connection: Sized {
         let socket_path = format!("discord-ipc-{n}");
         let ipc_path = Self::ipc_path();
 
-        SocketLocation::test_paths(&ipc_path, &socket_path).unwrap_or(ipc_path.join(socket_path))
+        SocketLocation::find_path(&ipc_path, &socket_path).unwrap_or(ipc_path.join(socket_path))
     }
 
     /// Perform a handshake on this socket connection.
