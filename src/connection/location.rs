@@ -7,7 +7,7 @@ use quork::prelude::ListVariants;
 pub struct SocketId(u8);
 
 impl SocketId {
-    pub const UNKNOWN_NUMBER: u8 = 10;
+    pub const UNKNOWN_NUMBER: u8 = 0b0001_0000;
 
     pub const fn new(number: u8, location: SocketLocation) -> Self {
         let loc = location as u8;
