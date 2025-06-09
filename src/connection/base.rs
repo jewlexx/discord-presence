@@ -1,17 +1,19 @@
-use crate::{
-    error::{DiscordError, Result},
-    models::message::{FrameHeader, Message, OpCode, MAX_RPC_FRAME_SIZE},
-    utils,
-};
-use bytes::BytesMut;
-use quork::prelude::ListVariants;
-use serde_json::json;
 use std::{
     io::{Read, Write},
     marker::Sized,
-    path::{Path, PathBuf},
+    path::PathBuf,
     thread,
     time::{self, Duration},
+};
+
+use bytes::BytesMut;
+use serde_json::json;
+
+use crate::{
+    connection::location::SocketLocation,
+    error::{DiscordError, Result},
+    models::message::{FrameHeader, Message, OpCode, MAX_RPC_FRAME_SIZE},
+    utils,
 };
 
 /// Wait for a non-blocking connection until it's complete.
@@ -24,47 +26,6 @@ fn try_until_done<T>(result: Result<T>) -> Result<T> {
         }
 
         thread::sleep(time::Duration::from_micros(500));
-    }
-}
-
-#[derive(Debug, Copy, Clone, ListVariants)]
-enum SocketLocation {
-    Root,
-    Flatpak,
-    Snap,
-    SnapCanary,
-}
-
-impl SocketLocation {
-    pub fn append_path(self, ipc_path: impl AsRef<Path>) -> PathBuf {
-        match self {
-            SocketLocation::Root => ipc_path.as_ref().to_owned(),
-            SocketLocation::Flatpak => ipc_path.as_ref().join("app").join("com.discordapp.Discord"),
-            SocketLocation::Snap => ipc_path.as_ref().join("snap.discord"),
-            SocketLocation::SnapCanary => ipc_path.as_ref().join("snap.discord-canary"),
-        }
-    }
-
-    pub fn test_paths(
-        ipc_path: impl AsRef<Path>,
-        socket_path: impl AsRef<Path>,
-    ) -> Option<PathBuf> {
-        if cfg!(windows) {
-            let path = Self::Root.append_path(ipc_path).join(socket_path);
-            return path.exists().then_some(path);
-        } else {
-            for location in Self::VARIANTS {
-                let path = location
-                    .append_path(ipc_path.as_ref())
-                    .join(socket_path.as_ref());
-
-                if path.exists() {
-                    return Some(path);
-                }
-            }
-        }
-
-        None
     }
 }
 
@@ -125,7 +86,8 @@ pub trait Connection: Sized {
                 assert!(bytes.len() <= MAX_RPC_FRAME_SIZE);
                 self.socket().write_all(&bytes)?;
             }
-        };
+        }
+
         trace!("-> {:?}", message);
         Ok(())
     }
