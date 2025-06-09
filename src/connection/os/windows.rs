@@ -14,8 +14,8 @@ pub struct Socket {
 impl Connection for Socket {
     type Socket = File;
 
-    fn connect() -> Result<Self> {
-        let path = Self::socket_path(0);
+    fn connect_with_id(id: SocketId) -> Result<Self> {
+        let path = Self::socket_path(id);
 
         let socket = OpenOptions::new().access_mode(0x3).open(&path)?;
 
