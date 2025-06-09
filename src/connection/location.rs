@@ -13,7 +13,7 @@ pub struct SocketId(u8);
 
 impl SocketId {
     /// An identifier for an unknown socket number.
-    pub const UNKNOWN_NUMBER: u8 = 0b0001_0000;
+    pub const UNKNOWN_NUMBER: u8 = 0b0000_1111;
 
     #[must_use]
     /// Creates a new `SocketId` with the specified number and location.
@@ -61,7 +61,19 @@ impl SocketId {
     ///
     /// Note this does not check if the socket actually exists on the filesystem.
     pub fn validate(self) -> bool {
-        self.get_number() < 10 && self.get_location().is_some()
+        self.validate_number() && self.validate_location()
+    }
+
+    #[must_use]
+    /// Checks if the socket identifier has a valid number.
+    pub fn validate_number(self) -> bool {
+        self.get_number() < 10
+    }
+
+    #[must_use]
+    /// Checks if the socket identifier has a valid location.
+    pub fn validate_location(self) -> bool {
+        self.get_location().is_some()
     }
 
     #[must_use]
@@ -73,11 +85,13 @@ impl SocketId {
     /// If the location is not specified, it will search in all known locations.
     pub fn resolve_path(self, ipc_root: impl AsRef<Path>) -> Option<PathBuf> {
         fn find_path_unchecked(id: SocketId, ipc_root: impl AsRef<Path>) -> Option<PathBuf> {
-            assert!(id.validate(), "Invalid SocketId: {id:?}");
+            assert!(id.validate_number(), "Invalid SocketId: {id:?}");
 
             let i = id.get_number();
             let socket_path = format!("discord-ipc-{i}");
             if let Some(location) = id.get_location() {
+                assert!(id.validate_location(), "Invalid SocketId: {id:?}");
+
                 let path = location.append_to_root(ipc_root).join(socket_path);
                 let path_opt = path.exists().then_some(path);
 
@@ -91,7 +105,7 @@ impl SocketId {
             None
         }
 
-        if self.get_number() == Self::UNKNOWN_NUMBER {
+        if self.get_number() >= 10 {
             let loc_bytes = self.get_location().map_or(0, |loc| loc as u8);
             for i in 0..10 {
                 let id = Self::new_bytes(i, loc_bytes);
@@ -151,5 +165,37 @@ impl SocketLocation {
         }
 
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_socket_numbers() {
+        for i in 0..10 {
+            let id = SocketId::new(i, SocketLocation::Root);
+            assert!(id.validate(), "SocketId {i} should be valid");
+            assert_eq!(id.get_number(), i, "SocketId {i} should have number {i}");
+        }
+    }
+
+    #[test]
+    fn test_socket_locations() {
+        let root_id = SocketId::new(0, SocketLocation::Root);
+        assert_eq!(root_id.get_location(), Some(SocketLocation::Root));
+
+        let flatpak_id = SocketId::new(1, SocketLocation::Flatpak);
+        assert_eq!(flatpak_id.get_location(), Some(SocketLocation::Flatpak));
+
+        let snap_id = SocketId::new(2, SocketLocation::Snap);
+        assert_eq!(snap_id.get_location(), Some(SocketLocation::Snap));
+
+        let snap_canary_id = SocketId::new(3, SocketLocation::SnapCanary);
+        assert_eq!(
+            snap_canary_id.get_location(),
+            Some(SocketLocation::SnapCanary)
+        );
     }
 }
