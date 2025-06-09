@@ -42,7 +42,7 @@ pub trait Connection: Sized {
     /// The base path were the socket is located.
     fn ipc_path() -> PathBuf;
 
-    /// Establish a new connection to the server.
+    /// Establish a new connection to the server, without specifying a location.
     fn connect() -> Result<Self> {
         Self::connect_with_id(SocketId::blank())
     }
