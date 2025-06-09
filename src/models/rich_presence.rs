@@ -131,7 +131,7 @@ builder! {ActivitySecrets
 // pub type ActivityButtons = Vec<ActivityButton>;
 
 // A probably overcomplicated way to convert the array of strings returned by Discord, into buttons
-fn serialize_activity_button<'de, D>(data: D) -> Result<Vec<ActivityButton>, D::Error>
+fn deserialize_activity_button<'de, D>(data: D) -> Result<Vec<ActivityButton>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -153,13 +153,18 @@ where
         {
             let mut buttons = vec![];
 
-            while let Ok(Some(label)) = seq.next_element::<String>() {
-                let button = ActivityButton {
-                    label: Some(label.clone()),
-                    url: None,
-                };
-
-                buttons.push(button);
+            loop {
+                if let Ok(Some(buttion)) = seq.next_element::<ActivityButton>() {
+                    buttons.push(buttion);
+                } else if let Ok(Some(label)) = seq.next_element::<String>() {
+                    let button = ActivityButton {
+                        label: Some(label.clone()),
+                        url: None,
+                    };
+                    buttons.push(button);
+                } else {
+                    break;
+                }
             }
 
             Ok(buttons)
