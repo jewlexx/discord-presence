@@ -57,7 +57,7 @@ impl SocketId {
     }
 
     pub fn try_get_location(self) -> Option<SocketLocation> {
-        SocketLocation::from_u8(self.0 & 0b0000_1111)
+        SocketLocation::from_u8(self.0 & 0b1111_0000)
     }
 
     pub const fn get_number(self) -> u8 {
