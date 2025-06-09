@@ -1,3 +1,5 @@
+//! OS-specific socket connection handling.
+
 cfg_if::cfg_if! {
     if #[cfg(unix)] {
         pub mod unix;

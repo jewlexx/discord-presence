@@ -73,15 +73,6 @@ pub trait Connection: Sized {
         Ok(msg)
     }
 
-    /// Ping the server and get a pong response.
-    /// Will block until complete.
-    fn ping(&mut self) -> Result<OpCode> {
-        let message = Message::new(OpCode::Ping, json![{}])?;
-        try_until_done(self.send(&message))?;
-        let response = try_until_done(self.recv())?;
-        Ok(response.opcode)
-    }
-
     /// Send a message to the server.
     fn send(&mut self, message: &Message) -> Result<()> {
         match message.encode() {

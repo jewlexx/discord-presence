@@ -7,6 +7,7 @@ use std::{
 
 use crate::{connection::base::Connection, DiscordError, Result};
 
+/// Socket connection for Windows systems.
 pub struct Socket {
     socket: File,
 }

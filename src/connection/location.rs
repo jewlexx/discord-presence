@@ -1,14 +1,22 @@
+//! Socket location and identifier handling for Discord IPC.
+
 use std::path::{Path, PathBuf};
 
 use num_traits::FromPrimitive;
 use quork::prelude::ListVariants;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[repr(transparent)]
+/// Represents a Discord IPC socket identifier.
+/// The identifier consists of a number (0-9) and a location (e.g., root, flatpak, snap).
 pub struct SocketId(u8);
 
 impl SocketId {
+    /// An identifier for an unknown socket number.
     pub const UNKNOWN_NUMBER: u8 = 0b0001_0000;
 
+    #[must_use]
+    /// Creates a new `SocketId` with the specified number and location.
     pub const fn new(number: u8, location: SocketLocation) -> Self {
         let loc = location as u8;
         Self::new_bytes(number, loc)
@@ -18,30 +26,51 @@ impl SocketId {
         Self(number | location)
     }
 
+    #[must_use]
+    /// Creates a new `SocketId` without a specific location.
     pub const fn without_location(number: u8) -> Self {
         Self(number)
     }
 
+    #[must_use]
+    /// Creates a new `SocketId` without a specific number.
     pub const fn without_number(location: SocketLocation) -> Self {
         Self(location as u8)
     }
 
+    #[must_use]
+    /// Creates a `SocketId` that does not specify a location or number.
     pub const fn blank() -> Self {
         Self::without_location(Self::UNKNOWN_NUMBER)
     }
 
+    #[must_use]
+    /// Gets the location of the socket identifier.
     pub fn get_location(self) -> Option<SocketLocation> {
         SocketLocation::from_u8(self.0 & 0b1111_0000)
     }
 
+    #[must_use]
+    /// Gets the number of the socket identifier.
     pub const fn get_number(self) -> u8 {
         self.0 & 0b0000_1111
     }
 
+    #[must_use]
+    /// Checks if the socket identifier is valid.
+    ///
+    /// Note this does not check if the socket actually exists on the filesystem.
     pub fn validate(self) -> bool {
         self.get_number() < 10 && self.get_location().is_some()
     }
 
+    #[must_use]
+    /// Attempts to resolve the socket identifier to a path based on the IPC root directory.
+    ///
+    /// If the number is unknown, it will try to find a valid socket path by iterating
+    /// through possible numbers and locations.
+    ///
+    /// If the location is not specified, it will search in all known locations.
     pub fn resolve_path(self, ipc_root: impl AsRef<Path>) -> Option<PathBuf> {
         fn find_path_unchecked(id: SocketId, ipc_root: impl AsRef<Path>) -> Option<PathBuf> {
             assert!(id.validate(), "Invalid SocketId: {id:?}");
@@ -80,14 +109,20 @@ impl SocketId {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, num_derive::FromPrimitive, ListVariants)]
 #[repr(u8)]
+/// Represents the location of a Discord IPC socket.
 pub enum SocketLocation {
+    /// The root location. This is used for system installed Discord instances.
     Root = 0b1000_0000,
+    /// The Flatpak location. This is used for Discord installed via Flatpak.
     Flatpak = 0b0100_0000,
+    /// The Snap location. This is used for Discord installed via Snap.
     Snap = 0b1100_0000,
+    /// The Snap Canary location. This is used for Discord Canary installed via Snap.
     SnapCanary = 0b0010_0000,
 }
 
 impl SocketLocation {
+    /// Append the socket location to the given IPC root path.
     pub fn append_to_root(self, ipc_root: impl AsRef<Path>) -> PathBuf {
         match self {
             SocketLocation::Root => ipc_root.as_ref().to_owned(),
@@ -97,6 +132,7 @@ impl SocketLocation {
         }
     }
 
+    /// Find a valid location for the given IPC root and socket path.
     pub fn find_path(ipc_root: impl AsRef<Path>, socket_path: impl AsRef<Path>) -> Option<PathBuf> {
         #[cfg(windows)]
         {
