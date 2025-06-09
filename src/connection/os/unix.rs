@@ -1,3 +1,5 @@
+use num_traits::FromPrimitive;
+
 use crate::{connection::base::Connection, Result};
 use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf};
 
@@ -32,45 +34,30 @@ impl Connection for Socket {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, num_derive::FromPrimitive)]
+#[repr(u8)]
 pub enum SocketLocation {
-    Root,
-    Flatpak,
-    Snap,
-    SnapCanary,
+    Root = 0b0000_0000,
+    Flatpak = 0b1000_0000,
+    Snap = 0b0100_0000,
+    SnapCanary = 0b1100_0000,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub struct SocketId(u8);
 
 impl SocketId {
-    pub const ROOT: Self = Self(0b0000_0000);
-    pub const FLATPAK: Self = Self(0b1000_0000);
-    pub const SNAP: Self = Self(0b0100_0000);
-    pub const SNAP_CANARY: Self = Self(0b1100_0000);
-
     pub const fn new(number: u8, location: SocketLocation) -> Self {
-        let loc = match location {
-            SocketLocation::Root => Self::ROOT,
-            SocketLocation::Flatpak => Self::FLATPAK,
-            SocketLocation::Snap => Self::SNAP,
-            SocketLocation::SnapCanary => Self::SNAP_CANARY,
-        };
-        Self(number | loc.0)
+        let loc = location as u8;
+        Self(number | loc)
     }
 
-    pub const fn get_location(self) -> SocketLocation {
+    pub fn get_location(self) -> SocketLocation {
         unsafe { self.try_get_location().unwrap_unchecked() }
     }
 
-    pub const fn try_get_location(self) -> Option<SocketLocation> {
-        match Self(self.0 & 0b0000_1111).0 {
-            0b0000_0000 => Some(SocketLocation::Root),
-            0b1000_0000 => Some(SocketLocation::Flatpak),
-            0b0100_0000 => Some(SocketLocation::Snap),
-            0b1100_0000 => Some(SocketLocation::SnapCanary),
-            _ => None,
-        }
+    pub fn try_get_location(self) -> Option<SocketLocation> {
+        SocketLocation::from_u8(self.0 & 0b0000_1111)
     }
 
     pub const fn get_number(self) -> u8 {
