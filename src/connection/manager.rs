@@ -151,7 +151,7 @@ fn send_and_receive_loop(
                             .handle(Event::Disconnected, EventData::None);
                     }
                     Err(DiscordError::TimeoutError(_)) => continue,
-                    Err(why) => trace!("discord error: {}", why),
+                    Err(why) => trace!("discord error: {why}"),
                     _ => {}
                 }
 
@@ -172,7 +172,7 @@ fn send_and_receive_loop(
                     if err.should_break() {
                         break;
                     }
-                    error!("Failed to connect: {:?}", err);
+                    error!("Failed to connect: {err:?}");
 
                     let mut attempts = connection_attempts.lock();
                     if let Some(ref mut attempts) = *attempts {
