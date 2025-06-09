@@ -207,9 +207,9 @@ fn send_and_receive(
     let msg = connection.recv()?;
     trace!("Received from connection");
 
+    trace!("Received payload: {}", msg.payload);
     let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
-
-    trace!("Received payload");
+    trace!("Parsed payload");
 
     if let Payload {
         evt: Some(event), ..
