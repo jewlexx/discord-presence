@@ -97,7 +97,7 @@ builder! {Activity
     state: String,
     details: String,
     instance: bool,
-    _type: ActivityType alias = "type" => if feature = "activity_type",
+    activity_type: ActivityType alias = "type" => if feature = "activity_type",
     timestamps: ActivityTimestamps func,
     assets: ActivityAssets func,
     party: ActivityParty func,
@@ -274,7 +274,7 @@ mod feature_tests {
     fn can_serialize_activity_type() {
         use super::*;
 
-        let activity = Activity::new()._type(ActivityType::Watching);
+        let activity = Activity::new().activity_type(ActivityType::Watching);
         let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
 
         assert_eq![json, r#"{"type":3}"#];
