@@ -152,20 +152,64 @@ where
         where
             A: de::SeqAccess<'de>,
         {
+            use serde_json::Value;
+
             let mut buttons = vec![];
 
-            loop {
-                if let Ok(Some(button)) = seq.next_element::<ActivityButton>() {
-                    buttons.push(button);
-                } else if let Ok(Some(label)) = seq.next_element::<String>() {
-                    let button = ActivityButton {
-                        label: Some(label.clone()),
-                        url: None,
-                    };
-                    buttons.push(button);
-                } else {
-                    break;
-                }
+            while let Ok(Some(button)) = seq.next_element::<Value>() {
+                const EXPECTED: &str = "a string or an object with label and url";
+                let button = match button {
+                    Value::String(label) => {
+                        let label = label.trim().to_string();
+                        ActivityButton {
+                            label: Some(label),
+                            url: None,
+                        }
+                    }
+                    Value::Object(map) => serde_json::from_value(Value::Object(map))
+                        .map_err(|_| de::Error::invalid_value(de::Unexpected::Map, &EXPECTED))?,
+
+                    Value::Null => {
+                        return Err(de::Error::invalid_value(
+                            de::Unexpected::Other("null"),
+                            &EXPECTED,
+                        ));
+                    }
+                    Value::Bool(bool) => {
+                        return Err(de::Error::invalid_value(
+                            de::Unexpected::Bool(bool),
+                            &EXPECTED,
+                        ));
+                    }
+                    Value::Number(number) => {
+                        if let Some(number) = number.as_f64() {
+                            return Err(de::Error::invalid_value(
+                                de::Unexpected::Float(number),
+                                &EXPECTED,
+                            ));
+                        }
+                        if let Some(number) = number.as_i64() {
+                            return Err(de::Error::invalid_value(
+                                de::Unexpected::Signed(number),
+                                &EXPECTED,
+                            ));
+                        }
+
+                        if let Some(number) = number.as_u64() {
+                            return Err(de::Error::invalid_value(
+                                de::Unexpected::Unsigned(number),
+                                &EXPECTED,
+                            ));
+                        }
+
+                        unreachable!("Number type not expected here")
+                    }
+                    Value::Array(_) => {
+                        return Err(de::Error::invalid_value(de::Unexpected::Seq, &EXPECTED));
+                    }
+                };
+
+                buttons.push(button);
             }
 
             Ok(buttons)
@@ -204,6 +248,7 @@ mod tests {
                     .small_text("Rusting...")
             })
             .append_buttons(|button| button.label("Click Me!"))
+            .append_buttons(|button| button.label("Click Me Too!").url("https://example.com"))
             .party(|p| p.id(String::from("party")).size((3, 6)))
             .secrets(|s| {
                 s.join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
