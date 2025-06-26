@@ -10,6 +10,12 @@
 
 //! A Rust library that allows the developer to interact with the Discord Presence API with ease
 
+use std::sync::atomic::AtomicBool;
+
+pub use client::Client;
+pub use error::{DiscordError, Result};
+pub use models::Event;
+
 pub(crate) static READY: AtomicBool = AtomicBool::new(false);
 
 // Cannot remove this *macro_use*, would break derive inside of macros
@@ -31,10 +37,7 @@ pub mod error;
 pub mod event_handler;
 /// Models for discord activity
 pub mod models;
-mod utils;
 
-use std::sync::atomic::AtomicBool;
-
-pub use client::Client;
-pub use error::{DiscordError, Result};
-pub use models::Event;
+pub(crate) fn nonce() -> String {
+    uuid::Uuid::new_v4().to_string()
+}

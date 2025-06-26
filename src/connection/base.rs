@@ -13,7 +13,6 @@ use crate::{
     connection::location::SocketId,
     error::{DiscordError, Result},
     models::message::{FrameHeader, Message, OpCode, MAX_RPC_FRAME_SIZE},
-    utils,
 };
 
 /// Wait for a non-blocking connection until it's complete.
@@ -63,7 +62,7 @@ pub trait Connection: Sized {
         let hs = json![{
             "client_id": client_id.to_string(),
             "v": 1,
-            "nonce": utils::nonce()
+            "nonce": crate::nonce()
         }];
 
         let msg = Message::new(OpCode::Handshake, hs)?;

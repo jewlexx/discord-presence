@@ -6,7 +6,6 @@ use serde::Deserializer;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use super::events::PartialUser;
-use crate::utils;
 
 /// Args to set Discord activity
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -24,8 +23,8 @@ impl SetActivityArgs {
         F: FnOnce(Activity) -> Activity,
     {
         Self {
-            pid: utils::pid(),
             activity: Some(f(Activity::new())),
+            ..Default::default()
         }
     }
 }
@@ -33,7 +32,7 @@ impl SetActivityArgs {
 impl Default for SetActivityArgs {
     fn default() -> Self {
         Self {
-            pid: utils::pid(),
+            pid: std::process::id(),
             activity: None,
         }
     }
