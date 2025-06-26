@@ -11,7 +11,6 @@ rust-version = "1.70.0"
 version = "1.6.0"
 
 [features]
-activity_type = ["dep:serde_repr"]
 unstable_name = []
 
 [package.metadata.docs.rs]
@@ -33,7 +32,6 @@ quork = { version = "0.9", default-features = false, features = [
     "traits",
 ] }
 serde_json = "1.0"
-serde_repr = { version = "0.1", optional = true }
 thiserror = "2.0"
 
 [dependencies.serde]
@@ -53,5 +51,5 @@ version-sync = "0.9"
 [[example]]
 name = "blocking_vencord"
 path = "examples/blocking_vencord.rs"
-required-features = ["unstable_name", "activity_type"]
+required-features = ["unstable_name"]
 
