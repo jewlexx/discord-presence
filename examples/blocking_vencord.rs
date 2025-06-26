@@ -46,7 +46,7 @@ fn main() -> anyhow::Result<()> {
     // Set the activity
     drpc.set_activity(|act| {
         act.state("rusting frfr")
-            ._type(ActivityType::Listening)
+            .activity_type(ActivityType::Listening)
             .name("banger tunes")
             .append_buttons(|button| button.label("Click Me!").url("https://google.com/"))
     })?;

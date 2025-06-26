@@ -2,10 +2,10 @@ use std::default::Default;
 
 use serde::Deserializer;
 
-#[cfg(feature = "activity_type")]
-use serde_repr::{Deserialize_repr, Serialize_repr};
-
 use super::events::PartialUser;
+pub use activity_type::ActivityType;
+
+mod activity_type;
 
 /// Args to set Discord activity
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -58,28 +58,6 @@ impl SendActivityJoinInviteArgs {
     }
 }
 
-/// [`ActivityType`] enum
-///
-/// Lists all activity types currently supported by Discord.
-///
-/// This may change in future if Discord adds support for more types,
-/// or removes support for some.
-#[cfg(feature = "activity_type")]
-#[cfg_attr(docsrs, doc(cfg(feature = "activity_type")))]
-#[repr(u8)]
-#[non_exhaustive]
-#[derive(Clone, Debug, PartialEq, Eq, Deserialize_repr, Serialize_repr, Hash)]
-pub enum ActivityType {
-    /// Playing a game
-    Playing = 0,
-    /// Listening to...
-    Listening = 2,
-    /// Watching...
-    Watching = 3,
-    /// Competing in...
-    Competing = 5,
-}
-
 builder! {ActivityJoinEvent
     secret: String,
 }
@@ -97,7 +75,7 @@ builder! {Activity
     state: String,
     details: String,
     instance: bool,
-    _type: ActivityType alias = "type" => if feature = "activity_type",
+    activity_type: ActivityType alias = "type",
     timestamps: ActivityTimestamps func,
     assets: ActivityAssets func,
     party: ActivityParty func,
@@ -264,22 +242,20 @@ mod tests {
         let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
         assert_eq![json, "{}"];
     }
-}
 
-#[cfg(test)]
-mod feature_tests {
-
-    #[cfg(feature = "activity_type")]
     #[test]
     fn can_serialize_activity_type() {
         use super::*;
 
-        let activity = Activity::new()._type(ActivityType::Watching);
+        let activity = Activity::new().activity_type(ActivityType::Watching);
         let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
 
         assert_eq![json, r#"{"type":3}"#];
     }
+}
 
+#[cfg(test)]
+mod feature_tests {
     #[cfg(feature = "unstable_name")]
     #[test]
     fn can_serialize_activity_name() {
