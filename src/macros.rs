@@ -102,7 +102,7 @@ macro_rules! builder {
             ( $name $($rest)* ) -> (
                 $($out)*
                 #[doc = concat!("Optional ", stringify!($field), " field")]
-                #[serde(default, skip_serializing_if = "Vec::is_empty", deserialize_with = "serialize_activity_button")]
+                #[serde(default, skip_serializing_if = "Vec::is_empty", deserialize_with = "deserialize_activity_button")]
                 pub $field: Vec<$type>,
             )
         ];

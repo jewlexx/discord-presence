@@ -1,7 +1,11 @@
-use super::base::Connection;
-use crate::Result;
 use std::{env, net::Shutdown, os::unix::net::UnixStream, path::PathBuf};
 
+use crate::{
+    connection::{base::Connection, location::SocketId},
+    Result,
+};
+
+/// Socket connection for Unix-based systems.
 pub struct Socket {
     socket: UnixStream,
 }
@@ -9,8 +13,8 @@ pub struct Socket {
 impl Connection for Socket {
     type Socket = UnixStream;
 
-    fn connect() -> Result<Self> {
-        let connection_name = Self::socket_path(0);
+    fn connect_with_id(id: SocketId) -> Result<Self> {
+        let connection_name = Self::socket_path(id);
         let socket = UnixStream::connect(connection_name)?;
         socket.set_read_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
         socket.set_write_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
@@ -32,6 +36,9 @@ impl Connection for Socket {
         &mut self.socket
     }
 }
+
+// TODO: Add function for connecting to known socket path type
+// Use struct with bits
 
 impl Drop for Socket {
     fn drop(&mut self) {

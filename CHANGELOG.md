@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+### Added
+
+- Added socket ids for uniquely identifying socket locations
+- Added `connect_with_id` for connecting to specific socket path
+- Support for Vencord rpc button formatting
+- Support for Vencord specific name overriding
+
+### Changed
+
+- `connect` function now by default checks all possible paths
+
 ## [1.6.0](https://github.com/jewlexx/discord-presence/releases/tag/v1.6.0)
 
 ### Added

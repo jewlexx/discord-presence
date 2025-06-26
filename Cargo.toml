@@ -12,6 +12,7 @@ version = "1.6.0"
 
 [features]
 activity_type = ["dep:serde_repr"]
+unstable_name = []
 
 [package.metadata.docs.rs]
 all-features = true
@@ -41,10 +42,16 @@ version = "1.0"
 
 [dependencies.uuid]
 features = ["v4"]
-version = "1.8"
+version = "1.17"
 
 [dev-dependencies]
 anyhow = "1.0"
 ctrlc = "3.4"
 tracing-subscriber = "0.3"
 version-sync = "0.9"
+
+[[example]]
+name = "blocking_vencord"
+path = "examples/blocking_vencord.rs"
+required-features = ["unstable_name", "activity_type"]
+

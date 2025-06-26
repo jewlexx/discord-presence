@@ -20,6 +20,7 @@ type Rx = Receiver<Message>;
 
 // TODO: Refactor connection manager
 #[derive(Clone)]
+/// The connection manager for the Discord client.
 pub struct Manager {
     connection: Arc<Option<Mutex<Socket>>>,
     client_id: u64,
@@ -54,6 +55,7 @@ impl Manager {
         }
     }
 
+    /// Start the connection manager
     pub fn start(&mut self, rx: Receiver<()>) -> std::thread::JoinHandle<()> {
         let mut manager_inner = self.clone();
         let error_sleep = self.error_sleep;
@@ -64,12 +66,14 @@ impl Manager {
         })
     }
 
+    /// Send a message to the Discord client.
     pub fn send(&self, message: Message) -> Result<()> {
         self.outbound.1.send(message)?;
 
         Ok(())
     }
 
+    /// Receive a message from the Discord client.
     pub fn recv(&self) -> Result<Message> {
         self.inbound.0.recv().map_err(DiscordError::from)
     }
@@ -151,7 +155,7 @@ fn send_and_receive_loop(
                             .handle(Event::Disconnected, EventData::None);
                     }
                     Err(DiscordError::TimeoutError(_)) => continue,
-                    Err(why) => trace!("discord error: {}", why),
+                    Err(why) => trace!("discord error: {why}"),
                     _ => {}
                 }
 
@@ -172,7 +176,7 @@ fn send_and_receive_loop(
                     if err.should_break() {
                         break;
                     }
-                    error!("Failed to connect: {:?}", err);
+                    error!("Failed to connect: {err:?}");
 
                     let mut attempts = connection_attempts.lock();
                     if let Some(ref mut attempts) = *attempts {
@@ -207,9 +211,9 @@ fn send_and_receive(
     let msg = connection.recv()?;
     trace!("Received from connection");
 
+    trace!("Received payload: {}", msg.payload);
     let payload: Payload<JsonValue> = serde_json::from_str(&msg.payload)?;
-
-    trace!("Received payload");
+    trace!("Parsed payload");
 
     if let Payload {
         evt: Some(event), ..

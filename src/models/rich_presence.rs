@@ -6,7 +6,6 @@ use serde::Deserializer;
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use super::events::PartialUser;
-use crate::utils;
 
 /// Args to set Discord activity
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -24,8 +23,8 @@ impl SetActivityArgs {
         F: FnOnce(Activity) -> Activity,
     {
         Self {
-            pid: utils::pid(),
             activity: Some(f(Activity::new())),
+            ..Default::default()
         }
     }
 }
@@ -33,7 +32,7 @@ impl SetActivityArgs {
 impl Default for SetActivityArgs {
     fn default() -> Self {
         Self {
-            pid: utils::pid(),
+            pid: std::process::id(),
             activity: None,
         }
     }
@@ -94,6 +93,7 @@ builder! {ActivityJoinRequestEvent
 }
 
 builder! {Activity
+    name: String => if feature = "unstable_name",
     state: String,
     details: String,
     instance: bool,
@@ -131,7 +131,7 @@ builder! {ActivitySecrets
 // pub type ActivityButtons = Vec<ActivityButton>;
 
 // A probably overcomplicated way to convert the array of strings returned by Discord, into buttons
-fn serialize_activity_button<'de, D>(data: D) -> Result<Vec<ActivityButton>, D::Error>
+fn deserialize_activity_button<'de, D>(data: D) -> Result<Vec<ActivityButton>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -144,19 +144,68 @@ where
         type Value = Vec<ActivityButton>;
 
         fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-            formatter.write_str("a string containing the label for the button")
+            formatter.write_str("a string containing the label for the button, or a json object with a label and url")
         }
 
         fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
         where
             A: de::SeqAccess<'de>,
         {
+            use serde_json::Value;
+
             let mut buttons = vec![];
 
-            while let Ok(Some(label)) = seq.next_element::<String>() {
-                let button = ActivityButton {
-                    label: Some(label.clone()),
-                    url: None,
+            while let Ok(Some(button)) = seq.next_element::<Value>() {
+                const EXPECTED: &str = "a string or an object with label and url";
+                let button = match button {
+                    Value::String(label) => {
+                        let label = label.trim().to_string();
+                        ActivityButton {
+                            label: Some(label),
+                            url: None,
+                        }
+                    }
+                    Value::Object(map) => serde_json::from_value(Value::Object(map))
+                        .map_err(|_| de::Error::invalid_value(de::Unexpected::Map, &EXPECTED))?,
+
+                    Value::Null => {
+                        return Err(de::Error::invalid_value(
+                            de::Unexpected::Other("null"),
+                            &EXPECTED,
+                        ));
+                    }
+                    Value::Bool(bool) => {
+                        return Err(de::Error::invalid_value(
+                            de::Unexpected::Bool(bool),
+                            &EXPECTED,
+                        ));
+                    }
+                    Value::Number(number) => {
+                        if let Some(number) = number.as_f64() {
+                            return Err(de::Error::invalid_value(
+                                de::Unexpected::Float(number),
+                                &EXPECTED,
+                            ));
+                        }
+                        if let Some(number) = number.as_i64() {
+                            return Err(de::Error::invalid_value(
+                                de::Unexpected::Signed(number),
+                                &EXPECTED,
+                            ));
+                        }
+
+                        if let Some(number) = number.as_u64() {
+                            return Err(de::Error::invalid_value(
+                                de::Unexpected::Unsigned(number),
+                                &EXPECTED,
+                            ));
+                        }
+
+                        unreachable!("Number type not expected here")
+                    }
+                    Value::Array(_) => {
+                        return Err(de::Error::invalid_value(de::Unexpected::Seq, &EXPECTED));
+                    }
                 };
 
                 buttons.push(button);
@@ -198,6 +247,7 @@ mod tests {
                     .small_text("Rusting...")
             })
             .append_buttons(|button| button.label("Click Me!"))
+            .append_buttons(|button| button.label("Click Me Too!").url("https://example.com"))
             .party(|p| p.id(String::from("party")).size((3, 6)))
             .secrets(|s| {
                 s.join("025ed05c71f639de8bfaa0d679d7c94b2fdce12f")
@@ -217,15 +267,27 @@ mod tests {
 }
 
 #[cfg(test)]
-#[cfg(feature = "activity_type")]
-mod activity_type_tests {
-    use super::*;
+mod feature_tests {
 
+    #[cfg(feature = "activity_type")]
     #[test]
     fn can_serialize_activity_type() {
+        use super::*;
+
         let activity = Activity::new()._type(ActivityType::Watching);
         let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
 
         assert_eq![json, r#"{"type":3}"#];
+    }
+
+    #[cfg(feature = "unstable_name")]
+    #[test]
+    fn can_serialize_activity_name() {
+        use super::*;
+
+        let activity = Activity::new().name("Rusting");
+        let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
+
+        assert_eq![json, r#"{"name":"Rusting"}"#];
     }
 }

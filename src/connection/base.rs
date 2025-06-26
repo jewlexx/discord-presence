@@ -1,17 +1,18 @@
-use crate::{
-    error::{DiscordError, Result},
-    models::message::{FrameHeader, Message, OpCode, MAX_RPC_FRAME_SIZE},
-    utils,
-};
-use bytes::BytesMut;
-use quork::prelude::ListVariants;
-use serde_json::json;
 use std::{
     io::{Read, Write},
     marker::Sized,
-    path::{Path, PathBuf},
+    path::PathBuf,
     thread,
     time::{self, Duration},
+};
+
+use bytes::BytesMut;
+use serde_json::json;
+
+use crate::{
+    connection::location::SocketId,
+    error::{DiscordError, Result},
+    models::message::{FrameHeader, Message, OpCode, MAX_RPC_FRAME_SIZE},
 };
 
 /// Wait for a non-blocking connection until it's complete.
@@ -24,47 +25,6 @@ fn try_until_done<T>(result: Result<T>) -> Result<T> {
         }
 
         thread::sleep(time::Duration::from_micros(500));
-    }
-}
-
-#[derive(Debug, Copy, Clone, ListVariants)]
-enum SocketLocation {
-    Root,
-    Flatpak,
-    Snap,
-    SnapCanary,
-}
-
-impl SocketLocation {
-    pub fn append_path(self, ipc_path: impl AsRef<Path>) -> PathBuf {
-        match self {
-            SocketLocation::Root => ipc_path.as_ref().to_owned(),
-            SocketLocation::Flatpak => ipc_path.as_ref().join("app").join("com.discordapp.Discord"),
-            SocketLocation::Snap => ipc_path.as_ref().join("snap.discord"),
-            SocketLocation::SnapCanary => ipc_path.as_ref().join("snap.discord-canary"),
-        }
-    }
-
-    pub fn test_paths(
-        ipc_path: impl AsRef<Path>,
-        socket_path: impl AsRef<Path>,
-    ) -> Option<PathBuf> {
-        if cfg!(windows) {
-            let path = Self::Root.append_path(ipc_path).join(socket_path);
-            return path.exists().then_some(path);
-        } else {
-            for location in Self::VARIANTS {
-                let path = location
-                    .append_path(ipc_path.as_ref())
-                    .join(socket_path.as_ref());
-
-                if path.exists() {
-                    return Some(path);
-                }
-            }
-        }
-
-        None
     }
 }
 
@@ -81,15 +41,19 @@ pub trait Connection: Sized {
     /// The base path were the socket is located.
     fn ipc_path() -> PathBuf;
 
-    /// Establish a new connection to the server.
-    fn connect() -> Result<Self>;
+    /// Establish a new connection to the server, without specifying a location.
+    fn connect() -> Result<Self> {
+        Self::connect_with_id(SocketId::blank())
+    }
+
+    fn connect_with_id(id: SocketId) -> Result<Self>;
 
     /// The full socket path.
-    fn socket_path(n: u8) -> PathBuf {
-        let socket_path = format!("discord-ipc-{n}");
-        let ipc_path = Self::ipc_path();
+    fn socket_path(id: SocketId) -> PathBuf {
+        let ipc_root = Self::ipc_path();
 
-        SocketLocation::test_paths(&ipc_path, &socket_path).unwrap_or(ipc_path.join(socket_path))
+        id.resolve_path(&ipc_root)
+            .unwrap_or_else(|| ipc_root.join(format!("discord-ipc-{}", id.get_number())))
     }
 
     /// Perform a handshake on this socket connection.
@@ -98,7 +62,7 @@ pub trait Connection: Sized {
         let hs = json![{
             "client_id": client_id.to_string(),
             "v": 1,
-            "nonce": utils::nonce()
+            "nonce": crate::nonce()
         }];
 
         let msg = Message::new(OpCode::Handshake, hs)?;
@@ -108,25 +72,17 @@ pub trait Connection: Sized {
         Ok(msg)
     }
 
-    /// Ping the server and get a pong response.
-    /// Will block until complete.
-    fn ping(&mut self) -> Result<OpCode> {
-        let message = Message::new(OpCode::Ping, json![{}])?;
-        try_until_done(self.send(&message))?;
-        let response = try_until_done(self.recv())?;
-        Ok(response.opcode)
-    }
-
     /// Send a message to the server.
     fn send(&mut self, message: &Message) -> Result<()> {
         match message.encode() {
-            Err(why) => error!("{:?}", why),
+            Err(why) => error!("{why:?}"),
             Ok(bytes) => {
                 assert!(bytes.len() <= MAX_RPC_FRAME_SIZE);
                 self.socket().write_all(&bytes)?;
             }
-        };
-        trace!("-> {:?}", message);
+        }
+
+        trace!("-> {message:?}");
         Ok(())
     }
 
@@ -156,7 +112,7 @@ pub trait Connection: Sized {
 
         trace!("Reading payload");
         let n = self.try_read(&mut message_buf)?;
-        trace!("Received {} bytes for payload", n);
+        trace!("Received {n} bytes for payload");
 
         if n == 0 {
             return Err(DiscordError::NoMessage);

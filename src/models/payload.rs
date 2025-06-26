@@ -1,5 +1,4 @@
 use super::{Command, Event, Message};
-use crate::utils;
 use serde::{de::DeserializeOwned, Serialize};
 
 /// The Discord client payload
@@ -39,7 +38,7 @@ where
             args,
             data,
             evt,
-            nonce: Some(utils::nonce()),
+            nonce: Some(crate::nonce()),
         }
     }
 }

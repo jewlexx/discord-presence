@@ -5,9 +5,12 @@ use std::{
     path::PathBuf,
 };
 
-use super::base::Connection;
-use crate::{DiscordError, Result};
+use crate::{
+    connection::{base::Connection, location::SocketId},
+    DiscordError, Result,
+};
 
+/// Socket connection for Windows systems.
 pub struct Socket {
     socket: File,
 }
@@ -15,8 +18,8 @@ pub struct Socket {
 impl Connection for Socket {
     type Socket = File;
 
-    fn connect() -> Result<Self> {
-        let path = Self::socket_path(0);
+    fn connect_with_id(id: SocketId) -> Result<Self> {
+        let path = Self::socket_path(id);
 
         let socket = OpenOptions::new().access_mode(0x3).open(&path)?;
 
