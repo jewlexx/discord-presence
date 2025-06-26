@@ -5,7 +5,10 @@ use std::{
     path::PathBuf,
 };
 
-use crate::{connection::base::Connection, DiscordError, Result};
+use crate::{
+    connection::{base::Connection, location::SocketId},
+    DiscordError, Result,
+};
 
 /// Socket connection for Windows systems.
 pub struct Socket {

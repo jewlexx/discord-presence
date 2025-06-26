@@ -148,23 +148,24 @@ impl SocketLocation {
 
     /// Find a valid location for the given IPC root and socket path.
     pub fn find_path(ipc_root: impl AsRef<Path>, socket_path: impl AsRef<Path>) -> Option<PathBuf> {
-        #[cfg(windows)]
-        {
-            let path = Self::Root.append_to_root(ipc_root).join(socket_path);
-            return path.exists().then_some(path);
-        }
+        cfg_if::cfg_if! {
+            if #[cfg(windows)] {
+                let path = Self::Root.append_to_root(ipc_root).join(socket_path);
+                path.exists().then_some(path)
+            } else {
+                for location in Self::VARIANTS {
+                    let path = location
+                        .append_to_root(ipc_root.as_ref())
+                        .join(socket_path.as_ref());
 
-        for location in Self::VARIANTS {
-            let path = location
-                .append_to_root(ipc_root.as_ref())
-                .join(socket_path.as_ref());
+                    if path.exists() {
+                        return Some(path);
+                    }
+                }
 
-            if path.exists() {
-                return Some(path);
+                None
             }
         }
-
-        None
     }
 }
 
