@@ -53,4 +53,5 @@ version-sync = "0.9"
 [[example]]
 name = "blocking_vencord"
 path = "examples/blocking_vencord.rs"
-required-features = ["unstable_name"]
+required-features = ["unstable_name", "activity_type"]
+

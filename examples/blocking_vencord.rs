@@ -2,10 +2,6 @@ use discord_presence::{models::ActivityType, Client, Event};
 
 mod helpers;
 
-#[cfg(not(all(feature = "activity_type", feature = "unstable_name")))]
-fn main() {}
-
-#[cfg(all(feature = "activity_type", feature = "unstable_name"))]
 fn main() -> anyhow::Result<()> {
     helpers::logging::init_logging();
 
