@@ -49,3 +49,8 @@ anyhow = "1.0"
 ctrlc = "3.4"
 tracing-subscriber = "0.3"
 version-sync = "0.9"
+
+[[example]]
+name = "blocking_vencord"
+path = "examples/blocking_vencord.rs"
+required-features = ["unstable_name"]

@@ -145,7 +145,7 @@ where
         type Value = Vec<ActivityButton>;
 
         fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-            formatter.write_str("a string containing the label for the button")
+            formatter.write_str("a string containing the label for the button, or a json object with a label and url")
         }
 
         fn visit_seq<A>(self, mut seq: A) -> Result<Self::Value, A::Error>
@@ -155,8 +155,8 @@ where
             let mut buttons = vec![];
 
             loop {
-                if let Ok(Some(buttion)) = seq.next_element::<ActivityButton>() {
-                    buttons.push(buttion);
+                if let Ok(Some(button)) = seq.next_element::<ActivityButton>() {
+                    buttons.push(button);
                 } else if let Ok(Some(label)) = seq.next_element::<String>() {
                     let button = ActivityButton {
                         label: Some(label.clone()),
