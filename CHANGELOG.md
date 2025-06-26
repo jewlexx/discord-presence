@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 - `connect` function now by default checks all possible paths
 
+### Breaking
+
+- Renamed `_type` function to `activity_type`
+- Removed `activity_type` feature
+
 ## [1.6.0](https://github.com/jewlexx/discord-presence/releases/tag/v1.6.0)
 
 ### Added
