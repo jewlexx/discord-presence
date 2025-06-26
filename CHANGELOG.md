@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+## [2.0.0](https://github.com/jewlexx/discord-presence/releases/tag/v2.0.0)
+
 ### Added
 
 - Added socket ids for uniquely identifying socket locations
