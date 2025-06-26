@@ -268,15 +268,24 @@ mod tests {
 }
 
 #[cfg(test)]
-#[cfg(feature = "activity_type")]
-mod activity_type_tests {
+mod feature_tests {
     use super::*;
 
+    #[cfg(feature = "activity_type")]
     #[test]
     fn can_serialize_activity_type() {
         let activity = Activity::new()._type(ActivityType::Watching);
         let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
 
         assert_eq![json, r#"{"type":3}"#];
+    }
+
+    #[cfg(feature = "unstable_name")]
+    #[test]
+    fn can_serialize_activity_name() {
+        let activity = Activity::new().name("Rusting");
+        let json = serde_json::to_string(&activity).expect("Failed to serialize into String");
+
+        assert_eq![json, r#"{"name":"Rusting"}"#];
     }
 }
