@@ -4,8 +4,10 @@ use serde::Deserializer;
 
 use super::events::PartialUser;
 pub use activity_type::ActivityType;
+pub use display_type::DisplayType;
 
 mod activity_type;
+mod display_type;
 
 /// Args to set Discord activity
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
@@ -75,6 +77,7 @@ builder! {Activity
     state: String,
     details: String,
     instance: bool,
+    status_display: DisplayType alias = "status_display_type",
     activity_type: ActivityType alias = "type",
     timestamps: ActivityTimestamps func,
     assets: ActivityAssets func,
