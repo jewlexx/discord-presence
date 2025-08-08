@@ -33,7 +33,7 @@ fn main() {
                 .small_text("rusting...")
         })
     }) {
-        println!("Failed to set presence: {}", why);
+        println!("Failed to set presence: {why}");
     }
 
     drpc.block_on().unwrap();
