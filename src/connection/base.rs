@@ -3,7 +3,7 @@ use std::{
     marker::Sized,
     path::PathBuf,
     thread,
-    time::{self, Duration},
+    time::Duration,
 };
 
 use bytes::BytesMut;
@@ -16,15 +16,18 @@ use crate::{
 };
 
 /// Wait for a non-blocking connection until it's complete.
-fn try_until_done<T>(result: Result<T>) -> Result<T> {
+fn try_until_done<T, F>(mut operation: F) -> Result<T>
+where
+    F: FnMut() -> Result<T>,
+{
     loop {
-        match result {
+        match operation() {
             Ok(v) => return Ok(v),
             Err(why) if !why.io_would_block() => return Err(why),
             _ => {}
         }
 
-        thread::sleep(time::Duration::from_micros(500));
+        thread::sleep(Duration::from_micros(500));
     }
 }
 
@@ -66,8 +69,10 @@ pub trait Connection: Sized {
         }];
 
         let msg = Message::new(OpCode::Handshake, hs)?;
-        try_until_done(self.send(&msg))?;
-        let msg = try_until_done(self.recv())?;
+
+        try_until_done(|| self.send(&msg))?;
+
+        let msg = try_until_done(|| self.recv())?;
 
         Ok(msg)
     }
