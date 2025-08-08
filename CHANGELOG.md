@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+### Fixed
+
+- RPC on Windows not retrying when I/O would block
+
 ## [2.0.0](https://github.com/jewlexx/discord-presence/releases/tag/v2.0.0)
 
 ### Added
