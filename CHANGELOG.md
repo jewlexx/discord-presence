@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+### Added
+
+- Option to change display type in line with [Discord's changelog](https://discord.com/developers/docs/change-log#clickable-links-and-customizable-statuses-in-rich-presence)
+
 ### Fixed
 
 - RPC on Windows not retrying when I/O would block

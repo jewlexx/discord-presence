@@ -1,4 +1,7 @@
-use discord_presence::{models::ActivityType, Client, Event};
+use discord_presence::{
+    models::{ActivityType, DisplayType},
+    Client, Event,
+};
 
 mod helpers;
 
@@ -46,8 +49,9 @@ fn main() -> anyhow::Result<()> {
     // Set the activity
     drpc.set_activity(|act| {
         act.state("rusting frfr")
-            .activity_type(ActivityType::Listening)
             .name("banger tunes")
+            .activity_type(ActivityType::Listening)
+            .status_display(DisplayType::State)
             .append_buttons(|button| button.label("Click Me!").url("https://google.com/"))
     })?;
 
