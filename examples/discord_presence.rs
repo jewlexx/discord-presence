@@ -27,7 +27,7 @@ fn main() {
 
         if buf.is_empty() {
             if let Err(why) = drpc.clear_activity() {
-                println!("Failed to clear presence: {}", why);
+                println!("Failed to clear presence: {why}");
             }
         } else if let Err(why) = drpc.set_activity(|a| {
             a.state("Running examples")
@@ -39,7 +39,7 @@ fn main() {
                 })
                 .append_buttons(|button| button.label("Click Me!").url("https://google.com/"))
         }) {
-            println!("Failed to set presence: {}", why);
+            println!("Failed to set presence: {why}");
         }
     }
     // drpc.block_on().unwrap();
