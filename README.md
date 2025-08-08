@@ -14,7 +14,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-discord-presence = "2.0"
+discord-presence = "2.1"
 ```
 
 or run:
