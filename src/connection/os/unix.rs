@@ -16,6 +16,7 @@ impl Connection for Socket {
     fn connect_with_id(id: SocketId) -> Result<Self> {
         let connection_name = Self::socket_path(id);
         let socket = UnixStream::connect(connection_name)?;
+        socket.set_nonblocking(true)?;
         socket.set_read_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
         socket.set_write_timeout(Some(Self::READ_WRITE_TIMEOUT))?;
         Ok(Self { socket })
