@@ -14,7 +14,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-discord-presence = "2.1"
+discord-presence = "3.0"
 ```
 
 or run:
@@ -64,6 +64,8 @@ fn main() {
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md)
+
+This project follows [Epoch Semver](https://antfu.me/posts/epoch-semver).
 
 ## Contributions
 

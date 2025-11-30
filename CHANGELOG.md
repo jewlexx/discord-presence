@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/main)
 
+## [3.0.0](https://github.com/jewlexx/discord-presence/releases/tag/v3.0.0)
+
+### Changed
+
+- Updated MSRV to 1.82
+
 ## [2.1.1](https://github.com/jewlexx/discord-presence/releases/tag/v2.1.1)
 
 ### Fixed
