@@ -65,6 +65,8 @@ fn main() {
 
 See [CHANGELOG.md](CHANGELOG.md)
 
+This project follows [Epoch Semver](https://antfu.me/posts/epoch-semver).
+
 ## Contributions
 
 See [CONTRIBUTING.md](/CONTRIBUTING.md)
