@@ -8,7 +8,7 @@ name = "discord-presence"
 readme = "README.md"
 repository = "https://github.com/jewlexx/discord-presence.git"
 rust-version = "1.82.0"
-version = "3.0.0"
+version = "3.1.0"
 
 [features]
 unstable_name = []
@@ -35,8 +35,8 @@ serde_json = "1.0"
 thiserror = "2.0"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
-version = "0.61.2"
 features = ["Win32_Foundation", "Win32_System_Pipes"]
+version = "0.61.2"
 
 [dependencies.serde]
 features = ["derive"]

@@ -1,5 +1,4 @@
 use std::{
-    ffi::c_void,
     fs::{File, OpenOptions},
     io::{self, Read},
     os::windows::{fs::OpenOptionsExt, io::AsRawHandle},
@@ -46,11 +45,11 @@ impl Connection for Socket {
         let mut bytes_available: u32 = 0;
         let ok = unsafe {
             PeekNamedPipe(
-                self.socket().as_raw_handle() as *mut c_void,
+                self.socket().as_raw_handle(),
                 ptr::null_mut(),
                 0,
                 ptr::null_mut(),
-                &mut bytes_available,
+                &raw mut bytes_available,
                 ptr::null_mut(),
             )
         } != 0;
@@ -62,11 +61,12 @@ impl Connection for Socket {
             // if the pipe is broken, treat it as EOF
             if err == ERROR_BROKEN_PIPE {
                 return Ok(0);
-            } else {
-                return Err(DiscordError::IoError(io::Error::from_raw_os_error(
-                    err as i32,
-                )));
             }
+
+            #[allow(clippy::cast_possible_wrap)]
+            return Err(DiscordError::IoError(io::Error::from_raw_os_error(
+                err as i32,
+            )));
         }
 
         if bytes_available == 0 {
