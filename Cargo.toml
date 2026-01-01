@@ -36,7 +36,7 @@ thiserror = "2.0"
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 features = ["Win32_Foundation", "Win32_System_Pipes"]
-version = "0.61.2"
+version = "0.61"
 
 [dependencies.serde]
 features = ["derive"]
