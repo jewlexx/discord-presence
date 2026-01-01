@@ -44,7 +44,7 @@ version = "1.0"
 
 [dependencies.uuid]
 features = ["v4"]
-version = "1.17"
+version = "1.19"
 
 [dev-dependencies]
 anyhow = "1.0"
