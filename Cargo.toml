@@ -34,9 +34,9 @@ quork = { version = "0.9", default-features = false, features = [
 serde_json = "1.0"
 thiserror = "2.0"
 
-[target.'cfg(windows)'.dependencies.winapi]
-features = ["namedpipeapi", "errhandlingapi", "winerror"]
-version = "0.3.9"
+[target.'cfg(windows)'.dependencies.windows-sys]
+version = "0.61.2"
+features = ["Win32_Foundation", "Win32_System_Pipes"]
 
 [dependencies.serde]
 features = ["derive"]
