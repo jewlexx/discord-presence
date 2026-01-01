@@ -1,13 +1,15 @@
 use std::{
     fs::{File, OpenOptions},
-    io::{ErrorKind, Read},
-    os::windows::fs::OpenOptionsExt,
+    io::{self, Read},
+    os::windows::{fs::OpenOptionsExt, io::AsRawHandle},
     path::PathBuf,
+    ptr,
 };
 
+use winapi::{ctypes::c_void, shared::{minwindef::DWORD, winerror::ERROR_BROKEN_PIPE}, um::{errhandlingapi::GetLastError, namedpipeapi::PeekNamedPipe}};
+
 use crate::{
-    connection::{base::Connection, location::SocketId},
-    DiscordError, Result,
+    DiscordError, Result, connection::{base::Connection, location::SocketId}
 };
 
 /// Socket connection for Windows systems.
@@ -35,11 +37,33 @@ impl Connection for Socket {
     }
 
     fn try_read(&mut self, buf: &mut [u8]) -> Result<usize> {
-        if self.socket().metadata()?.len() == 0 {
-            return Err(DiscordError::IoError(std::io::Error::new(
-                ErrorKind::WouldBlock,
-                "No data available",
-            )));
+        // peek the pipe to see if there is data available
+        let mut bytes_available: DWORD = 0;
+        let ok = unsafe {
+            PeekNamedPipe(
+                self.socket().as_raw_handle() as *mut c_void,
+                ptr::null_mut(),
+                0,
+                ptr::null_mut(),
+                &mut bytes_available,
+                ptr::null_mut(),
+            )
+        } != 0;
+
+        // an error occurred while peeking the pipe
+        if !ok {
+            let err = unsafe { GetLastError() };
+
+            // if the pipe is broken, treat it as EOF
+            if err == ERROR_BROKEN_PIPE {
+                return Ok(0);
+            } else {
+                return Err(DiscordError::IoError(io::Error::from_raw_os_error(err as i32)));
+            }
+        }
+
+        if bytes_available == 0{
+            return Err(DiscordError::IoError(io::Error::new(io::ErrorKind::WouldBlock, "No data available")));
         }
 
         Ok(self.socket().read(buf)?)
