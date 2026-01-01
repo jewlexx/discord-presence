@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
 
 - Detect broken windows pipes by @isitreallyalive
+  - Added `windows-sys` crate
+- Updated `uuid` crate to latest version
 
 ## [3.0.0](https://github.com/jewlexx/discord-presence/releases/tag/v3.0.0)
 
