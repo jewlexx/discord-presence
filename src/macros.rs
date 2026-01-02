@@ -53,7 +53,7 @@ macro_rules! builder_array_doc {
 
 macro_rules! builder_array {
     [ $name:ident, $type:tt array ] => {
-        paste::paste! {
+        pastey::paste! {
             #[doc = builder_array_doc!($type)]
             #[must_use]
             pub fn [<append_ $name>]<F>(mut self, func: F) -> Self
