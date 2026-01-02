@@ -37,6 +37,8 @@ pub mod error;
 pub mod event_handler;
 /// Models for discord activity
 pub mod models;
+/// Rate limiting functionality
+mod rate_limiter;
 
 pub(crate) fn nonce() -> String {
     uuid::Uuid::new_v4().to_string()

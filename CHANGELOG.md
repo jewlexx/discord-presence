@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased](https://github.com/jewlexx/discord-presence/tree/trunk)
 
+- Added rate limiter under `rate_limiter` feature flag.
+  - New method `queue_activity` to queue new activities.
+  - `set_activity` does not respect rate limits and will always send immediately.
+
 ## [3.1.0](https://github.com/jewlexx/discord-presence/releases/tag/v3.1.0)
 
 ### Changed

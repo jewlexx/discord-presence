@@ -1,9 +1,10 @@
 use super::{Connection, Socket};
-use crate::models::EventData;
+use crate::models::{rich_presence::SetActivityArgs, Command, OpCode};
 use crate::{
     error::{DiscordError, Result},
     event_handler::HandlerRegistry,
-    models::{payload::Payload, ErrorEvent, Event, Message},
+    models::{payload::Payload, ErrorEvent, Event, EventData, Message},
+    rate_limiter::{RateLimiter},
 };
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
@@ -30,6 +31,7 @@ pub struct Manager {
     event_handler_registry: Arc<HandlerRegistry>,
     error_sleep: Duration,
     connection_attempts: Arc<Mutex<Option<usize>>>,
+    pub(crate) rate_limiter: RateLimiter,
 }
 
 impl Manager {
@@ -52,17 +54,26 @@ impl Manager {
             event_handler_registry,
             error_sleep,
             connection_attempts: Arc::new(Mutex::new(connection_attempts)),
+            rate_limiter: RateLimiter::default(),
         }
     }
 
     /// Start the connection manager
-    pub fn start(&mut self, rx: Receiver<()>) -> std::thread::JoinHandle<()> {
+    pub fn start(&mut self, rx: Receiver<()>) -> thread::JoinHandle<()> {
         let mut manager_inner = self.clone();
         let error_sleep = self.error_sleep;
         let connection_attempts = self.connection_attempts.clone();
+        let rate_limiter = self.rate_limiter.clone();
+
         thread::spawn(move || {
             // TODO: Refactor so that JSON values are consistent across errors
-            send_and_receive_loop(&mut manager_inner, &rx, error_sleep, &connection_attempts);
+            send_and_receive_loop(
+                &mut manager_inner,
+                &rx,
+                error_sleep,
+                &connection_attempts,
+                &rate_limiter,
+            );
         })
     }
 
@@ -121,11 +132,13 @@ impl Manager {
     }
 }
 
+#[allow(clippy::trivially_copy_pass_by_ref)]
 fn send_and_receive_loop(
     manager: &mut Manager,
     rx: &Receiver<()>,
     err_sleep: Duration,
     connection_attempts: &Arc<Mutex<Option<usize>>>,
+    rate_limiter: &RateLimiter,
 ) {
     trace!("Starting sender loop");
 
@@ -141,6 +154,31 @@ fn send_and_receive_loop(
 
         match *connection {
             Some(ref conn) => {
+                // check if there's a queued activity that can be sent
+                if rate_limiter.can_send() && rate_limiter.try_claim_send() {
+                    if let Some(args) = rate_limiter.take_queued() {
+                        trace!("Sending queued activity");
+                        let message = Message::new(
+                            OpCode::Frame,
+                            Payload::<SetActivityArgs>::with_nonce(
+                                Command::SetActivity,
+                                Some(args),
+                                None,
+                                None,
+                            ),
+                        );
+
+                        if let Ok(msg) = message {
+                            if conn.lock().send(&msg).is_ok() {
+                                rate_limiter.mark_sent();
+                                trace!("Queued activity sent successfully");
+                            }
+                        }
+                    }
+
+                    rate_limiter.release_send();
+                }
+
                 match send_and_receive(
                     &mut conn.lock(),
                     &manager.event_handler_registry,
