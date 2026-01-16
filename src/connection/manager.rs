@@ -4,7 +4,7 @@ use crate::{
     error::{DiscordError, Result},
     event_handler::HandlerRegistry,
     models::{payload::Payload, ErrorEvent, Event, EventData, Message},
-    rate_limiter::{RateLimiter},
+    rate_limiter::RateLimiter,
 };
 use crossbeam_channel::{unbounded, Receiver, Sender};
 use parking_lot::Mutex;
@@ -155,30 +155,32 @@ fn send_and_receive_loop(
         match *connection {
             Some(ref conn) => {
                 // check if there's a queued activity that can be sent
-                if rate_limiter.can_send() && rate_limiter.try_claim_send() {
-                    if let Some(args) = rate_limiter.take_queued() {
-                        trace!("Sending queued activity");
-                        let message = Message::new(
-                            OpCode::Frame,
-                            Payload::<SetActivityArgs>::with_nonce(
-                                Command::SetActivity,
-                                Some(args),
-                                None,
-                                None,
-                            ),
-                        );
+                if let Some(args) = rate_limiter.peek_queued() {
+                    trace!("Sending queued activity");
+                    let message = Message::new(
+                        OpCode::Frame,
+                        Payload::<SetActivityArgs>::with_nonce(
+                            Command::SetActivity,
+                            Some(args),
+                            None,
+                            None,
+                        ),
+                    );
 
-                        if let Ok(msg) = message {
-                            if conn.lock().send(&msg).is_ok() {
-                                rate_limiter.mark_sent();
-                                trace!("Queued activity sent successfully");
-                            }
+                    if let Ok(msg) = message {
+                        if conn.lock().send(&msg).is_ok() {
+                            rate_limiter.mark_sent();
+                            trace!("Queued activity sent successfully");
+                        } else {
+                            rate_limiter.release_send();
+                            trace!("Failed to send queued activity, will retry later");
                         }
+                    } else {
+                        rate_limiter.drop_queued();
+                        trace!("Failed to create message for queued activity, dropping it");
                     }
-
-                    rate_limiter.release_send();
                 }
-
+                
                 match send_and_receive(
                     &mut conn.lock(),
                     &manager.event_handler_registry,

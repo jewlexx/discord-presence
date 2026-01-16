@@ -245,7 +245,6 @@ impl Client {
         // if the activity update was successful, mark it as sent in the rate limiter
         if result.is_ok() {
             self.connection_manager.rate_limiter.mark_sent();
-            self.connection_manager.rate_limiter.take_queued();
         }
 
         result
@@ -262,7 +261,7 @@ impl Client {
     {
         self.connection_manager
             .rate_limiter
-            .queue_activity(SetActivityArgs::new(f));
+            .queue(SetActivityArgs::new(f));
     }
 
     // NOTE: Not sure what the actual response values of
