@@ -47,8 +47,12 @@ impl RateLimiter {
             .is_none_or(|t| t.elapsed() >= Self::RATE_LIMIT);
 
         if can_send && !state.is_sending {
-            state.is_sending = true;
-            state.queued.clone()
+            if let Some(args) = state.queued.clone() {
+                state.is_sending = true;
+                Some(args)
+            } else {
+                None
+            }
         } else {
             None
         }
@@ -58,5 +62,6 @@ impl RateLimiter {
     pub(crate) fn drop_queued(&self) {
         let mut state = self.0.lock();
         state.queued = None;
+        state.is_sending = false;
     }
 }
