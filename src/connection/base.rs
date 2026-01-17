@@ -36,6 +36,7 @@ pub trait Connection: Sized {
 
     /// Time for socket read/write operations
     /// 1 second higher than Discord's rate limit timeout of 15 seconds
+    #[cfg(unix)]
     const READ_WRITE_TIMEOUT: Duration = Duration::from_secs(16);
 
     /// The internally stored socket connection.

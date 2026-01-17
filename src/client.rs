@@ -109,6 +109,7 @@ impl Client {
         attempts: Option<usize>,
     ) -> Self {
         let event_handler_registry = Arc::new(HandlerRegistry::new());
+
         let connection_manager = ConnectionManager::new(
             client_id,
             event_handler_registry.clone(),
@@ -217,7 +218,7 @@ impl Client {
         }
     }
 
-    /// Set the users current activity
+    /// Set the users current activity immediately
     ///
     /// # Errors
     /// - See [`DiscordError`] for more info
@@ -225,7 +226,8 @@ impl Client {
     where
         F: FnOnce(Activity) -> Activity,
     {
-        self.execute(Command::SetActivity, SetActivityArgs::new(f), None)
+        let args = SetActivityArgs::new(f);
+        self.update_activity(args)
     }
 
     /// Clear the users current activity
@@ -233,7 +235,33 @@ impl Client {
     /// # Errors
     /// - See [`DiscordError`] for more info
     pub fn clear_activity(&mut self) -> Result<Payload<Activity>> {
-        self.execute(Command::SetActivity, SetActivityArgs::default(), None)
+        self.update_activity(SetActivityArgs::default())
+    }
+
+    /// Update the current user's activity immediately
+    fn update_activity(&mut self, args: SetActivityArgs) -> Result<Payload<Activity>> {
+        let result = self.execute(Command::SetActivity, args, None);
+
+        // if the activity update was successful, mark it as sent in the rate limiter
+        if result.is_ok() {
+            self.connection_manager.rate_limiter.mark_sent();
+        }
+
+        result
+    }
+
+    /// Queue an activity update to be sent at the next rate limit interval.
+    ///
+    /// Unlike [`Client::set_activity`], this doesn't send the activity immediately.
+    /// Instead, it queues the update to be sent when the rate limiter allows.
+    /// If multiple activities are queued, only the most recent one will be sent.
+    pub fn queue_activity<F>(&mut self, f: F)
+    where
+        F: FnOnce(Activity) -> Activity,
+    {
+        self.connection_manager
+            .rate_limiter
+            .queue(SetActivityArgs::new(f));
     }
 
     // NOTE: Not sure what the actual response values of

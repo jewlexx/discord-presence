@@ -10,7 +10,7 @@ mod activity_type;
 mod display_type;
 
 /// Args to set Discord activity
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
 pub struct SetActivityArgs {
     pid: u32,
 
