@@ -1,9 +1,11 @@
 use super::{Connection, Socket};
-use crate::models::{rich_presence::SetActivityArgs, Command, OpCode};
 use crate::{
     error::{DiscordError, Result},
     event_handler::HandlerRegistry,
-    models::{payload::Payload, ErrorEvent, Event, EventData, Message},
+    models::{
+        payload::Payload, rich_presence::SetActivityArgs, Command, ErrorEvent, Event, EventData,
+        Message, OpCode,
+    },
     rate_limiter::RateLimiter,
 };
 use crossbeam_channel::{unbounded, Receiver, Sender};
@@ -132,7 +134,6 @@ impl Manager {
     }
 }
 
-#[allow(clippy::trivially_copy_pass_by_ref)]
 fn send_and_receive_loop(
     manager: &mut Manager,
     rx: &Receiver<()>,
@@ -173,14 +174,14 @@ fn send_and_receive_loop(
                             trace!("Queued activity sent successfully");
                         } else {
                             rate_limiter.release_send();
-                            trace!("Failed to send queued activity, will retry later");
+                            error!("Failed to send queued activity, will retry later...");
                         }
                     } else {
                         rate_limiter.drop_queued();
-                        trace!("Failed to create message for queued activity, dropping it");
+                        error!("Failed to create message for queued activity, ignoring...");
                     }
                 }
-                
+
                 match send_and_receive(
                     &mut conn.lock(),
                     &manager.event_handler_registry,
