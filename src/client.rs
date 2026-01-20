@@ -432,6 +432,15 @@ mod tests {
     use super::*;
 
     #[test]
+    // this function is a no-op and just explains what the code does
+    fn test_client_send_sync() {
+        #[allow(dead_code)]
+        trait SendSyncReq: Send + Sync {}
+
+        impl SendSyncReq for Client {}
+    }
+
+    #[test]
     fn test_is_ready() {
         assert!(!Client::is_ready());
 
