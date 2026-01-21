@@ -92,4 +92,4 @@ impl DiscordError {
 }
 
 /// Result type for Discord RPC error types
-pub type Result<T> = StdResult<T, DiscordError>;
+pub type Result<T, E = DiscordError> = StdResult<T, E>;
