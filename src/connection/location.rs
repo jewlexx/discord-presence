@@ -2,7 +2,6 @@
 
 use std::path::{Path, PathBuf};
 
-use num_traits::FromPrimitive;
 use quork::prelude::ListVariants;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -121,7 +120,7 @@ impl SocketId {
     }
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, num_derive::FromPrimitive, ListVariants)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, ListVariants)]
 #[repr(u8)]
 /// Represents the location of a Discord IPC socket.
 pub enum SocketLocation {
@@ -136,6 +135,22 @@ pub enum SocketLocation {
 }
 
 impl SocketLocation {
+    #[must_use]
+    /// Convert a [`u8`] number into its [`SocketLocation`]
+    ///
+    /// See [`SocketLocation`] for more info
+    pub fn from_u8(number: u8) -> Option<Self> {
+        use SocketLocation::{Flatpak, Root, Snap, SnapCanary};
+
+        match number {
+            number if number == Root as u8 => Some(Root),
+            number if number == Flatpak as u8 => Some(Flatpak),
+            number if number == Snap as u8 => Some(Snap),
+            number if number == SnapCanary as u8 => Some(SnapCanary),
+            _ => None,
+        }
+    }
+
     /// Append the socket location to the given IPC root path.
     pub fn append_to_root(self, ipc_root: impl AsRef<Path>) -> PathBuf {
         match self {

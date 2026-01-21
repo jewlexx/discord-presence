@@ -1,7 +1,5 @@
 use crate::{DiscordError, Result};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
-use num_derive::FromPrimitive;
-use num_traits::FromPrimitive;
 use serde::Serialize;
 use std::io::{Read, Write};
 
@@ -10,7 +8,7 @@ pub(crate) const MAX_RPC_MESSAGE_SIZE: usize =
     MAX_RPC_FRAME_SIZE - std::mem::size_of::<FrameHeader>();
 
 /// Codes for payload types
-#[derive(Debug, Copy, Clone, PartialEq, Eq, FromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[repr(u32)]
 pub enum OpCode {
     /// Handshake payload
@@ -23,6 +21,25 @@ pub enum OpCode {
     Ping = 3,
     /// Pong payload
     Pong = 4,
+}
+
+impl OpCode {
+    #[must_use]
+    /// Convert a u32 number into its [`OpCode`]
+    ///
+    /// See [`OpCode`] for more info
+    pub fn from_u32(number: u32) -> Option<Self> {
+        use OpCode::{Close, Frame, Handshake, Ping, Pong};
+
+        match number {
+            0 => Some(Handshake),
+            1 => Some(Frame),
+            2 => Some(Close),
+            3 => Some(Ping),
+            4 => Some(Pong),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]

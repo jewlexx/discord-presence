@@ -23,8 +23,6 @@ bytes = "1.6"
 cfg-if = "1.0"
 crossbeam-channel = "0.5"
 log = "0.4"
-num-derive = "0.4"
-num-traits = "0.2"
 parking_lot = "0.12"
 paste = "1.0"
 quork = { version = "0.9", default-features = false, features = [
